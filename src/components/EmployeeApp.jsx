@@ -80,23 +80,24 @@ const EmployeeApp = () => {
   const closeShiftInDb = async (c1, c2, imageUrl) => {
     let myEarned = 0;
     let myTotalItems = 0;
+    const myBase = employee.name === 'Tamerlan' ? 1500 : 3000;
 
     if (partnerId) {
       const partner = employeesList.find(emp => emp.id === partnerId);
       myTotalItems = (c1 + c2) / 2;
-      myEarned = 1500 + (c1 / 2 * 1500) + (c2 / 2 * 1500);
+      myEarned = myBase + (c1 / 2 * 1500) + (c2 / 2 * 1500);
       
       await addDoc(collection(db, 'sales'), {
         employeeId: partner.id, employeeName: partner.name,
         dateStr: currentShift.dateStr,
         endTime: serverTimestamp(), photoUrl: imageUrl,
         items: { cocktail1: c1 / 2, cocktail2: c2 / 2 },
-        totalItems: myTotalItems, earned: 3000 + (c1 / 2 * 1500) + (c2 / 2 * 1500),
+        totalItems: myTotalItems, earned: 1500 + (c1 / 2 * 1500) + (c2 / 2 * 1500),
         status: 'closed'
       });
     } else {
       myTotalItems = c1 + c2;
-      myEarned = 3000 + (c1 * 1500) + (c2 * 1500);
+      myEarned = myBase + (c1 * 1500) + (c2 * 1500);
     }
 
     await updateDoc(doc(db, 'sales', currentShift.id), {
