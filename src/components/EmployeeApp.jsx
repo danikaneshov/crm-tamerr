@@ -185,10 +185,11 @@ const EmployeeApp = () => {
       const cloudRes = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
       const cloudData = await cloudRes.json();
       if (!cloudRes.ok) {
+        console.error("ОШИБКА CLOUDINARY:", cloudData);
         if (cloudData?.error?.message?.includes('ERR_LIBHEIF')) {
           throw new Error('Cloudinary не поддерживает этот HEIC формат. Пожалуйста, сделайте скриншот чека и загрузите его.');
         }
-        throw new Error(cloudData?.error?.message || 'Не удалось загрузить фото чека на сервер');
+        throw new Error(`Ошибка Cloudinary: ${cloudData?.error?.message || JSON.stringify(cloudData)}`);
       }
       uploadedImageUrl = cloudData.secure_url;
 
@@ -197,7 +198,11 @@ const EmployeeApp = () => {
         body: JSON.stringify({ imageUrl: uploadedImageUrl }),
       });
       
-      if (!aiRes.ok) throw new Error('Сервер временно недоступен');
+      if (!aiRes.ok) {
+        const errorText = await aiRes.text();
+        console.error("ОШИБКА AI СЕРВЕРА:", errorText);
+        throw new Error(`Сервер временно недоступен: ${errorText}`);
+      }
       const aiData = await aiRes.json();
       
       if (aiData.cocktail1 === undefined && aiData.cocktail2 === undefined) {
@@ -208,6 +213,7 @@ const EmployeeApp = () => {
       setModal({ isOpen: true, type: 'success', title: 'Успех!', message: 'Смена закрыта. Отчет отправлен.' });
       
     } catch (error) { 
+      console.error("ГЛОБАЛЬНАЯ ОШИБКА ЗАГРУЗКИ ФОТО:", error);
       // Вместо браузерного Alert открываем нашу кастомную модалку
       setModal({ 
         isOpen: true, 
