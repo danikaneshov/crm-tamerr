@@ -3,6 +3,7 @@ import { collection, query, where, getDocs, addDoc, updateDoc, doc, serverTimest
 import { db } from '../firebase';
 import { LogOut, Camera, Loader2, CheckCircle2, UserPlus, PlayCircle, AlertCircle, XCircle } from 'lucide-react';
 import heic2any from 'heic2any';
+import imageCompression from 'browser-image-compression';
 
 const CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/dl5vgfkvr/image/upload';
 const UPLOAD_PRESET = 'ml_default';
@@ -129,6 +130,7 @@ const EmployeeApp = () => {
     let uploadedImageUrl = 'no-photo';
     
     try {
+      // 1. Конвертация HEIC в JPG (если iOS не сделал это сам)
       if (file.type === 'image/heic' || file.type === 'image/heif' || file.name.toLowerCase().endsWith('.heic')) {
         try {
           let convertedBlob = await heic2any({ blob: file, toType: 'image/jpeg' });
@@ -137,10 +139,24 @@ const EmployeeApp = () => {
           }
           file = new File([convertedBlob], file.name.replace(/\.heic$/i, '.jpg'), { type: 'image/jpeg' });
         } catch (heicError) {
-          console.error("Ошибка при конвертации HEIC:", heicError);
-          // Если конвертация не удалась, продолжаем со старым файлом,
-          // Cloudinary может попытаться обработать его самостоятельно.
+          console.error("Ошибка heic2any:", heicError);
+          throw new Error('Ваш телефон передал фото в формате HEIC, и его не удалось переконвертировать. Пожалуйста, сделайте СКРИНШОТ этого фото в галерее и загрузите скриншот.');
         }
+      }
+
+      // 2. Сжатие изображения для ускорения загрузки и избежания лимитов
+      try {
+        const options = {
+          maxSizeMB: 2,
+          maxWidthOrHeight: 1920,
+          useWebWorker: true,
+          fileType: 'image/jpeg'
+        };
+        const compressedFile = await imageCompression(file, options);
+        file = compressedFile;
+      } catch (compressError) {
+        console.error("Ошибка сжатия:", compressError);
+        // Если сжатие не удалось, продолжаем с оригинальным (уже jpg) файлом
       }
 
       const formData = new FormData();
@@ -149,7 +165,12 @@ const EmployeeApp = () => {
 
       const cloudRes = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
       const cloudData = await cloudRes.json();
-      if (!cloudRes.ok) throw new Error('Не удалось загрузить фото чека');
+      if (!cloudRes.ok) {
+        if (cloudData?.error?.message?.includes('ERR_LIBHEIF')) {
+          throw new Error('Cloudinary не поддерживает этот HEIC формат. Пожалуйста, сделайте скриншот чека и загрузите его.');
+        }
+        throw new Error(cloudData?.error?.message || 'Не удалось загрузить фото чека на сервер');
+      }
       uploadedImageUrl = cloudData.secure_url;
 
       const aiRes = await fetch('/api/analyze', {
@@ -302,7 +323,7 @@ const EmployeeApp = () => {
             </div>
 
             <div className="mt-auto">
-              <input type="file" accept="image/*" ref={fileInputRef} onChange={handleFileUpload} className="hidden" />
+              <input type="file" accept="image/jpeg, image/jpg, image/png" ref={fileInputRef} onChange={handleFileUpload} className="hidden" />
               <button onClick={() => fileInputRef.current.click()} disabled={isUploading} className="w-full py-5 rounded-3xl font-bold shadow-lg transition-all flex items-center justify-center gap-3 bg-gray-900 text-white active:scale-95 disabled:bg-gray-400">
                 {isUploading ? <><Loader2 className="animate-spin"/> Считаем...</> : <><Camera/> ЗАКРЫТЬ СМЕНУ И ОТПРАВИТЬ ЧЕК</>}
               </button>
