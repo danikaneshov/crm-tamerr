@@ -83,17 +83,30 @@ const EmployeeApp = () => {
     let myTotalItems = 0;
     const myBase = employee.name.trim().toLowerCase() === 'tamerlan' ? 1500 : 3000;
 
+    let ownerC1 = c1, ownerC2 = c2;
+    let partnerC1 = 0, partnerC2 = 0;
+
     if (partnerId) {
       const partner = employeesList.find(emp => emp.id === partnerId);
-      myTotalItems = (c1 + c2) / 2;
-      myEarned = myBase + (c1 / 2 * 1500) + (c2 / 2 * 1500);
+      
+      // Владельцу смены - большую часть (Math.ceil), напарнику - меньшую (Math.floor)
+      ownerC1 = Math.ceil(c1 / 2);
+      partnerC1 = Math.floor(c1 / 2);
+      
+      ownerC2 = Math.ceil(c2 / 2);
+      partnerC2 = Math.floor(c2 / 2);
+
+      myTotalItems = ownerC1 + ownerC2;
+      myEarned = myBase + (ownerC1 * 1500) + (ownerC2 * 1500);
+      
+      const partnerTotalItems = partnerC1 + partnerC2;
       
       await addDoc(collection(db, 'sales'), {
         employeeId: partner.id, employeeName: partner.name,
         dateStr: currentShift.dateStr,
         endTime: serverTimestamp(), photoUrl: imageUrl,
-        items: { cocktail1: c1 / 2, cocktail2: c2 / 2 },
-        totalItems: myTotalItems, earned: 1500 + (c1 / 2 * 1500) + (c2 / 2 * 1500),
+        items: { cocktail1: partnerC1, cocktail2: partnerC2 },
+        totalItems: partnerTotalItems, earned: 1500 + (partnerC1 * 1500) + (partnerC2 * 1500),
         status: 'closed'
       });
     } else {
@@ -103,7 +116,7 @@ const EmployeeApp = () => {
 
     await updateDoc(doc(db, 'sales', currentShift.id), {
       status: 'closed', endTime: serverTimestamp(), photoUrl: imageUrl,
-      items: { cocktail1: partnerId ? c1 / 2 : c1, cocktail2: partnerId ? c2 / 2 : c2 },
+      items: { cocktail1: ownerC1, cocktail2: ownerC2 },
       totalItems: myTotalItems, earned: myEarned
     });
   };
@@ -117,8 +130,17 @@ const EmployeeApp = () => {
     
     try {
       if (file.type === 'image/heic' || file.type === 'image/heif' || file.name.toLowerCase().endsWith('.heic')) {
-        const convertedBlob = await heic2any({ blob: file, toType: 'image/jpeg' });
-        file = new File([convertedBlob], file.name.replace(/\.heic$/i, '.jpg'), { type: 'image/jpeg' });
+        try {
+          let convertedBlob = await heic2any({ blob: file, toType: 'image/jpeg' });
+          if (Array.isArray(convertedBlob)) {
+            convertedBlob = convertedBlob[0];
+          }
+          file = new File([convertedBlob], file.name.replace(/\.heic$/i, '.jpg'), { type: 'image/jpeg' });
+        } catch (heicError) {
+          console.error("Ошибка при конвертации HEIC:", heicError);
+          // Если конвертация не удалась, продолжаем со старым файлом,
+          // Cloudinary может попытаться обработать его самостоятельно.
+        }
       }
 
       const formData = new FormData();
@@ -135,11 +157,11 @@ const EmployeeApp = () => {
         body: JSON.stringify({ imageUrl: uploadedImageUrl }),
       });
       
-      if (!aiRes.ok) throw new Error('Сервер ИИ временно недоступен');
+      if (!aiRes.ok) throw new Error('Сервер временно недоступен');
       const aiData = await aiRes.json();
       
       if (aiData.cocktail1 === undefined && aiData.cocktail2 === undefined) {
-         throw new Error('ИИ не нашел кальяны на фото.');
+         throw new Error('Не смог найти кальны на фото');
       }
 
       await closeShiftInDb(Number(aiData.cocktail1) || 0, Number(aiData.cocktail2) || 0, uploadedImageUrl);
@@ -282,7 +304,7 @@ const EmployeeApp = () => {
             <div className="mt-auto">
               <input type="file" accept="image/*" ref={fileInputRef} onChange={handleFileUpload} className="hidden" />
               <button onClick={() => fileInputRef.current.click()} disabled={isUploading} className="w-full py-5 rounded-3xl font-bold shadow-lg transition-all flex items-center justify-center gap-3 bg-gray-900 text-white active:scale-95 disabled:bg-gray-400">
-                {isUploading ? <><Loader2 className="animate-spin"/> Считаем ИИ...</> : <><Camera/> ЗАКРЫТЬ СМЕНУ И ОТПРАВИТЬ ЧЕК</>}
+                {isUploading ? <><Loader2 className="animate-spin"/> Считаем...</> : <><Camera/> ЗАКРЫТЬ СМЕНУ И ОТПРАВИТЬ ЧЕК</>}
               </button>
             </div>
           </div>
