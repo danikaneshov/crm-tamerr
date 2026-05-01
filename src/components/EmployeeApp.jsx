@@ -84,14 +84,14 @@ const EmployeeApp = () => {
     if (partnerId) {
       const partner = employeesList.find(emp => emp.id === partnerId);
       myTotalItems = (c1 + c2) / 2;
-      myEarned = 3000 + (c1 / 2 * 1500) + (c2 / 2 * 1500);
+      myEarned = 1500 + (c1 / 2 * 1500) + (c2 / 2 * 1500);
       
       await addDoc(collection(db, 'sales'), {
         employeeId: partner.id, employeeName: partner.name,
         dateStr: currentShift.dateStr,
         endTime: serverTimestamp(), photoUrl: imageUrl,
         items: { cocktail1: c1 / 2, cocktail2: c2 / 2 },
-        totalItems: myTotalItems, earned: 1500 + (c1 / 2 * 1500) + (c2 / 2 * 1500),
+        totalItems: myTotalItems, earned: 3000 + (c1 / 2 * 1500) + (c2 / 2 * 1500),
         status: 'closed'
       });
     } else {
@@ -273,7 +273,7 @@ const EmployeeApp = () => {
             </div>
 
             <div className="mt-auto">
-              <input type="file" accept="image/*" capture="environment" ref={fileInputRef} onChange={handleFileUpload} className="hidden" />
+              <input type="file" accept="image/*" ref={fileInputRef} onChange={handleFileUpload} className="hidden" />
               <button onClick={() => fileInputRef.current.click()} disabled={isUploading} className="w-full py-5 rounded-3xl font-bold shadow-lg transition-all flex items-center justify-center gap-3 bg-gray-900 text-white active:scale-95 disabled:bg-gray-400">
                 {isUploading ? <><Loader2 className="animate-spin"/> Считаем ИИ...</> : <><Camera/> ЗАКРЫТЬ СМЕНУ И ОТПРАВИТЬ ЧЕК</>}
               </button>
