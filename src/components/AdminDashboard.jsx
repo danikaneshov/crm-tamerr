@@ -589,6 +589,40 @@ const AdminDashboard = () => {
               <p className="text-slate-500 mb-8 text-sm">Здесь находятся инструменты для отладки базы данных. Действия необратимы.</p>
               
               <div className="space-y-6">
+                <div className="bg-blue-50 p-6 rounded-2xl border border-blue-100">
+                  <h3 className="font-bold text-blue-800 mb-2">Добавить тестовую смену (Текущая дата)</h3>
+                  <p className="text-sm text-blue-600 mb-4">Создает случайную закрытую смену для проверки графиков и дашбордов. Будет привязана к первому сотруднику.</p>
+                  <button 
+                    onClick={async () => {
+                      if (employees.length === 0) {
+                        alert('Сначала добавьте хотя бы одного сотрудника в системе.');
+                        return;
+                      }
+                      const emp = employees[0];
+                      const dateStr = new Date().toLocaleDateString('ru-RU');
+                      try {
+                        await addDoc(collection(db, 'sales'), {
+                          employeeId: emp.id,
+                          employeeName: emp.name,
+                          dateStr,
+                          endTime: serverTimestamp(),
+                          photoUrl: 'no-photo',
+                          items: { cocktail1: Math.floor(Math.random() * 5) + 3, cocktail2: Math.floor(Math.random() * 3) + 1 },
+                          totalItems: 8,
+                          earned: 13500, // Примерная сумма
+                          status: 'closed'
+                        });
+                        alert('Тестовая смена успешно добавлена на ' + dateStr);
+                      } catch (err) {
+                        alert('Ошибка: ' + err.message);
+                      }
+                    }}
+                    className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition-colors"
+                  >
+                    Добавить тестовую смену
+                  </button>
+                </div>
+
                 <div className="bg-red-50 p-6 rounded-2xl border border-red-100">
                   <h3 className="font-bold text-red-800 mb-2">Удалить все смены (Таблица sales)</h3>
                   <p className="text-sm text-red-600 mb-4">Это действие удалит абсолютно все записи о сменах, зарплатах и отчетах из базы данных. Сотрудники останутся.</p>
