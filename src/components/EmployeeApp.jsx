@@ -42,7 +42,10 @@ const EmployeeApp = () => {
       if (openShift) {
         setCurrentShift(openShift);
       } else {
-        const todayStr = new Date().toLocaleDateString('ru-RU');
+        const d = new Date();
+        if (d.getHours() < 6) d.setDate(d.getDate() - 1);
+        const todayStr = d.toLocaleDateString('ru-RU');
+        
         const closedToday = myShifts.find(s => s.status === 'closed' && s.dateStr === todayStr);
         setCurrentShift(closedToday || null);
       }
@@ -67,7 +70,10 @@ const EmployeeApp = () => {
   const handleOpenShift = async () => {
     setIsLoading(true);
     try {
-      const todayStr = new Date().toLocaleDateString('ru-RU');
+      const d = new Date();
+      if (d.getHours() < 6) d.setDate(d.getDate() - 1);
+      const todayStr = d.toLocaleDateString('ru-RU');
+      
       await addDoc(collection(db, 'sales'), {
         employeeId: employee.id, employeeName: employee.name,
         dateStr: todayStr, startTime: serverTimestamp(), status: 'open'

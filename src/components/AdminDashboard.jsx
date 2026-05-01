@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Users, LayoutDashboard, Key, Trash2, FileText, ChevronLeft, Eye, Image, Settings, Menu, X, Percent, Wallet } from 'lucide-react';
+import { LogOut, Users, LayoutDashboard, Key, Trash2, FileText, ChevronLeft, Eye, Image, Settings, Menu, X, Percent, Wallet, Bug } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { signOut } from 'firebase/auth';
 import { collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, serverTimestamp, setDoc } from 'firebase/firestore';
@@ -23,6 +23,16 @@ const AdminDashboard = () => {
   // Настройки маржинальности владельца (Аутсорс)
   const [ownerProfits, setOwnerProfits] = useState({ hookah: 0, replacement: 0 });
   const [isSavingSettings, setIsSavingSettings] = useState(false);
+
+  // Debug Panel State
+  const [debugShift, setDebugShift] = useState({
+    dateStr: '',
+    employeeId: '',
+    partnerId: '',
+    status: 'open',
+    hookahs: 0,
+    replacements: 0
+  });
 
   useEffect(() => {
     const unsubEmp = onSnapshot(query(collection(db, 'employees'), orderBy('createdAt', 'desc')), (snap) => {
@@ -54,6 +64,56 @@ const AdminDashboard = () => {
       alert('Настройки прибыли успешно сохранены!');
     } catch (err) { alert('Ошибка сохранения: ' + err.message); }
     finally { setIsSavingSettings(false); }
+  };
+
+  const handleCreateDebugShift = async (e) => {
+    e.preventDefault();
+    if (!debugShift.employeeId || !debugShift.dateStr) return alert('Выберите мастера и дату');
+    
+    // Форматируем YYYY-MM-DD в DD.MM.YYYY
+    const dStr = debugShift.dateStr.split('-').reverse().join('.');
+    const emp = employees.find(e => e.id === debugShift.employeeId);
+    
+    try {
+      if (debugShift.status === 'open') {
+        await addDoc(collection(db, 'sales'), {
+          employeeId: emp.id, employeeName: emp.name,
+          dateStr: dStr, startTime: serverTimestamp(), status: 'open'
+        });
+      } else {
+        let partner = null;
+        let c1 = Number(debugShift.hookahs) || 0;
+        let c2 = Number(debugShift.replacements) || 0;
+        let myTotalItems = c1 + c2;
+        let myEarned = 3000 + (c1 * 1500) + (c2 * 1500);
+
+        if (debugShift.partnerId) {
+          partner = employees.find(e => e.id === debugShift.partnerId);
+          myTotalItems = (c1 + c2) / 2;
+          myEarned = 3000 + (c1 / 2 * 1500) + (c2 / 2 * 1500);
+          
+          await addDoc(collection(db, 'sales'), {
+            employeeId: partner.id, employeeName: partner.name,
+            dateStr: dStr, endTime: serverTimestamp(), photoUrl: 'no-photo',
+            items: { cocktail1: c1 / 2, cocktail2: c2 / 2 },
+            totalItems: myTotalItems, earned: 1500 + (c1 / 2 * 1500) + (c2 / 2 * 1500),
+            status: 'closed'
+          });
+        }
+        
+        await addDoc(collection(db, 'sales'), {
+          employeeId: emp.id, employeeName: emp.name,
+          dateStr: dStr, endTime: serverTimestamp(), photoUrl: 'no-photo',
+          items: { cocktail1: debugShift.partnerId ? c1 / 2 : c1, cocktail2: debugShift.partnerId ? c2 / 2 : c2 },
+          totalItems: myTotalItems, earned: myEarned,
+          status: 'closed'
+        });
+      }
+      alert('Смена успешно создана через Debug!');
+      setDebugShift({ ...debugShift, hookahs: 0, replacements: 0, partnerId: '' });
+    } catch (err) {
+      alert('Ошибка: ' + err.message);
+    }
   };
 
   const generatePin = () => setNewEmpPin(Math.floor(1000 + Math.random() * 9000).toString());
@@ -152,6 +212,7 @@ const AdminDashboard = () => {
           <button onClick={() => switchTab('profit')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'profit' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'text-slate-400 hover:bg-slate-50'}`}><Wallet size={20}/>Моя прибыль</button>
           <button onClick={() => switchTab('employees')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'employees' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'text-slate-400 hover:bg-slate-50'}`}><Users size={20}/>Персонал</button>
           <button onClick={() => switchTab('settings')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'settings' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'text-slate-400 hover:bg-slate-50'}`}><Settings size={20}/>Настройки БД</button>
+          <button onClick={() => switchTab('debug')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'debug' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'text-slate-400 hover:bg-slate-50'}`}><Bug size={20}/>Debug Панель</button>
         </nav>
         <button onClick={() => signOut(auth)} className="flex items-center gap-3 p-4 text-slate-400 font-bold hover:text-red-500 transition-all"><LogOut size={20}/>Выйти</button>
       </div>
@@ -307,6 +368,66 @@ const AdminDashboard = () => {
                   {isSavingSettings ? 'Сохранение...' : 'Сохранить настройки'}
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* ВКЛАДКА: DEBUG */}
+        {activeTab === 'debug' && (
+          <div className="max-w-2xl animate-in fade-in duration-300">
+            <h1 className="text-2xl font-bold text-slate-800 mb-8">Debug Панель</h1>
+            <div className="bg-white p-10 rounded-[40px] border border-slate-100 shadow-sm">
+              <h2 className="text-lg font-black text-slate-900 mb-2">Создать смену вручную</h2>
+              <p className="text-slate-500 mb-8 text-sm">Добавляет смену за определенное число со всеми параметрами (кто мастер, напарник).</p>
+              
+              <form onSubmit={handleCreateDebugShift} className="space-y-6">
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Дата</label>
+                  <input type="date" value={debugShift.dateStr} onChange={e=>setDebugShift({...debugShift, dateStr: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" required />
+                </div>
+                
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Кальянный мастер</label>
+                  <select value={debugShift.employeeId} onChange={e=>setDebugShift({...debugShift, employeeId: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" required>
+                    <option value="">Выберите мастера</option>
+                    {employees.map(emp => <option key={emp.id} value={emp.id}>{emp.name}</option>)}
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Статус</label>
+                  <select value={debugShift.status} onChange={e=>setDebugShift({...debugShift, status: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" required>
+                    <option value="open">Открытая (Без результатов)</option>
+                    <option value="closed">Закрытая (С результатами)</option>
+                  </select>
+                </div>
+
+                {debugShift.status === 'closed' && (
+                  <div className="space-y-6 animate-in slide-in-from-top-4 duration-300">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Напарник (Опционально)</label>
+                      <select value={debugShift.partnerId} onChange={e=>setDebugShift({...debugShift, partnerId: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800">
+                        <option value="">Без напарника (Один)</option>
+                        {employees.filter(e => e.id !== debugShift.employeeId).map(emp => <option key={emp.id} value={emp.id}>{emp.name}</option>)}
+                      </select>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Кальяны</label>
+                        <input type="number" min="0" value={debugShift.hookahs} onChange={e=>setDebugShift({...debugShift, hookahs: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Замены</label>
+                        <input type="number" min="0" value={debugShift.replacements} onChange={e=>setDebugShift({...debugShift, replacements: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                <button type="submit" className="w-full p-4 mt-4 bg-gray-900 text-white rounded-2xl font-bold shadow-lg shadow-gray-200">
+                  Добавить смену
+                </button>
+              </form>
             </div>
           </div>
         )}
