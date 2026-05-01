@@ -23,6 +23,7 @@ const AdminDashboard = () => {
   // Настройки маржинальности владельца (Аутсорс)
   const [ownerProfits, setOwnerProfits] = useState({ hookah: 0, replacement: 0 });
   const [isSavingSettings, setIsSavingSettings] = useState(false);
+  const [debugTestEmpId, setDebugTestEmpId] = useState('');
 
   const availableMonths = useMemo(() => {
     const months = new Set();
@@ -69,7 +70,15 @@ const AdminDashboard = () => {
         groups[date].status = 'open';
       }
     });
-    return Object.values(groups).sort((a, b) => {
+    return Object.values(groups).map(group => {
+      // Сортируем записи: кто открыл (у кого есть startTime) идет первым
+      group.records.sort((a, b) => {
+        if (a.startTime && !b.startTime) return -1;
+        if (!a.startTime && b.startTime) return 1;
+        return 0;
+      });
+      return group;
+    }).sort((a, b) => {
       if (!a.dateStr.includes('.') || !b.dateStr.includes('.')) return 0;
       const [d1, m1, y1] = a.dateStr.split('.');
       const [d2, m2, y2] = b.dateStr.split('.');
@@ -591,36 +600,50 @@ const AdminDashboard = () => {
               <div className="space-y-6">
                 <div className="bg-blue-50 p-6 rounded-2xl border border-blue-100">
                   <h3 className="font-bold text-blue-800 mb-2">Добавить тестовую смену (Текущая дата)</h3>
-                  <p className="text-sm text-blue-600 mb-4">Создает случайную закрытую смену для проверки графиков и дашбордов. Будет привязана к первому сотруднику.</p>
-                  <button 
-                    onClick={async () => {
-                      if (employees.length === 0) {
-                        alert('Сначала добавьте хотя бы одного сотрудника в системе.');
-                        return;
-                      }
-                      const emp = employees[0];
-                      const dateStr = new Date().toLocaleDateString('ru-RU');
-                      try {
-                        await addDoc(collection(db, 'sales'), {
-                          employeeId: emp.id,
-                          employeeName: emp.name,
-                          dateStr,
-                          endTime: serverTimestamp(),
-                          photoUrl: 'no-photo',
-                          items: { cocktail1: Math.floor(Math.random() * 5) + 3, cocktail2: Math.floor(Math.random() * 3) + 1 },
-                          totalItems: 8,
-                          earned: 13500, // Примерная сумма
-                          status: 'closed'
-                        });
-                        alert('Тестовая смена успешно добавлена на ' + dateStr);
-                      } catch (err) {
-                        alert('Ошибка: ' + err.message);
-                      }
-                    }}
-                    className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition-colors"
-                  >
-                    Добавить тестовую смену
-                  </button>
+                  <p className="text-sm text-blue-600 mb-4">Создает случайную закрытую смену для проверки графиков и дашбордов.</p>
+                  
+                  <div className="flex flex-col sm:flex-row gap-4 mb-4">
+                    <select 
+                      value={debugTestEmpId} 
+                      onChange={e => setDebugTestEmpId(e.target.value)}
+                      className="p-3 bg-white rounded-xl border border-blue-200 font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1"
+                    >
+                      <option value="">Выберите сотрудника</option>
+                      {employees.map(emp => (
+                        <option key={emp.id} value={emp.id}>{emp.name}</option>
+                      ))}
+                    </select>
+
+                    <button 
+                      onClick={async () => {
+                        if (!debugTestEmpId) {
+                          alert('Сначала выберите сотрудника.');
+                          return;
+                        }
+                        const emp = employees.find(e => e.id === debugTestEmpId);
+                        const dateStr = new Date().toLocaleDateString('ru-RU');
+                        try {
+                          await addDoc(collection(db, 'sales'), {
+                            employeeId: emp.id,
+                            employeeName: emp.name,
+                            dateStr,
+                            endTime: serverTimestamp(),
+                            photoUrl: 'no-photo',
+                            items: { cocktail1: Math.floor(Math.random() * 5) + 3, cocktail2: Math.floor(Math.random() * 3) + 1 },
+                            totalItems: 8,
+                            earned: 13500, // Примерная сумма
+                            status: 'closed'
+                          });
+                          alert('Тестовая смена успешно добавлена на ' + dateStr);
+                        } catch (err) {
+                          alert('Ошибка: ' + err.message);
+                        }
+                      }}
+                      className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition-colors whitespace-nowrap"
+                    >
+                      Создать смену
+                    </button>
+                  </div>
                 </div>
 
                 <div className="bg-red-50 p-6 rounded-2xl border border-red-100">

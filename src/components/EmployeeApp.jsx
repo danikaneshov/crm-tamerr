@@ -37,16 +37,28 @@ const EmployeeApp = () => {
 
   useEffect(() => {
     if (!employee) return;
-    const q = query(collection(db, 'sales'), where('employeeId', '==', employee.id));
+    const todayStr = new Date().toLocaleDateString('ru-RU');
+    const q = query(collection(db, 'sales'), where('dateStr', '==', todayStr));
     const unsubSales = onSnapshot(q, (snap) => {
-      const myShifts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      const openShift = myShifts.find(s => s.status === 'open');
+      const todayShifts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      const openShift = todayShifts.find(s => s.status === 'open');
+      const closedShifts = todayShifts.filter(s => s.status === 'closed');
+
       if (openShift) {
-        setCurrentShift(openShift);
+        if (openShift.employeeId === employee.id) {
+          setCurrentShift(openShift);
+        } else {
+          setCurrentShift({ status: 'locked', employeeName: openShift.employeeName });
+        }
+      } else if (closedShifts.length > 0) {
+        const myClosed = closedShifts.find(s => s.employeeId === employee.id);
+        if (myClosed) {
+          setCurrentShift(myClosed);
+        } else {
+          setCurrentShift({ status: 'locked_closed' });
+        }
       } else {
-        const todayStr = new Date().toLocaleDateString('ru-RU');
-        const closedToday = myShifts.find(s => s.status === 'closed' && s.dateStr === todayStr);
-        setCurrentShift(closedToday || null);
+        setCurrentShift(null);
       }
     });
     return () => unsubSales();
@@ -286,6 +298,23 @@ const EmployeeApp = () => {
 
       <div className="flex-1 p-6 flex flex-col relative">
         
+        {/* СОСТОЯНИЕ: СМЕНА ЗАНЯТА ИЛИ УЖЕ ЗАКРЫТА ДРУГИМ */}
+        {(currentShift?.status === 'locked' || currentShift?.status === 'locked_closed') && (
+          <div className="flex-1 flex flex-col items-center justify-center animate-in fade-in zoom-in duration-300">
+            <div className="bg-white p-8 rounded-[40px] shadow-sm border border-gray-100 text-center w-full">
+              <div className="w-20 h-20 bg-orange-50 text-orange-500 rounded-full flex items-center justify-center mx-auto mb-6"><AlertCircle size={40} /></div>
+              <h2 className="text-2xl font-black text-gray-800 mb-2">
+                {currentShift.status === 'locked' ? 'Смена уже идет' : 'Смена закрыта'}
+              </h2>
+              <p className="text-gray-500 mb-4 font-medium text-sm">
+                {currentShift.status === 'locked' 
+                  ? `Сегодня смену открыл мастер: ${currentShift.employeeName}.` 
+                  : 'Сегодня смена уже была закрыта. Больше смен открыть нельзя.'}
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* СОСТОЯНИЕ 1: СМЕНА НЕ ОТКРЫТА */}
         {!currentShift && (
           <div className="flex-1 flex flex-col items-center justify-center animate-in fade-in zoom-in duration-300">
