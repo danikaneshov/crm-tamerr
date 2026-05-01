@@ -1,9 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Users, LayoutDashboard, Key, Trash2, FileText, ChevronLeft, Eye, Image, Settings, Menu, X, Percent, Wallet } from 'lucide-react';
+import { LogOut, Users, LayoutDashboard, Key, Trash2, FileText, ChevronLeft, Eye, Image, Settings, Menu, X, Percent, Wallet, Database, AlertTriangle } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { signOut } from 'firebase/auth';
-import { collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, serverTimestamp, setDoc, getDocs } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 
 const AdminDashboard = () => {
@@ -152,6 +152,7 @@ const AdminDashboard = () => {
           <button onClick={() => switchTab('profit')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'profit' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'text-slate-400 hover:bg-slate-50'}`}><Wallet size={20}/>Моя прибыль</button>
           <button onClick={() => switchTab('employees')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'employees' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'text-slate-400 hover:bg-slate-50'}`}><Users size={20}/>Персонал</button>
           <button onClick={() => switchTab('settings')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'settings' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'text-slate-400 hover:bg-slate-50'}`}><Settings size={20}/>Настройки БД</button>
+          <button onClick={() => switchTab('debug')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'debug' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'text-slate-400 hover:bg-slate-50'}`}><Database size={20}/>Debug</button>
         </nav>
         <button onClick={() => signOut(auth)} className="flex items-center gap-3 p-4 text-slate-400 font-bold hover:text-red-500 transition-all"><LogOut size={20}/>Выйти</button>
       </div>
@@ -235,12 +236,20 @@ const AdminDashboard = () => {
           <div className="space-y-10 animate-in fade-in duration-300">
             <h1 className="text-2xl font-bold text-slate-800">Финансовый отчет аутсорса</h1>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-gradient-to-br from-green-500 to-green-700 p-8 rounded-[32px] shadow-lg shadow-green-200 text-white relative overflow-hidden">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="bg-gradient-to-br from-green-500 to-green-700 p-8 rounded-[32px] shadow-lg shadow-green-200 text-white relative overflow-hidden md:col-span-2">
                 <Wallet className="absolute right-4 top-4 opacity-20" size={80}/>
-                <p className="font-bold text-sm uppercase tracking-widest mb-2 opacity-80">Общая чистая прибыль</p>
-                <h3 className="text-4xl font-black">{globalOwnerProfit} ₸</h3>
-                <p className="text-sm opacity-80 mt-2">Со всех смен за все время</p>
+                <div className="flex flex-col sm:flex-row gap-8 justify-between relative z-10">
+                  <div>
+                    <p className="font-bold text-sm uppercase tracking-widest mb-2 opacity-80">Общая чистая прибыль</p>
+                    <h3 className="text-4xl font-black">{globalOwnerProfit - totalSystemEarned} ₸</h3>
+                    <p className="text-sm opacity-80 mt-2">С вычетом зарплат сотрудников ({totalSystemEarned} ₸)</p>
+                  </div>
+                  <div className="text-right sm:mt-0 mt-4">
+                    <p className="font-bold text-xs uppercase tracking-widest mb-1 opacity-80">Без вычета ЗП</p>
+                    <h4 className="text-2xl font-black">{globalOwnerProfit} ₸</h4>
+                  </div>
+                </div>
               </div>
               
               <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm flex flex-col justify-center">
@@ -434,6 +443,46 @@ const AdminDashboard = () => {
 
               </div>
             )}
+          </div>
+        )}
+        {/* ВКЛАДКА 5: DEBUG */}
+        {activeTab === 'debug' && (
+          <div className="max-w-2xl animate-in fade-in duration-300">
+            <h1 className="text-2xl font-bold text-slate-800 mb-8">Debug Панель</h1>
+            <div className="bg-white p-10 rounded-[40px] border border-red-100 shadow-sm">
+              <div className="flex items-center gap-4 mb-4 text-red-500">
+                <AlertTriangle size={32} />
+                <h2 className="text-lg font-black">Опасная зона</h2>
+              </div>
+              <p className="text-slate-500 mb-8 text-sm">Здесь находятся инструменты для отладки базы данных. Действия необратимы.</p>
+              
+              <div className="space-y-6">
+                <div className="bg-red-50 p-6 rounded-2xl border border-red-100">
+                  <h3 className="font-bold text-red-800 mb-2">Удалить все смены (Таблица sales)</h3>
+                  <p className="text-sm text-red-600 mb-4">Это действие удалит абсолютно все записи о сменах, зарплатах и отчетах из базы данных. Сотрудники останутся.</p>
+                  <button 
+                    onClick={async () => {
+                      if (window.confirm('Вы абсолютно уверены? Это удалит ВСЕ смены навсегда!')) {
+                        const confirmPin = window.prompt('Введите слово DELETE для подтверждения:');
+                        if (confirmPin === 'DELETE') {
+                          try {
+                            const salesSnap = await getDocs(collection(db, 'sales'));
+                            const deletePromises = salesSnap.docs.map(d => deleteDoc(doc(db, 'sales', d.id)));
+                            await Promise.all(deletePromises);
+                            alert('Таблица sales успешно очищена.');
+                          } catch (err) {
+                            alert('Ошибка при удалении: ' + err.message);
+                          }
+                        }
+                      }
+                    }}
+                    className="px-6 py-3 bg-red-600 text-white rounded-xl font-bold shadow-lg shadow-red-200 hover:bg-red-700 transition-colors"
+                  >
+                    Дропнуть таблицу sales
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>

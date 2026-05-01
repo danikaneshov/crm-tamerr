@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { collection, query, where, getDocs, addDoc, updateDoc, doc, serverTimestamp, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 import { LogOut, Camera, Loader2, CheckCircle2, UserPlus, PlayCircle, AlertCircle, XCircle } from 'lucide-react';
+import heic2any from 'heic2any';
 
 const CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/dl5vgfkvr/image/upload';
 const UPLOAD_PRESET = 'ml_default';
@@ -80,7 +81,7 @@ const EmployeeApp = () => {
   const closeShiftInDb = async (c1, c2, imageUrl) => {
     let myEarned = 0;
     let myTotalItems = 0;
-    const myBase = employee.name === 'Tamerlan' ? 1500 : 3000;
+    const myBase = employee.name.trim().toLowerCase() === 'tamerlan' ? 1500 : 3000;
 
     if (partnerId) {
       const partner = employeesList.find(emp => emp.id === partnerId);
@@ -108,17 +109,22 @@ const EmployeeApp = () => {
   };
 
   const handleFileUpload = async (e) => {
-    const file = e.target.files[0];
+    let file = e.target.files[0];
     if (!file || !currentShift) return;
 
     setIsUploading(true);
     let uploadedImageUrl = 'no-photo';
     
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('upload_preset', UPLOAD_PRESET);
-
     try {
+      if (file.type === 'image/heic' || file.type === 'image/heif' || file.name.toLowerCase().endsWith('.heic')) {
+        const convertedBlob = await heic2any({ blob: file, toType: 'image/jpeg' });
+        file = new File([convertedBlob], file.name.replace(/\.heic$/i, '.jpg'), { type: 'image/jpeg' });
+      }
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', UPLOAD_PRESET);
+
       const cloudRes = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
       const cloudData = await cloudRes.json();
       if (!cloudRes.ok) throw new Error('Не удалось загрузить фото чека');
