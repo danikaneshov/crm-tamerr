@@ -1,9 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Users, LayoutDashboard, Key, Trash2, FileText, ChevronLeft, Eye, Image, Settings, Menu, X, Percent, Wallet, Bug } from 'lucide-react';
+import { LogOut, Users, LayoutDashboard, Key, Trash2, FileText, ChevronLeft, Eye, Image, Settings, Menu, X, Percent, Wallet, Bug, Database, AlertTriangle, Clock, Banknote, CalendarDays } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { signOut } from 'firebase/auth';
-import { collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, serverTimestamp, setDoc, getDocs } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 
 const AdminDashboard = () => {
@@ -23,6 +23,70 @@ const AdminDashboard = () => {
   // Настройки маржинальности владельца (Аутсорс)
   const [ownerProfits, setOwnerProfits] = useState({ hookah: 0, replacement: 0 });
   const [isSavingSettings, setIsSavingSettings] = useState(false);
+  const [debugTestEmpId, setDebugTestEmpId] = useState('');
+
+  const availableMonths = useMemo(() => {
+    const months = new Set();
+    allShifts.forEach(s => {
+      if (s.dateStr) {
+        const parts = s.dateStr.split('.');
+        if (parts.length === 3) months.add(`${parts[1]}.${parts[2]}`);
+      }
+    });
+    const now = new Date();
+    const curMonth = `${String(now.getMonth() + 1).padStart(2, '0')}.${now.getFullYear()}`;
+    months.add(curMonth);
+    
+    return Array.from(months).sort((a, b) => {
+      const [m1, y1] = a.split('.');
+      const [m2, y2] = b.split('.');
+      if (y1 !== y2) return y2 - y1;
+      return m2 - m1;
+    });
+  }, [allShifts]);
+
+  const [selectedMonth, setSelectedMonth] = useState(availableMonths[0] || (() => {
+    const now = new Date();
+    return `${String(now.getMonth() + 1).padStart(2, '0')}.${now.getFullYear()}`;
+  })());
+
+  const groupedShifts = useMemo(() => {
+    const groups = {};
+    allShifts.forEach(shift => {
+      const date = shift.dateStr || 'Неизвестная дата';
+      if (!groups[date]) {
+        groups[date] = {
+          dateStr: date,
+          records: [],
+          totalItems: 0,
+          totalEarned: 0,
+          status: 'closed'
+        };
+      }
+      groups[date].records.push(shift);
+      groups[date].totalItems += (shift.totalItems || 0);
+      groups[date].totalEarned += (shift.earned || 0);
+      if (shift.status === 'open') {
+        groups[date].status = 'open';
+      }
+    });
+    return Object.values(groups).map(group => {
+      // Сортируем записи: кто открыл (у кого есть startTime) идет первым
+      group.records.sort((a, b) => {
+        if (a.startTime && !b.startTime) return -1;
+        if (!a.startTime && b.startTime) return 1;
+        return 0;
+      });
+      return group;
+    }).sort((a, b) => {
+      if (!a.dateStr.includes('.') || !b.dateStr.includes('.')) return 0;
+      const [d1, m1, y1] = a.dateStr.split('.');
+      const [d2, m2, y2] = b.dateStr.split('.');
+      const date1 = new Date(`${y1}-${m1}-${d1}`);
+      const date2 = new Date(`${y2}-${m2}-${d2}`);
+      return date2 - date1;
+    });
+  }, [allShifts]);
 
   // Debug Panel State
   const [debugShift, setDebugShift] = useState({
@@ -131,8 +195,11 @@ const AdminDashboard = () => {
     } catch (error) { console.error(error); } finally { setIsAdding(false); }
   };
 
-  const calculateEmployeeStats = (empId) => {
-    const empShifts = allShifts.filter(s => s.employeeId === empId);
+  const calculateEmployeeStats = (empId, month = selectedMonth) => {
+    let empShifts = allShifts.filter(s => s.employeeId === empId);
+    if (month && month !== 'all') {
+      empShifts = empShifts.filter(s => s.dateStr && s.dateStr.endsWith(`.${month}`));
+    }
     const closedShifts = empShifts.filter(s => s.status === 'closed');
     const hasOpenShift = empShifts.some(s => s.status === 'open');
     
@@ -208,11 +275,13 @@ const AdminDashboard = () => {
         <div className="mb-10 px-2 mt-12 lg:mt-0"><span className="text-2xl font-black tracking-tighter text-slate-900">CRM<span className="text-blue-600">.</span></span></div>
         <nav className="flex-1 space-y-2">
           <button onClick={() => switchTab('dashboard')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'dashboard' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'text-slate-400 hover:bg-slate-50'}`}><LayoutDashboard size={20}/>Дашборд</button>
-          <button onClick={() => switchTab('reports')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'reports' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'text-slate-400 hover:bg-slate-50'}`}><FileText size={20}/>Отчеты и ЗП</button>
+          <button onClick={() => switchTab('shifts')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'shifts' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'text-slate-400 hover:bg-slate-50'}`}><Clock size={20}/>Смены</button>
+          <button onClick={() => switchTab('salaries')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'salaries' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'text-slate-400 hover:bg-slate-50'}`}><Banknote size={20}/>Зарплаты</button>
           <button onClick={() => switchTab('profit')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'profit' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'text-slate-400 hover:bg-slate-50'}`}><Wallet size={20}/>Моя прибыль</button>
           <button onClick={() => switchTab('employees')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'employees' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'text-slate-400 hover:bg-slate-50'}`}><Users size={20}/>Персонал</button>
           <button onClick={() => switchTab('settings')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'settings' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'text-slate-400 hover:bg-slate-50'}`}><Settings size={20}/>Настройки БД</button>
-          <button onClick={() => switchTab('debug')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'debug' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'text-slate-400 hover:bg-slate-50'}`}><Bug size={20}/>Debug Панель</button>
+          <button onClick={() => switchTab('manual_shift')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'manual_shift' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'text-slate-400 hover:bg-slate-50'}`}><Bug size={20}/>Ручная смена</button>
+          <button onClick={() => switchTab('debug')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'debug' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'text-slate-400 hover:bg-slate-50'}`}><Database size={20}/>Debug</button>
         </nav>
         <button onClick={() => signOut(auth)} className="flex items-center gap-3 p-4 text-slate-400 font-bold hover:text-red-500 transition-all"><LogOut size={20}/>Выйти</button>
       </div>
@@ -296,12 +365,20 @@ const AdminDashboard = () => {
           <div className="space-y-10 animate-in fade-in duration-300">
             <h1 className="text-2xl font-bold text-slate-800">Финансовый отчет аутсорса</h1>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-gradient-to-br from-green-500 to-green-700 p-8 rounded-[32px] shadow-lg shadow-green-200 text-white relative overflow-hidden">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="bg-gradient-to-br from-green-500 to-green-700 p-8 rounded-[32px] shadow-lg shadow-green-200 text-white relative overflow-hidden md:col-span-2">
                 <Wallet className="absolute right-4 top-4 opacity-20" size={80}/>
-                <p className="font-bold text-sm uppercase tracking-widest mb-2 opacity-80">Общая чистая прибыль</p>
-                <h3 className="text-4xl font-black">{globalOwnerProfit} ₸</h3>
-                <p className="text-sm opacity-80 mt-2">Со всех смен за все время</p>
+                <div className="flex flex-col sm:flex-row gap-8 justify-between relative z-10">
+                  <div>
+                    <p className="font-bold text-sm uppercase tracking-widest mb-2 opacity-80">Общая чистая прибыль</p>
+                    <h3 className="text-4xl font-black">{globalOwnerProfit - totalSystemEarned} ₸</h3>
+                    <p className="text-sm opacity-80 mt-2">С вычетом зарплат сотрудников ({totalSystemEarned} ₸)</p>
+                  </div>
+                  <div className="text-right sm:mt-0 mt-4">
+                    <p className="font-bold text-xs uppercase tracking-widest mb-1 opacity-80">Без вычета ЗП</p>
+                    <h4 className="text-2xl font-black">{globalOwnerProfit} ₸</h4>
+                  </div>
+                </div>
               </div>
               
               <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm flex flex-col justify-center">
@@ -372,8 +449,8 @@ const AdminDashboard = () => {
           </div>
         )}
 
-        {/* ВКЛАДКА: DEBUG */}
-        {activeTab === 'debug' && (
+        {/* ВКЛАДКА: MANUAL SHIFT */}
+        {activeTab === 'manual_shift' && (
           <div className="max-w-2xl animate-in fade-in duration-300">
             <h1 className="text-2xl font-bold text-slate-800 mb-8">Debug Панель</h1>
             <div className="bg-white p-10 rounded-[40px] border border-slate-100 shadow-sm">
@@ -463,98 +540,259 @@ const AdminDashboard = () => {
           </div>
         )}
 
-        {/* ОТЧЕТЫ (Детализация и Прибыль) */}
-        {activeTab === 'reports' && (
-          <div className="animate-in fade-in duration-300">
-            {!selectedEmpReport ? (
-              <>
-                <h1 className="text-2xl font-bold text-slate-800 mb-8">Отчеты и зарплаты</h1>
-                <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-x-auto">
-                  <table className="w-full min-w-[700px]">
-                    <thead>
-                      <tr className="bg-slate-50">
-                        <th className="p-6 text-left text-xs font-black text-slate-400 uppercase">Сотрудник</th>
-                        <th className="p-6 text-left text-xs font-black text-slate-400 uppercase">Статус</th>
-                        <th className="p-6 text-left text-xs font-black text-slate-400 uppercase">Смен / Позиций</th>
-                        <th className="p-6 text-left text-xs font-black text-blue-600 uppercase">ЗП к выплате</th>
-                        <th className="p-6"></th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-50">
-                      {employees.map(emp => {
-                        const stats = calculateEmployeeStats(emp.id);
-                        return (
-                          <tr key={emp.id} className="hover:bg-slate-50 cursor-pointer" onClick={() => setSelectedEmpReport(emp)}>
-                            <td className="p-6 font-bold text-slate-900">{emp.name}</td>
-                            <td className="p-6">{stats.hasOpenShift ? <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">На смене</span> : <span className="bg-slate-100 text-slate-500 px-3 py-1 rounded-full text-xs font-bold">Отдыхает</span>}</td>
-                            <td className="p-6 text-sm font-bold text-slate-500">{stats.shiftsCount} смен / {stats.totalItems} шт</td>
-                            <td className="p-6 text-lg font-black text-slate-900">{stats.totalEarned} ₸</td>
-                            <td className="p-6 text-right"><button className="text-blue-600 font-bold bg-blue-50 px-4 py-2 rounded-xl flex items-center gap-2 ml-auto"><Eye size={16}/> Детали</button></td>
-                          </tr>
-                        )
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              </>
-            ) : (
-              <div className="animate-in slide-in-from-right-8 duration-300">
-                <button onClick={() => setSelectedEmpReport(null)} className="flex items-center gap-2 text-slate-500 font-bold mb-6"><ChevronLeft size={20}/> Назад</button>
-                
-                <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
-                  <div>
-                    <p className="text-slate-400 font-bold uppercase text-xs tracking-widest mb-1">Детализация ЗП</p>
-                    <h1 className="text-3xl font-black text-slate-800">{selectedEmpReport.name}</h1>
+        {/* ВКЛАДКА: СМЕНЫ */}
+        {activeTab === 'shifts' && (
+          <div className="space-y-8 animate-in fade-in duration-300">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <h1 className="text-2xl font-bold text-slate-800">Отчеты по сменам</h1>
+              <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200">
+                <CalendarDays className="text-slate-400 ml-3" size={18}/>
+                <select value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} className="py-2 pr-4 bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer">
+                  <option value="all">Все время</option>
+                  {availableMonths.map(m => <option key={m} value={m}>{m}</option>)}
+                </select>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {groupedShifts.filter(g => selectedMonth === 'all' || g.dateStr.endsWith(`.${selectedMonth}`)).map(group => (
+                <div key={group.dateStr} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow cursor-pointer relative overflow-hidden" onClick={() => setSelectedEmpReport(group)}>
+                  {group.status === 'open' && <div className="absolute top-0 left-0 w-full h-1.5 bg-blue-500 animate-pulse"></div>}
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mb-1">Смена</p>
+                      <h3 className="text-xl font-black text-slate-800">{group.dateStr}</h3>
+                    </div>
+                    {group.status === 'open' ? <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">Идет смена</span> : <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">Закрыта</span>}
                   </div>
-                  <div className="md:text-right">
-                    <p className="text-slate-400 font-bold uppercase text-xs tracking-widest mb-1">Всего заработано мастером</p>
-                    <h2 className="text-3xl font-black text-blue-600">{calculateEmployeeStats(selectedEmpReport.id).totalEarned} ₸</h2>
+                  <div className="space-y-3">
+                    <p className="text-sm text-slate-600 font-medium border-b border-slate-50 pb-3">Мастера: <span className="font-bold text-slate-800">{group.records.map(r => r.employeeName).join(', ')}</span></p>
+                    <div className="flex justify-between items-center text-sm pt-1">
+                      <span className="text-slate-400">Кальяны/Замены:</span>
+                      <span className="font-bold text-slate-700">{group.totalItems} шт</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-slate-400">Общая ЗП за смену:</span>
+                      <span className="font-bold text-blue-600">{group.totalEarned} ₸</span>
+                    </div>
                   </div>
                 </div>
+              ))}
+              
+              {groupedShifts.filter(g => selectedMonth === 'all' || g.dateStr.endsWith(`.${selectedMonth}`)).length === 0 && (
+                <div className="col-span-full py-20 text-center text-slate-400">
+                  Нет отчетов за выбранный месяц
+                </div>
+              )}
+            </div>
 
-                <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-x-auto mb-8">
-                  <table className="w-full min-w-[700px]">
-                    <thead>
-                      <tr className="bg-slate-50">
-                        <th className="p-6 text-left text-xs font-black text-slate-400 uppercase">Дата</th>
-                        <th className="p-6 text-left text-xs font-black text-slate-400 uppercase">Статус</th>
-                        <th className="p-6 text-left text-xs font-black text-slate-400 uppercase">Кальяны</th>
-                        <th className="p-6 text-left text-xs font-black text-slate-400 uppercase">Замены</th>
-                        <th className="p-6 text-left text-xs font-black text-slate-400 uppercase">Чек</th>
-                        <th className="p-6 text-right text-xs font-black text-slate-400 uppercase">Зарплата</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-50">
-                      {allShifts.filter(s => s.employeeId === selectedEmpReport.id).map(shift => (
-                        <tr key={shift.id}>
-                          <td className="p-6 font-bold text-slate-900">{shift.dateStr}</td>
-                          <td className="p-6">{shift.status === 'open' ? <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold animate-pulse">Идет смена</span> : <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">Закрыта</span>}</td>
-                          <td className="p-6 font-bold text-slate-600">{shift.status === 'open' ? '—' : `${shift.items?.cocktail1 || 0} шт`}</td>
-                          <td className="p-6 font-bold text-slate-600">{shift.status === 'open' ? '—' : `${shift.items?.cocktail2 || 0} шт`}</td>
-                          <td className="p-6">
-                            {shift.photoUrl && shift.photoUrl !== 'no-photo' ? <a href={shift.photoUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg text-sm font-bold w-fit"><Image size={14} /> Чек</a> : <span className="text-slate-300 text-sm italic">Нет</span>}
-                          </td>
-                          <td className="p-6 text-right text-lg font-black text-slate-900">{shift.status === 'open' ? 'Ожидание' : `${shift.earned} ₸`}</td>
-                        </tr>
+            {/* Модальное окно деталей смены */}
+            {selectedEmpReport && selectedEmpReport.records && (
+              <div className="fixed inset-0 bg-slate-900/50 z-50 flex items-center justify-center p-4">
+                <div className="bg-white w-full max-w-lg rounded-[32px] p-8 shadow-2xl animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto relative">
+                  <div className="flex justify-between items-center mb-8">
+                    <div>
+                      <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mb-1">Детали смены</p>
+                      <h2 className="text-2xl font-black text-slate-800">{selectedEmpReport.dateStr}</h2>
+                    </div>
+                    <button onClick={() => setSelectedEmpReport(null)} className="p-3 bg-slate-100 text-slate-500 rounded-full hover:bg-slate-200 transition-colors"><X size={20}/></button>
+                  </div>
+                  
+                  <div className="space-y-6">
+                    {/* Список сотрудников и их ЗП */}
+                    <div className="space-y-3">
+                      <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-2">Начисления ЗП</h3>
+                      {selectedEmpReport.records.map((rec, idx) => (
+                        <div key={rec.id} className="bg-slate-50 p-4 rounded-2xl flex justify-between items-center">
+                          <div>
+                            <p className="font-bold text-slate-800">{rec.employeeName}</p>
+                            <p className="text-xs text-slate-500 font-medium mt-0.5">{idx === 0 ? 'Открыл смену' : 'Напарник'}</p>
+                          </div>
+                          <div className="text-right">
+                            <span className="block font-black text-xl text-blue-600">{rec.status === 'open' ? 'Ожидание' : `${rec.earned} ₸`}</span>
+                          </div>
+                        </div>
                       ))}
-                    </tbody>
-                  </table>
-                </div>
+                    </div>
 
-                {/* БЛОК: ПРИБЫЛЬ ВЛАДЕЛЬЦА */}
-                <div className="bg-gradient-to-r from-slate-900 to-slate-800 p-8 rounded-[32px] shadow-xl text-white flex flex-col md:flex-row items-center justify-between gap-6">
-                  <div>
-                    <h3 className="text-xl font-black mb-1">Твоя прибыль с этого мастера</h3>
-                    <p className="text-slate-400 text-sm font-medium">Рассчитано на основе настроек: {ownerProfits.hookah}₸ (кальян), {ownerProfits.replacement}₸ (замена)</p>
-                  </div>
-                  <div className="text-right w-full md:w-auto bg-white/10 px-6 py-4 rounded-2xl backdrop-blur-sm">
-                    <p className="text-sm text-slate-300 uppercase tracking-widest font-bold mb-1">Чистый доход</p>
-                    <h2 className="text-3xl font-black text-green-400">{calculateEmployeeStats(selectedEmpReport.id).ownerNetProfit} ₸</h2>
+                    {/* Статистика смены */}
+                    <div className="space-y-3">
+                      <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-2">Сделано позиций</h3>
+                      {selectedEmpReport.records.map((rec) => (
+                        <div key={'items'+rec.id} className="bg-slate-50 p-4 rounded-2xl">
+                          <p className="font-bold text-slate-700 mb-3">{rec.employeeName}</p>
+                          <div className="flex gap-4 text-sm">
+                            <div className="flex-1 bg-white p-3 rounded-xl border border-slate-100 text-center">
+                              <span className="block text-xs text-slate-400 uppercase font-bold mb-1">Кальяны</span>
+                              <strong className="text-slate-800 text-lg">{rec.status === 'open' ? '—' : (rec.items?.cocktail1 || 0)}</strong>
+                            </div>
+                            <div className="flex-1 bg-white p-3 rounded-xl border border-slate-100 text-center">
+                              <span className="block text-xs text-slate-400 uppercase font-bold mb-1">Замены</span>
+                              <strong className="text-slate-800 text-lg">{rec.status === 'open' ? '—' : (rec.items?.cocktail2 || 0)}</strong>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Чек */}
+                    <div className="space-y-3">
+                      <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-2">Фотография чека</h3>
+                      {selectedEmpReport.records[0]?.photoUrl && selectedEmpReport.records[0].photoUrl !== 'no-photo' ? (
+                        <a href={selectedEmpReport.records[0].photoUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 w-full p-4 bg-blue-50 text-blue-600 rounded-2xl font-bold hover:bg-blue-100 transition-colors">
+                          <Image size={20} /> Смотреть чек
+                        </a>
+                      ) : (
+                        <div className="p-4 bg-slate-50 text-slate-400 rounded-2xl text-center font-medium text-sm italic">
+                          Чек не прикреплен или смена не закрыта
+                        </div>
+                      )}
+                    </div>
+
                   </div>
                 </div>
-
               </div>
             )}
+          </div>
+        )}
+
+        {/* ВКЛАДКА: ЗАРПЛАТЫ */}
+        {activeTab === 'salaries' && (
+          <div className="space-y-8 animate-in fade-in duration-300">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <h1 className="text-2xl font-bold text-slate-800">Зарплаты сотрудников</h1>
+              <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200">
+                <CalendarDays className="text-slate-400 ml-3" size={18}/>
+                <select value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} className="py-2 pr-4 bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer">
+                  <option value="all">Все время</option>
+                  {availableMonths.map(m => <option key={m} value={m}>{m}</option>)}
+                </select>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {employees.map(emp => {
+                const stats = calculateEmployeeStats(emp.id, selectedMonth);
+                return (
+                  <div key={emp.id} className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm relative overflow-hidden flex flex-col">
+                    {stats.hasOpenShift && <div className="absolute top-0 left-0 w-full h-1.5 bg-blue-500 animate-pulse"></div>}
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="w-14 h-14 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center text-slate-600 font-black text-2xl shadow-inner">
+                        {emp.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-black text-slate-900">{emp.name}</h3>
+                        <p className="text-sm text-slate-400 font-medium">{stats.shiftsCount} смен отработано</p>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-slate-50 p-5 rounded-2xl mb-6 flex-1 flex flex-col justify-center border border-slate-100">
+                      <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mb-1">ЗП за выбранный период</p>
+                      <h4 className="text-4xl font-black text-blue-600">{stats.totalEarned} ₸</h4>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4 text-center">
+                      <div className="bg-white border border-slate-100 p-3 rounded-2xl">
+                        <p className="text-xs text-slate-400 uppercase font-bold mb-1">Кальянов</p>
+                        <p className="font-black text-slate-800 text-xl">{stats.hookahs}</p>
+                      </div>
+                      <div className="bg-white border border-slate-100 p-3 rounded-2xl">
+                        <p className="text-xs text-slate-400 uppercase font-bold mb-1">Замен</p>
+                        <p className="font-black text-slate-800 text-xl">{stats.replacements}</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+        {/* ВКЛАДКА 5: DEBUG */}
+        {activeTab === 'debug' && (
+          <div className="max-w-2xl animate-in fade-in duration-300">
+            <h1 className="text-2xl font-bold text-slate-800 mb-8">Debug Панель</h1>
+            <div className="bg-white p-10 rounded-[40px] border border-red-100 shadow-sm">
+              <div className="flex items-center gap-4 mb-4 text-red-500">
+                <AlertTriangle size={32} />
+                <h2 className="text-lg font-black">Опасная зона</h2>
+              </div>
+              <p className="text-slate-500 mb-8 text-sm">Здесь находятся инструменты для отладки базы данных. Действия необратимы.</p>
+              
+              <div className="space-y-6">
+                <div className="bg-blue-50 p-6 rounded-2xl border border-blue-100">
+                  <h3 className="font-bold text-blue-800 mb-2">Добавить тестовую смену (Текущая дата)</h3>
+                  <p className="text-sm text-blue-600 mb-4">Создает случайную закрытую смену для проверки графиков и дашбордов.</p>
+                  
+                  <div className="flex flex-col sm:flex-row gap-4 mb-4">
+                    <select 
+                      value={debugTestEmpId} 
+                      onChange={e => setDebugTestEmpId(e.target.value)}
+                      className="p-3 bg-white rounded-xl border border-blue-200 font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1"
+                    >
+                      <option value="">Выберите сотрудника</option>
+                      {employees.map(emp => (
+                        <option key={emp.id} value={emp.id}>{emp.name}</option>
+                      ))}
+                    </select>
+
+                    <button 
+                      onClick={async () => {
+                        if (!debugTestEmpId) {
+                          alert('Сначала выберите сотрудника.');
+                          return;
+                        }
+                        const emp = employees.find(e => e.id === debugTestEmpId);
+                        const dateStr = new Date().toLocaleDateString('ru-RU');
+                        try {
+                          await addDoc(collection(db, 'sales'), {
+                            employeeId: emp.id,
+                            employeeName: emp.name,
+                            dateStr,
+                            endTime: serverTimestamp(),
+                            photoUrl: 'no-photo',
+                            items: { cocktail1: Math.floor(Math.random() * 5) + 3, cocktail2: Math.floor(Math.random() * 3) + 1 },
+                            totalItems: 8,
+                            earned: 13500, // Примерная сумма
+                            status: 'closed'
+                          });
+                          alert('Тестовая смена успешно добавлена на ' + dateStr);
+                        } catch (err) {
+                          alert('Ошибка: ' + err.message);
+                        }
+                      }}
+                      className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition-colors whitespace-nowrap"
+                    >
+                      Создать смену
+                    </button>
+                  </div>
+                </div>
+
+                <div className="bg-red-50 p-6 rounded-2xl border border-red-100">
+                  <h3 className="font-bold text-red-800 mb-2">Удалить все смены (Таблица sales)</h3>
+                  <p className="text-sm text-red-600 mb-4">Это действие удалит абсолютно все записи о сменах, зарплатах и отчетах из базы данных. Сотрудники останутся.</p>
+                  <button 
+                    onClick={async () => {
+                      if (window.confirm('Вы абсолютно уверены? Это удалит ВСЕ смены навсегда!')) {
+                        const confirmPin = window.prompt('Введите слово DELETE для подтверждения:');
+                        if (confirmPin === 'DELETE') {
+                          try {
+                            const salesSnap = await getDocs(collection(db, 'sales'));
+                            const deletePromises = salesSnap.docs.map(d => deleteDoc(doc(db, 'sales', d.id)));
+                            await Promise.all(deletePromises);
+                            alert('Таблица sales успешно очищена.');
+                          } catch (err) {
+                            alert('Ошибка при удалении: ' + err.message);
+                          }
+                        }
+                      }
+                    }}
+                    className="px-6 py-3 bg-red-600 text-white rounded-xl font-bold shadow-lg shadow-red-200 hover:bg-red-700 transition-colors"
+                  >
+                    Дропнуть таблицу sales
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>

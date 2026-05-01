@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { collection, query, where, getDocs, addDoc, updateDoc, doc, serverTimestamp, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 import { LogOut, Camera, Loader2, CheckCircle2, UserPlus, PlayCircle, AlertCircle, XCircle } from 'lucide-react';
+import heic2any from 'heic2any';
+import imageCompression from 'browser-image-compression';
 
 const CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/dl5vgfkvr/image/upload';
 const UPLOAD_PRESET = 'ml_default';
@@ -35,19 +37,32 @@ const EmployeeApp = () => {
 
   useEffect(() => {
     if (!employee) return;
-    const q = query(collection(db, 'sales'), where('employeeId', '==', employee.id));
+    
+    const d = new Date();
+    if (d.getHours() < 6) d.setDate(d.getDate() - 1);
+    const todayStr = d.toLocaleDateString('ru-RU');
+
+    const q = query(collection(db, 'sales'), where('dateStr', '==', todayStr));
     const unsubSales = onSnapshot(q, (snap) => {
-      const myShifts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      const openShift = myShifts.find(s => s.status === 'open');
+      const todayShifts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      const openShift = todayShifts.find(s => s.status === 'open');
+      const closedShifts = todayShifts.filter(s => s.status === 'closed');
+
       if (openShift) {
-        setCurrentShift(openShift);
+        if (openShift.employeeId === employee.id) {
+          setCurrentShift(openShift);
+        } else {
+          setCurrentShift({ status: 'locked', employeeName: openShift.employeeName });
+        }
+      } else if (closedShifts.length > 0) {
+        const myClosed = closedShifts.find(s => s.employeeId === employee.id);
+        if (myClosed) {
+          setCurrentShift(myClosed);
+        } else {
+          setCurrentShift({ status: 'locked_closed' });
+        }
       } else {
-        const d = new Date();
-        if (d.getHours() < 6) d.setDate(d.getDate() - 1);
-        const todayStr = d.toLocaleDateString('ru-RU');
-        
-        const closedToday = myShifts.find(s => s.status === 'closed' && s.dateStr === todayStr);
-        setCurrentShift(closedToday || null);
+        setCurrentShift(null);
       }
     });
     return () => unsubSales();
@@ -86,47 +101,95 @@ const EmployeeApp = () => {
   const closeShiftInDb = async (c1, c2, imageUrl) => {
     let myEarned = 0;
     let myTotalItems = 0;
+    const myBase = employee.name.trim().toLowerCase() === 'tamerlan' ? 1500 : 3000;
+
+    let ownerC1 = c1, ownerC2 = c2;
+    let partnerC1 = 0, partnerC2 = 0;
 
     if (partnerId) {
       const partner = employeesList.find(emp => emp.id === partnerId);
-      myTotalItems = (c1 + c2) / 2;
-      myEarned = 3000 + (c1 / 2 * 1500) + (c2 / 2 * 1500);
+      
+      // Владельцу смены - большую часть (Math.ceil), напарнику - меньшую (Math.floor)
+      ownerC1 = Math.ceil(c1 / 2);
+      partnerC1 = Math.floor(c1 / 2);
+      
+      ownerC2 = Math.ceil(c2 / 2);
+      partnerC2 = Math.floor(c2 / 2);
+
+      myTotalItems = ownerC1 + ownerC2;
+      myEarned = myBase + (ownerC1 * 1500) + (ownerC2 * 1500);
+      
+      const partnerTotalItems = partnerC1 + partnerC2;
       
       await addDoc(collection(db, 'sales'), {
         employeeId: partner.id, employeeName: partner.name,
         dateStr: currentShift.dateStr,
         endTime: serverTimestamp(), photoUrl: imageUrl,
-        items: { cocktail1: c1 / 2, cocktail2: c2 / 2 },
-        totalItems: myTotalItems, earned: 1500 + (c1 / 2 * 1500) + (c2 / 2 * 1500),
+        items: { cocktail1: partnerC1, cocktail2: partnerC2 },
+        totalItems: partnerTotalItems, earned: 1500 + (partnerC1 * 1500) + (partnerC2 * 1500),
         status: 'closed'
       });
     } else {
       myTotalItems = c1 + c2;
-      myEarned = 3000 + (c1 * 1500) + (c2 * 1500);
+      myEarned = myBase + (c1 * 1500) + (c2 * 1500);
     }
 
     await updateDoc(doc(db, 'sales', currentShift.id), {
       status: 'closed', endTime: serverTimestamp(), photoUrl: imageUrl,
-      items: { cocktail1: partnerId ? c1 / 2 : c1, cocktail2: partnerId ? c2 / 2 : c2 },
+      items: { cocktail1: ownerC1, cocktail2: ownerC2 },
       totalItems: myTotalItems, earned: myEarned
     });
   };
 
   const handleFileUpload = async (e) => {
-    const file = e.target.files[0];
+    let file = e.target.files[0];
     if (!file || !currentShift) return;
 
     setIsUploading(true);
     let uploadedImageUrl = 'no-photo';
     
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('upload_preset', UPLOAD_PRESET);
-
     try {
+      // 1. Конвертация HEIC в JPG (если iOS не сделал это сам)
+      if (file.type === 'image/heic' || file.type === 'image/heif' || file.name.toLowerCase().endsWith('.heic')) {
+        try {
+          let convertedBlob = await heic2any({ blob: file, toType: 'image/jpeg' });
+          if (Array.isArray(convertedBlob)) {
+            convertedBlob = convertedBlob[0];
+          }
+          file = new File([convertedBlob], file.name.replace(/\.heic$/i, '.jpg'), { type: 'image/jpeg' });
+        } catch (heicError) {
+          console.error("Ошибка heic2any:", heicError);
+          throw new Error('Ваш телефон передал фото в формате HEIC, и его не удалось переконвертировать. Пожалуйста, сделайте СКРИНШОТ этого фото в галерее и загрузите скриншот.');
+        }
+      }
+
+      // 2. Сжатие изображения для ускорения загрузки и избежания лимитов
+      try {
+        const options = {
+          maxSizeMB: 2,
+          maxWidthOrHeight: 1920,
+          useWebWorker: true,
+          fileType: 'image/jpeg'
+        };
+        const compressedFile = await imageCompression(file, options);
+        file = compressedFile;
+      } catch (compressError) {
+        console.error("Ошибка сжатия:", compressError);
+        // Если сжатие не удалось, продолжаем с оригинальным (уже jpg) файлом
+      }
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', UPLOAD_PRESET);
+
       const cloudRes = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
       const cloudData = await cloudRes.json();
-      if (!cloudRes.ok) throw new Error('Не удалось загрузить фото чека');
+      if (!cloudRes.ok) {
+        if (cloudData?.error?.message?.includes('ERR_LIBHEIF')) {
+          throw new Error('Cloudinary не поддерживает этот HEIC формат. Пожалуйста, сделайте скриншот чека и загрузите его.');
+        }
+        throw new Error(cloudData?.error?.message || 'Не удалось загрузить фото чека на сервер');
+      }
       uploadedImageUrl = cloudData.secure_url;
 
       const aiRes = await fetch('/api/analyze', {
@@ -134,11 +197,11 @@ const EmployeeApp = () => {
         body: JSON.stringify({ imageUrl: uploadedImageUrl }),
       });
       
-      if (!aiRes.ok) throw new Error('Сервер ИИ временно недоступен');
+      if (!aiRes.ok) throw new Error('Сервер временно недоступен');
       const aiData = await aiRes.json();
       
       if (aiData.cocktail1 === undefined && aiData.cocktail2 === undefined) {
-         throw new Error('ИИ не нашел кальяны на фото.');
+         throw new Error('Не смог найти кальны на фото');
       }
 
       await closeShiftInDb(Number(aiData.cocktail1) || 0, Number(aiData.cocktail2) || 0, uploadedImageUrl);
@@ -242,6 +305,23 @@ const EmployeeApp = () => {
 
       <div className="flex-1 p-6 flex flex-col relative">
         
+        {/* СОСТОЯНИЕ: СМЕНА ЗАНЯТА ИЛИ УЖЕ ЗАКРЫТА ДРУГИМ */}
+        {(currentShift?.status === 'locked' || currentShift?.status === 'locked_closed') && (
+          <div className="flex-1 flex flex-col items-center justify-center animate-in fade-in zoom-in duration-300">
+            <div className="bg-white p-8 rounded-[40px] shadow-sm border border-gray-100 text-center w-full">
+              <div className="w-20 h-20 bg-orange-50 text-orange-500 rounded-full flex items-center justify-center mx-auto mb-6"><AlertCircle size={40} /></div>
+              <h2 className="text-2xl font-black text-gray-800 mb-2">
+                {currentShift.status === 'locked' ? 'Смена уже идет' : 'Смена закрыта'}
+              </h2>
+              <p className="text-gray-500 mb-4 font-medium text-sm">
+                {currentShift.status === 'locked' 
+                  ? `Сегодня смену открыл мастер: ${currentShift.employeeName}.` 
+                  : 'Сегодня смена уже была закрыта. Больше смен открыть нельзя.'}
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* СОСТОЯНИЕ 1: СМЕНА НЕ ОТКРЫТА */}
         {!currentShift && (
           <div className="flex-1 flex flex-col items-center justify-center animate-in fade-in zoom-in duration-300">
@@ -279,9 +359,9 @@ const EmployeeApp = () => {
             </div>
 
             <div className="mt-auto">
-              <input type="file" accept="image/*" capture="environment" ref={fileInputRef} onChange={handleFileUpload} className="hidden" />
+              <input type="file" accept="image/jpeg, image/jpg, image/png" ref={fileInputRef} onChange={handleFileUpload} className="hidden" />
               <button onClick={() => fileInputRef.current.click()} disabled={isUploading} className="w-full py-5 rounded-3xl font-bold shadow-lg transition-all flex items-center justify-center gap-3 bg-gray-900 text-white active:scale-95 disabled:bg-gray-400">
-                {isUploading ? <><Loader2 className="animate-spin"/> Считаем ИИ...</> : <><Camera/> ЗАКРЫТЬ СМЕНУ И ОТПРАВИТЬ ЧЕК</>}
+                {isUploading ? <><Loader2 className="animate-spin"/> Считаем...</> : <><Camera/> ЗАКРЫТЬ СМЕНУ И ОТПРАВИТЬ ЧЕК</>}
               </button>
             </div>
           </div>
