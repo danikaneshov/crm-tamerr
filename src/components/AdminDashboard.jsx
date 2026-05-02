@@ -1,13 +1,11 @@
-import { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { LogOut, Users, LayoutDashboard, Key, Trash2, FileText, ChevronLeft, Eye, Image, Settings, Menu, X, Percent, Wallet, Bug, Database, AlertTriangle, Clock, Banknote, CalendarDays } from 'lucide-react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { LogOut, Users, LayoutDashboard, Key, Trash2, Image, Settings, Menu, X, Percent, Wallet, Database, AlertTriangle, Clock, Banknote, CalendarDays } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { signOut } from 'firebase/auth';
 import { collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, serverTimestamp, setDoc, getDocs } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 
 const AdminDashboard = () => {
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // Для мобильной версии
   
@@ -236,7 +234,7 @@ const AdminDashboard = () => {
     } catch (error) { console.error(error); } finally { setIsAdding(false); }
   };
 
-  const calculateEmployeeStats = (empId, month = selectedMonth) => {
+  const calculateEmployeeStats = useCallback((empId, month = selectedMonth) => {
     let empShifts = allShifts.filter(s => s.employeeId === empId);
     if (month && month !== 'all') {
       empShifts = empShifts.filter(s => s.dateStr && s.dateStr.endsWith(`.${month}`));
@@ -263,7 +261,7 @@ const AdminDashboard = () => {
       hasOpenShift,
       ownerNetProfit: (hookahs * ownerProfits.hookah) + (replacements * ownerProfits.replacement)
     };
-  };
+  }, [allShifts, ownerProfits, selectedMonth]);
 
   // Данные для графиков
   const closedSystemShifts = allShifts.filter(s => s.status === 'closed');
@@ -288,7 +286,7 @@ const AdminDashboard = () => {
         ownerNetProfit: stats.ownerNetProfit
       };
     }).sort((a, b) => b.ownerNetProfit - a.ownerNetProfit);
-  }, [employees, allShifts, ownerProfits]);
+  }, [employees, calculateEmployeeStats]);
 
   const chartData = useMemo(() => {
     const map = {};

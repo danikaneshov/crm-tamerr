@@ -12,7 +12,10 @@ const EmployeeApp = () => {
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [employee, setEmployee] = useState(null);
+  const [employee, setEmployee] = useState(() => {
+    const savedEmployee = localStorage.getItem('currentEmployee');
+    return savedEmployee ? JSON.parse(savedEmployee) : null;
+  });
   
   const [employeesList, setEmployeesList] = useState([]);
   const [partnerId, setPartnerId] = useState('');
@@ -29,9 +32,6 @@ const EmployeeApp = () => {
   const [modal, setModal] = useState({ isOpen: false, type: '', title: '', message: '', data: null });
 
   useEffect(() => {
-    const savedEmployee = localStorage.getItem('currentEmployee');
-    if (savedEmployee) setEmployee(JSON.parse(savedEmployee));
-
     const unsubEmp = onSnapshot(collection(db, 'employees'), (snap) => {
       setEmployeesList(snap.docs.map(doc => ({ id: doc.id, name: doc.data().name })));
     });
@@ -123,7 +123,7 @@ const EmployeeApp = () => {
         setEmployee(empData);
         localStorage.setItem('currentEmployee', JSON.stringify(empData));
       } else { setError('Неверный PIN'); }
-    } catch (err) { setError('Ошибка БД'); } finally { setIsLoading(false); setPin(''); }
+    } catch { setError('Ошибка БД'); } finally { setIsLoading(false); setPin(''); }
   };
 
   const handleOpenShift = async () => {
@@ -137,18 +137,18 @@ const EmployeeApp = () => {
         employeeId: employee.id, employeeName: employee.name,
         dateStr: todayStr, startTime: serverTimestamp(), status: 'open'
       });
-    } catch (error) { 
+    } catch { 
       setModal({ isOpen: true, type: 'error', title: 'Ошибка', message: 'Не удалось открыть смену' }); 
     } finally { setIsLoading(false); }
   };
 
   const closeShiftInDb = async (c1, c2, imageUrl) => {
-    let myEarned = 0;
-    let myTotalItems = 0;
+    let myEarned;
+    let myTotalItems;
     const myBase = employee.name.trim().toLowerCase() === 'tamerlan' ? 1500 : 3000;
 
     let ownerC1 = c1, ownerC2 = c2;
-    let partnerC1 = 0, partnerC2 = 0;
+    let partnerC1, partnerC2;
 
     if (partnerId) {
       const partner = employeesList.find(emp => emp.id === partnerId);
@@ -209,7 +209,7 @@ const EmployeeApp = () => {
           file = new File([convertedBlob], file.name.replace(/\.heic$/i, '.jpg'), { type: 'image/jpeg' });
         } catch (heicError) {
           console.error("Ошибка heic2any:", heicError);
-          throw new Error('Ваш телефон передал фото в формате HEIC, и его не удалось переконвертировать. Пожалуйста, сделайте СКРИНШОТ этого фото в галерее и загрузите скриншот.');
+          throw new Error('Ваш телефон передал фото в формате HEIC, и его не удалось переконвертировать. Пожалуйста, сделайте СКРИНШОТ этого фото в галерее и загрузите скриншот.', { cause: heicError });
         }
       }
 
@@ -296,6 +296,7 @@ const EmployeeApp = () => {
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
         <div className="bg-white shadow-sm border border-gray-100 rounded-2xl px-6 py-4 mb-8"><span className="font-bold text-2xl text-blue-600">CRM</span></div>
         <div className="flex gap-4 mb-8">{[...Array(4)].map((_, i) => <div key={i} className={`w-3 h-3 rounded-full ${i < pin.length ? 'bg-blue-600' : 'bg-gray-200'}`} />)}</div>
+        {error && <div className="mb-4 text-red-500 font-bold animate-in fade-in zoom-in">{error}</div>}
         <div className="grid grid-cols-3 gap-3 w-full max-w-[280px]">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => <button key={n} onClick={() => {if(pin.length<4) setPin(pin+n)}} className="h-16 bg-white text-xl rounded-xl shadow-sm border active:bg-slate-50">{n}</button>)}
           <button onClick={() => setPin(pin.slice(0,-1))} className="h-16 bg-white text-gray-400 rounded-xl border active:bg-slate-50">DEL</button>

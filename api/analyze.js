@@ -1,3 +1,4 @@
+/* global process, Buffer */
 // api/analyze.js
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
