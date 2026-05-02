@@ -109,7 +109,17 @@ const EmployeeApp = () => {
     const baseSalaryTotal = closedShifts.reduce((sum, s) => sum + (s.baseSalary || 0), 0);
     const hookahPercentageTotal = closedShifts.reduce((sum, s) => sum + (s.hookahPercentage || 0), 0);
     const shiftsCount = closedShifts.reduce((sum, s) => sum + (s.shiftFraction || 1), 0);
-    return { hookahs, replacements, totalEarned, baseSalaryTotal, hookahPercentageTotal, shiftsCount };
+    
+    const sortedClosedShifts = closedShifts.sort((a, b) => {
+      const parseDate = (dStr) => {
+         if (!dStr) return 0;
+         const [d, m, y] = dStr.split('.');
+         return new Date(y, m - 1, d).getTime();
+      };
+      return parseDate(b.dateStr) - parseDate(a.dateStr);
+    });
+    
+    return { hookahs, replacements, totalEarned, baseSalaryTotal, hookahPercentageTotal, shiftsCount, closedShifts: sortedClosedShifts };
   })();
 
   const handleLogin = async () => {
@@ -138,6 +148,7 @@ const EmployeeApp = () => {
 
   useEffect(() => {
     if (pin.length === 4 && !isLoading) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       handleLogin();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -515,6 +526,27 @@ const EmployeeApp = () => {
                   <p className="font-black text-slate-800 text-xl">{myStats.replacements}</p>
                 </div>
               </div>
+
+              {/* ИСТОРИЯ СМЕН */}
+              {myStats.closedShifts.length > 0 && (
+                <div className="mt-8 mb-4">
+                  <h3 className="text-lg font-black text-slate-800 mb-4">История смен</h3>
+                  <div className="space-y-3">
+                    {myStats.closedShifts.map(shift => (
+                      <div key={shift.id} className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex justify-between items-center">
+                        <div>
+                          <p className="font-bold text-slate-800">{shift.dateStr}</p>
+                          <p className="text-xs text-slate-400 font-medium">{shift.shiftFraction === 1 ? 'Полная смена' : 'Напарник (0.5)'}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-black text-blue-600">{shift.earned} ₸</p>
+                          <p className="text-xs text-slate-400">{shift.totalItems} поз.</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
