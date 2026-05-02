@@ -243,6 +243,9 @@ const AdminDashboard = () => {
   const globalReplacements = closedSystemShifts.reduce((a,b) => a + (b.items?.cocktail2 || 0), 0);
   const globalOwnerProfit = (globalHookahs * ownerProfits.hookah) + (globalReplacements * ownerProfits.replacement);
   
+  const tamerlanEarned = closedSystemShifts.filter(s => s.employeeName && s.employeeName.trim().toLowerCase() === 'tamerlan').reduce((a,b) => a + (b.earned || 0), 0);
+  const profitWithoutTamerlan = globalOwnerProfit - totalSystemEarned + tamerlanEarned;
+  
   const replacementRate = globalHookahs > 0 ? ((globalReplacements / globalHookahs) * 100).toFixed(1) : 0;
 
   const profitByMaster = useMemo(() => {
@@ -299,7 +302,6 @@ const AdminDashboard = () => {
           <button onClick={() => switchTab('profit')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'profit' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'text-slate-400 hover:bg-slate-50'}`}><Wallet size={20}/>Моя прибыль</button>
           <button onClick={() => switchTab('employees')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'employees' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'text-slate-400 hover:bg-slate-50'}`}><Users size={20}/>Персонал</button>
           <button onClick={() => switchTab('settings')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'settings' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'text-slate-400 hover:bg-slate-50'}`}><Settings size={20}/>Настройки БД</button>
-          <button onClick={() => switchTab('manual_shift')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'manual_shift' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'text-slate-400 hover:bg-slate-50'}`}><Bug size={20}/>Ручная смена</button>
           <button onClick={() => switchTab('debug')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'debug' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'text-slate-400 hover:bg-slate-50'}`}><Database size={20}/>Debug</button>
         </nav>
         <button onClick={() => signOut(auth)} className="flex items-center gap-3 p-4 text-slate-400 font-bold hover:text-red-500 transition-all"><LogOut size={20}/>Выйти</button>
@@ -396,6 +398,8 @@ const AdminDashboard = () => {
                   <div className="text-right sm:mt-0 mt-4">
                     <p className="font-bold text-xs uppercase tracking-widest mb-1 opacity-80">Без вычета ЗП</p>
                     <h4 className="text-2xl font-black">{globalOwnerProfit} ₸</h4>
+                    <p className="font-bold text-xs uppercase tracking-widest mb-1 opacity-80 mt-4 text-green-200">Без вычета ЗП Tamerlan</p>
+                    <h4 className="text-xl font-black text-white">{profitWithoutTamerlan} ₸</h4>
                   </div>
                 </div>
               </div>
@@ -464,66 +468,6 @@ const AdminDashboard = () => {
                   {isSavingSettings ? 'Сохранение...' : 'Сохранить настройки'}
                 </button>
               </div>
-            </div>
-          </div>
-        )}
-
-        {/* ВКЛАДКА: MANUAL SHIFT */}
-        {activeTab === 'manual_shift' && (
-          <div className="max-w-2xl animate-in fade-in duration-300">
-            <h1 className="text-2xl font-bold text-slate-800 mb-8">Debug Панель</h1>
-            <div className="bg-white p-10 rounded-[40px] border border-slate-100 shadow-sm">
-              <h2 className="text-lg font-black text-slate-900 mb-2">Создать смену вручную</h2>
-              <p className="text-slate-500 mb-8 text-sm">Добавляет смену за определенное число со всеми параметрами (кто мастер, напарник).</p>
-              
-              <form onSubmit={handleCreateDebugShift} className="space-y-6">
-                <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Дата</label>
-                  <input type="date" value={debugShift.dateStr} onChange={e=>setDebugShift({...debugShift, dateStr: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" required />
-                </div>
-                
-                <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Кальянный мастер</label>
-                  <select value={debugShift.employeeId} onChange={e=>setDebugShift({...debugShift, employeeId: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" required>
-                    <option value="">Выберите мастера</option>
-                    {employees.map(emp => <option key={emp.id} value={emp.id}>{emp.name}</option>)}
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Статус</label>
-                  <select value={debugShift.status} onChange={e=>setDebugShift({...debugShift, status: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" required>
-                    <option value="open">Открытая (Без результатов)</option>
-                    <option value="closed">Закрытая (С результатами)</option>
-                  </select>
-                </div>
-
-                {debugShift.status === 'closed' && (
-                  <div className="space-y-6 animate-in slide-in-from-top-4 duration-300">
-                    <div>
-                      <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Напарник (Опционально)</label>
-                      <select value={debugShift.partnerId} onChange={e=>setDebugShift({...debugShift, partnerId: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800">
-                        <option value="">Без напарника (Один)</option>
-                        {employees.filter(e => e.id !== debugShift.employeeId).map(emp => <option key={emp.id} value={emp.id}>{emp.name}</option>)}
-                      </select>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Кальяны</label>
-                        <input type="number" min="0" value={debugShift.hookahs} onChange={e=>setDebugShift({...debugShift, hookahs: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Замены</label>
-                        <input type="number" min="0" value={debugShift.replacements} onChange={e=>setDebugShift({...debugShift, replacements: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" />
-                      </div>
-                    </div>
-                  </div>
-                )}
-                
-                <button type="submit" className="w-full p-4 mt-4 bg-gray-900 text-white rounded-2xl font-bold shadow-lg shadow-gray-200">
-                  Добавить смену
-                </button>
-              </form>
             </div>
           </div>
         )}
@@ -728,8 +672,61 @@ const AdminDashboard = () => {
         )}
         {/* ВКЛАДКА 5: DEBUG */}
         {activeTab === 'debug' && (
-          <div className="max-w-2xl animate-in fade-in duration-300">
-            <h1 className="text-2xl font-bold text-slate-800 mb-8">Debug Панель</h1>
+          <div className="max-w-2xl animate-in fade-in duration-300 space-y-10">
+            
+            <div className="bg-white p-10 rounded-[40px] border border-slate-100 shadow-sm">
+              <h2 className="text-lg font-black text-slate-900 mb-2">Создать смену вручную</h2>
+              <p className="text-slate-500 mb-8 text-sm">Добавляет смену за определенное число со всеми параметрами (кто мастер, напарник).</p>
+              
+              <form onSubmit={handleCreateDebugShift} className="space-y-6">
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Дата</label>
+                  <input type="date" value={debugShift.dateStr} onChange={e=>setDebugShift({...debugShift, dateStr: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" required />
+                </div>
+                
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Кальянный мастер</label>
+                  <select value={debugShift.employeeId} onChange={e=>setDebugShift({...debugShift, employeeId: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" required>
+                    <option value="">Выберите мастера</option>
+                    {employees.map(emp => <option key={emp.id} value={emp.id}>{emp.name}</option>)}
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Статус</label>
+                  <select value={debugShift.status} onChange={e=>setDebugShift({...debugShift, status: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" required>
+                    <option value="open">Открытая (Без результатов)</option>
+                    <option value="closed">Закрытая (С результатами)</option>
+                  </select>
+                </div>
+
+                {debugShift.status === 'closed' && (
+                  <div className="space-y-6 animate-in slide-in-from-top-4 duration-300">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Напарник (Опционально)</label>
+                      <select value={debugShift.partnerId} onChange={e=>setDebugShift({...debugShift, partnerId: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800">
+                        <option value="">Без напарника (Один)</option>
+                        {employees.filter(e => e.id !== debugShift.employeeId).map(emp => <option key={emp.id} value={emp.id}>{emp.name}</option>)}
+                      </select>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Кальяны</label>
+                        <input type="number" min="0" value={debugShift.hookahs} onChange={e=>setDebugShift({...debugShift, hookahs: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Замены</label>
+                        <input type="number" min="0" value={debugShift.replacements} onChange={e=>setDebugShift({...debugShift, replacements: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                <button type="submit" className="w-full p-4 mt-4 bg-gray-900 text-white rounded-2xl font-bold shadow-lg shadow-gray-200">
+                  Добавить смену
+                </button>
+              </form>
+            </div>
             <div className="bg-white p-10 rounded-[40px] border border-red-100 shadow-sm">
               <div className="flex items-center gap-4 mb-4 text-red-500">
                 <AlertTriangle size={32} />
