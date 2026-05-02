@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { collection, query, where, getDocs, addDoc, updateDoc, doc, serverTimestamp, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
-import { LogOut, Camera, Loader2, CheckCircle2, UserPlus, PlayCircle, AlertCircle, XCircle } from 'lucide-react';
+import { LogOut, Camera, Loader2, CheckCircle2, UserPlus, PlayCircle, AlertCircle, XCircle, Clock, Banknote, CalendarDays, useMemo } from 'lucide-react';
 import heic2any from 'heic2any';
 import imageCompression from 'browser-image-compression';
 
@@ -20,6 +20,9 @@ const EmployeeApp = () => {
   const [currentShift, setCurrentShift] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef(null);
+
+  const [activeTab, setActiveTab] = useState('shift'); // 'shift', 'stats'
+  const [myShifts, setMyShifts] = useState([]);
 
   // Стейт для кастомных модальных окон
   // type: 'success', 'error', 'zeroConfirm'
@@ -65,8 +68,49 @@ const EmployeeApp = () => {
         setCurrentShift(null);
       }
     });
-    return () => unsubSales();
+
+    const unsubMyShifts = onSnapshot(query(collection(db, 'sales'), where('employeeId', '==', employee.id)), (snap) => {
+      setMyShifts(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    });
+
+    return () => { unsubSales(); unsubMyShifts(); };
   }, [employee]);
+
+  const availableMonths = (() => {
+    const months = new Set();
+    myShifts.forEach(s => {
+      if (s.dateStr) months.add(s.dateStr.split('.').slice(1).join('.'));
+    });
+    const now = new Date();
+    const curMonth = `${String(now.getMonth() + 1).padStart(2, '0')}.${now.getFullYear()}`;
+    months.add(curMonth);
+    return Array.from(months).sort((a, b) => {
+      const [m1, y1] = a.split('.');
+      const [m2, y2] = b.split('.');
+      if (y1 !== y2) return y2 - y1;
+      return m2 - m1;
+    });
+  })();
+
+  const [selectedMonth, setSelectedMonth] = useState(availableMonths[0] || (() => {
+    const now = new Date();
+    return `${String(now.getMonth() + 1).padStart(2, '0')}.${now.getFullYear()}`;
+  })());
+
+  const myStats = (() => {
+    let empShifts = myShifts;
+    if (selectedMonth && selectedMonth !== 'all') {
+      empShifts = empShifts.filter(s => s.dateStr && s.dateStr.endsWith(`.${selectedMonth}`));
+    }
+    const closedShifts = empShifts.filter(s => s.status === 'closed');
+    const hookahs = closedShifts.reduce((sum, s) => sum + (s.items?.cocktail1 || 0), 0);
+    const replacements = closedShifts.reduce((sum, s) => sum + (s.items?.cocktail2 || 0), 0);
+    const totalEarned = closedShifts.reduce((sum, s) => sum + (s.earned || 0), 0);
+    const baseSalaryTotal = closedShifts.reduce((sum, s) => sum + (s.baseSalary || 0), 0);
+    const hookahPercentageTotal = closedShifts.reduce((sum, s) => sum + (s.hookahPercentage || 0), 0);
+    const shiftsCount = closedShifts.reduce((sum, s) => sum + (s.shiftFraction || 1), 0);
+    return { hookahs, replacements, totalEarned, baseSalaryTotal, hookahPercentageTotal, shiftsCount };
+  })();
 
   const handleLogin = async () => {
     if (pin.length !== 4) return;
@@ -315,96 +359,165 @@ const EmployeeApp = () => {
         <button onClick={() => {setEmployee(null); localStorage.clear();}} className="p-2 text-gray-300 hover:text-red-500"><LogOut/></button>
       </div>
 
-      <div className="flex-1 p-6 flex flex-col relative">
+      <div className="flex-1 p-6 flex flex-col relative overflow-auto">
         
-        {/* СОСТОЯНИЕ: СМЕНА ЗАНЯТА ИЛИ УЖЕ ЗАКРЫТА ДРУГИМ */}
-        {(currentShift?.status === 'locked' || currentShift?.status === 'locked_closed') && (
-          <div className="flex-1 flex flex-col items-center justify-center animate-in fade-in zoom-in duration-300">
-            <div className="bg-white p-8 rounded-[40px] shadow-sm border border-gray-100 text-center w-full">
-              <div className="w-20 h-20 bg-orange-50 text-orange-500 rounded-full flex items-center justify-center mx-auto mb-6"><AlertCircle size={40} /></div>
-              <h2 className="text-2xl font-black text-gray-800 mb-2">
-                {currentShift.status === 'locked' ? 'Смена уже идет' : 'Смена закрыта'}
-              </h2>
-              <p className="text-gray-500 mb-4 font-medium text-sm">
-                {currentShift.status === 'locked' 
-                  ? `Сегодня смену открыл мастер: ${currentShift.employeeName}.` 
-                  : 'Сегодня смена уже была закрыта. Больше смен открыть нельзя.'}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* СОСТОЯНИЕ 1: СМЕНА НЕ ОТКРЫТА */}
-        {!currentShift && (
-          <div className="flex-1 flex flex-col items-center justify-center animate-in fade-in zoom-in duration-300">
-            <div className="bg-white p-8 rounded-[40px] shadow-sm border border-gray-100 text-center w-full">
-              <div className="w-20 h-20 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6"><PlayCircle size={40} /></div>
-              <h2 className="text-2xl font-black text-gray-800 mb-2">Новая смена</h2>
-              <p className="text-gray-400 mb-8 text-sm">Нажмите кнопку ниже, чтобы начать рабочий день. Дата зафиксируется автоматически.</p>
-              <button onClick={handleOpenShift} disabled={isLoading} className="w-full py-5 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-200 active:scale-95 transition-transform">
-                {isLoading ? 'Открытие...' : 'ОТКРЫТЬ СМЕНУ'}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* СОСТОЯНИЕ 2: СМЕНА ОТКРЫТА */}
-        {currentShift?.status === 'open' && (
-          <div className="flex flex-col h-full animate-in fade-in duration-300">
-            <div className="bg-blue-600 rounded-3xl p-6 text-white shadow-lg shadow-blue-200 mb-6">
-              <div className="flex justify-between items-center mb-4">
-                <span className="bg-white/20 px-3 py-1 rounded-full text-xs font-bold tracking-widest uppercase">Смена идет</span>
-                <span className="font-mono text-blue-100">{currentShift.dateStr}</span>
+        {activeTab === 'shift' && (
+          <div className="flex-1 flex flex-col w-full h-full animate-in fade-in duration-300">
+            {/* СОСТОЯНИЕ: СМЕНА ЗАНЯТА ИЛИ УЖЕ ЗАКРЫТА ДРУГИМ */}
+            {(currentShift?.status === 'locked' || currentShift?.status === 'locked_closed') && (
+              <div className="flex-1 flex flex-col items-center justify-center animate-in fade-in zoom-in duration-300">
+                <div className="bg-white p-8 rounded-[40px] shadow-sm border border-gray-100 text-center w-full">
+                  <div className="w-20 h-20 bg-orange-50 text-orange-500 rounded-full flex items-center justify-center mx-auto mb-6"><AlertCircle size={40} /></div>
+                  <h2 className="text-2xl font-black text-gray-800 mb-2">
+                    {currentShift.status === 'locked' ? 'Смена уже идет' : 'Смена закрыта'}
+                  </h2>
+                  <p className="text-gray-500 mb-4 font-medium text-sm">
+                    {currentShift.status === 'locked' 
+                      ? `Сегодня смену открыл мастер: ${currentShift.employeeName}.` 
+                      : 'Сегодня смена уже была закрыта. Больше смен открыть нельзя.'}
+                  </p>
+                </div>
               </div>
-              <h2 className="text-xl font-medium opacity-90">Ждем закрытия и отчет</h2>
-            </div>
+            )}
 
-            <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm mb-6">
-              <label className="block text-xs font-bold text-gray-400 uppercase mb-3 ml-1">С кем работал?</label>
-              <div className="relative">
-                <select value={partnerId} onChange={(e) => setPartnerId(e.target.value)} className="w-full bg-slate-50 border border-transparent p-4 rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 font-bold">
-                  <option value="">Один (Вся ЗП моя)</option>
-                  {employeesList.filter(e => e.id !== employee.id).map(emp => <option key={emp.id} value={emp.id}>{emp.name}</option>)}
-                </select>
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400"><UserPlus size={20}/></div>
+            {/* СОСТОЯНИЕ 1: СМЕНА НЕ ОТКРЫТА */}
+            {!currentShift && (
+              <div className="flex-1 flex flex-col items-center justify-center animate-in fade-in zoom-in duration-300">
+                <div className="bg-white p-8 rounded-[40px] shadow-sm border border-gray-100 text-center w-full">
+                  <div className="w-20 h-20 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6"><PlayCircle size={40} /></div>
+                  <h2 className="text-2xl font-black text-gray-800 mb-2">Новая смена</h2>
+                  <p className="text-gray-400 mb-8 text-sm">Нажмите кнопку ниже, чтобы начать рабочий день. Дата зафиксируется автоматически.</p>
+                  <button onClick={handleOpenShift} disabled={isLoading} className="w-full py-5 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-200 active:scale-95 transition-transform">
+                    {isLoading ? 'Открытие...' : 'ОТКРЫТЬ СМЕНУ'}
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
 
-            <div className="mt-auto">
-              <input type="file" accept="image/jpeg, image/jpg, image/png" ref={fileInputRef} onChange={handleFileUpload} className="hidden" />
-              <button onClick={() => fileInputRef.current.click()} disabled={isUploading} className="w-full py-5 rounded-3xl font-bold shadow-lg transition-all flex items-center justify-center gap-3 bg-gray-900 text-white active:scale-95 disabled:bg-gray-400">
-                {isUploading ? <><Loader2 className="animate-spin"/> Считаем...</> : <><Camera/> ЗАКРЫТЬ СМЕНУ И ОТПРАВИТЬ ЧЕК</>}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* СОСТОЯНИЕ 3: СМЕНА ЗАКРЫТА */}
-        {currentShift?.status === 'closed' && (
-          <div className="flex-1 flex flex-col items-center justify-center animate-in slide-in-from-bottom-4 duration-500">
-            <div className="bg-white p-8 rounded-[40px] shadow-sm border border-gray-100 text-center w-full relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-2 bg-green-500"></div>
-              <div className="w-20 h-20 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6"><CheckCircle2 size={40} /></div>
-              <h2 className="text-2xl font-black text-gray-800 mb-1">Смена закрыта</h2>
-              <p className="text-gray-400 mb-8 font-mono text-sm">{currentShift.dateStr}</p>
-              
-              <div className="bg-slate-50 rounded-2xl p-4 text-left">
-                <p className="text-xs text-gray-400 uppercase font-bold mb-1">Начислено</p>
-                <p className="text-3xl font-black text-slate-800 mb-4">{currentShift.earned} ₸</p>
-                {(currentShift.baseSalary !== undefined) && (
-                  <div className="flex justify-between text-sm mb-3">
-                    <span className="text-gray-500 font-medium">Оклад: <strong className="text-gray-800">{currentShift.baseSalary} ₸</strong></span>
-                    <span className="text-gray-500 font-medium">% с кальянов: <strong className="text-gray-800">{currentShift.hookahPercentage} ₸</strong></span>
+            {/* СОСТОЯНИЕ 2: СМЕНА ОТКРЫТА */}
+            {currentShift?.status === 'open' && (
+              <div className="flex flex-col h-full animate-in fade-in duration-300">
+                <div className="bg-blue-600 rounded-3xl p-6 text-white shadow-lg shadow-blue-200 mb-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <span className="bg-white/20 px-3 py-1 rounded-full text-xs font-bold tracking-widest uppercase">Смена идет</span>
+                    <span className="font-mono text-blue-100">{currentShift.dateStr}</span>
                   </div>
-                )}
-                <div className="border-t border-gray-200 pt-3">
-                  <p className="text-sm text-gray-500 font-medium">Позиций учтено: <span className="font-bold text-gray-800">{currentShift.totalItems} шт</span></p>
+                  <h2 className="text-xl font-medium opacity-90">Ждем закрытия и отчет</h2>
+                </div>
+
+                <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm mb-6">
+                  <label className="block text-xs font-bold text-gray-400 uppercase mb-3 ml-1">С кем работал?</label>
+                  <div className="relative">
+                    <select value={partnerId} onChange={(e) => setPartnerId(e.target.value)} className="w-full bg-slate-50 border border-transparent p-4 rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 font-bold">
+                      <option value="">Один (Вся ЗП моя)</option>
+                      {employeesList.filter(e => e.id !== employee.id).map(emp => <option key={emp.id} value={emp.id}>{emp.name}</option>)}
+                    </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400"><UserPlus size={20}/></div>
+                  </div>
+                </div>
+
+                <div className="mt-auto pb-4">
+                  <input type="file" accept="image/jpeg, image/jpg, image/png, image/heic, image/heif" ref={fileInputRef} onChange={handleFileUpload} className="hidden" />
+                  <button onClick={() => fileInputRef.current.click()} disabled={isUploading} className="w-full py-5 rounded-3xl font-bold shadow-lg transition-all flex items-center justify-center gap-3 bg-gray-900 text-white active:scale-95 disabled:bg-gray-400">
+                    {isUploading ? <><Loader2 className="animate-spin"/> Считаем...</> : <><Camera/> ЗАКРЫТЬ СМЕНУ И ОТПРАВИТЬ ЧЕК</>}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* СОСТОЯНИЕ 3: СМЕНА ЗАКРЫТА */}
+            {currentShift?.status === 'closed' && (
+              <div className="flex-1 flex flex-col items-center justify-center animate-in slide-in-from-bottom-4 duration-500">
+                <div className="bg-white p-8 rounded-[40px] shadow-sm border border-gray-100 text-center w-full relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-full h-2 bg-green-500"></div>
+                  <div className="w-20 h-20 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6"><CheckCircle2 size={40} /></div>
+                  <h2 className="text-2xl font-black text-gray-800 mb-1">Смена закрыта</h2>
+                  <p className="text-gray-400 mb-8 font-mono text-sm">{currentShift.dateStr}</p>
+                  
+                  <div className="bg-slate-50 rounded-2xl p-4 text-left">
+                    <p className="text-xs text-gray-400 uppercase font-bold mb-1">Начислено</p>
+                    <p className="text-3xl font-black text-slate-800 mb-4">{currentShift.earned} ₸</p>
+                    {(currentShift.baseSalary !== undefined) && (
+                      <div className="flex justify-between text-sm mb-3">
+                        <span className="text-gray-500 font-medium">Оклад: <strong className="text-gray-800">{currentShift.baseSalary} ₸</strong></span>
+                        <span className="text-gray-500 font-medium">% с кальянов: <strong className="text-gray-800">{currentShift.hookahPercentage} ₸</strong></span>
+                      </div>
+                    )}
+                    <div className="border-t border-gray-200 pt-3">
+                      <p className="text-sm text-gray-500 font-medium">Позиций учтено: <span className="font-bold text-gray-800">{currentShift.totalItems} шт</span></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ВКЛАДКА: МОЯ ЗП */}
+        {activeTab === 'stats' && (
+          <div className="flex-1 flex flex-col h-full animate-in fade-in zoom-in-95 duration-300 pb-4">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-black text-gray-800">Моя ЗП</h2>
+              <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-gray-200">
+                <CalendarDays className="text-gray-400 ml-3" size={18}/>
+                <select value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} className="py-2 pr-4 bg-transparent font-bold text-gray-700 focus:outline-none cursor-pointer">
+                  <option value="all">Все время</option>
+                  {availableMonths.map(m => <option key={m} value={m}>{m}</option>)}
+                </select>
+              </div>
+            </div>
+
+            <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm relative overflow-hidden flex flex-col h-full">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-14 h-14 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center text-blue-600 font-black text-2xl shadow-inner">
+                  {employee.name.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <h3 className="text-xl font-black text-slate-900">{employee.name}</h3>
+                  <p className="text-sm text-slate-400 font-medium">{myStats.shiftsCount} смен отработано</p>
+                </div>
+              </div>
+              
+              <div className="bg-slate-50 p-5 rounded-2xl mb-6 flex-1 flex flex-col justify-center border border-slate-100">
+                <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mb-1">Заработано</p>
+                <h4 className="text-4xl font-black text-blue-600">{myStats.totalEarned} ₸</h4>
+                <div className="flex justify-between mt-3 pt-3 border-t border-slate-200 text-sm">
+                  <span className="text-slate-500 font-medium">Оклад: <strong className="text-slate-800">{myStats.baseSalaryTotal} ₸</strong></span>
+                  <span className="text-slate-500 font-medium">% с кальянов: <strong className="text-slate-800">{myStats.hookahPercentageTotal} ₸</strong></span>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4 text-center">
+                <div className="bg-white border border-slate-100 p-3 rounded-2xl shadow-sm">
+                  <p className="text-xs text-slate-400 uppercase font-bold mb-1">Кальянов</p>
+                  <p className="font-black text-slate-800 text-xl">{myStats.hookahs}</p>
+                </div>
+                <div className="bg-white border border-slate-100 p-3 rounded-2xl shadow-sm">
+                  <p className="text-xs text-slate-400 uppercase font-bold mb-1">Замен</p>
+                  <p className="font-black text-slate-800 text-xl">{myStats.replacements}</p>
                 </div>
               </div>
             </div>
           </div>
         )}
+      </div>
 
+      {/* ПАНЕЛЬ НАВИГАЦИИ (НИЖНЯЯ) */}
+      <div className="bg-white border-t border-gray-100 flex z-10 relative mt-auto pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.03)]">
+        <button 
+          onClick={() => setActiveTab('shift')}
+          className={`flex-1 py-4 flex flex-col items-center gap-1 font-bold text-xs transition-colors ${activeTab === 'shift' ? 'text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
+        >
+          <Clock size={24}/>
+          Смена
+        </button>
+        <button 
+          onClick={() => setActiveTab('stats')}
+          className={`flex-1 py-4 flex flex-col items-center gap-1 font-bold text-xs transition-colors ${activeTab === 'stats' ? 'text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
+        >
+          <Banknote size={24}/>
+          Моя ЗП
+        </button>
       </div>
     </div>
   );
