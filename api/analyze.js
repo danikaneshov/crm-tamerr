@@ -17,8 +17,7 @@ export default async function handler(req, res) {
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
   try {
-    // Используем быструю модель Flash
-    const model = genAI.getGenerativeModel({ model: "gemini-3.1-flash-lite-preview" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     // Скачиваем картинку по ссылке из Cloudinary
     const imageResp = await fetch(imageUrl);
@@ -58,6 +57,9 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error('Ошибка анализа Gemini:', error);
-    res.status(500).json({ error: "Ошибка при анализе фото искусственным интеллектом" });
+    res.status(500).json({ 
+      error: "Ошибка при анализе фото искусственным интеллектом", 
+      details: error.message 
+    });
   }
 }
