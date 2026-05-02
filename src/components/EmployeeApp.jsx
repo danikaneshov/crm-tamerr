@@ -115,6 +115,7 @@ const EmployeeApp = () => {
   const handleLogin = async () => {
     if (pin.length !== 4) return;
     setIsLoading(true);
+    setError(''); // Очищаем старую ошибку перед новой попыткой
     try {
       const q = query(collection(db, 'employees'), where('pin', '==', pin));
       const snap = await getDocs(q);
@@ -122,9 +123,25 @@ const EmployeeApp = () => {
         const empData = { id: snap.docs[0].id, ...snap.docs[0].data() };
         setEmployee(empData);
         localStorage.setItem('currentEmployee', JSON.stringify(empData));
-      } else { setError('Неверный PIN'); }
-    } catch { setError('Ошибка БД'); } finally { setIsLoading(false); setPin(''); }
+        setPin(''); // Очищаем пин после успешного входа
+      } else { 
+        setError('Неверный PIN'); 
+        setPin(''); // Сбрасываем пин при неверном вводе
+      }
+    } catch { 
+      setError('Ошибка БД'); 
+      setPin('');
+    } finally { 
+      setIsLoading(false); 
+    }
   };
+
+  useEffect(() => {
+    if (pin.length === 4 && !isLoading) {
+      handleLogin();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pin]);
 
   const handleOpenShift = async () => {
     setIsLoading(true);
@@ -298,10 +315,10 @@ const EmployeeApp = () => {
         <div className="flex gap-4 mb-8">{[...Array(4)].map((_, i) => <div key={i} className={`w-3 h-3 rounded-full ${i < pin.length ? 'bg-blue-600' : 'bg-gray-200'}`} />)}</div>
         {error && <div className="mb-4 text-red-500 font-bold animate-in fade-in zoom-in">{error}</div>}
         <div className="grid grid-cols-3 gap-3 w-full max-w-[280px]">
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => <button key={n} onClick={() => {if(pin.length<4) setPin(pin+n)}} className="h-16 bg-white text-xl rounded-xl shadow-sm border active:bg-slate-50">{n}</button>)}
-          <button onClick={() => setPin(pin.slice(0,-1))} className="h-16 bg-white text-gray-400 rounded-xl border active:bg-slate-50">DEL</button>
-          <button onClick={() => {if(pin.length<4) setPin(pin+'0')}} className="h-16 bg-white text-xl rounded-xl border active:bg-slate-50">0</button>
-          <button onClick={handleLogin} disabled={pin.length !== 4 || isLoading} className="h-16 bg-blue-600 text-white rounded-xl font-bold disabled:bg-gray-300">ВХОД</button>
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => <button key={n} onClick={() => {if(pin.length<4) {setPin(pin+n); setError('');}}} className="h-16 bg-white text-xl rounded-xl shadow-sm border active:bg-slate-50">{n}</button>)}
+          <button onClick={() => {setPin(pin.slice(0,-1)); setError('');}} className="h-16 bg-white text-gray-400 rounded-xl border active:bg-slate-50">DEL</button>
+          <button onClick={() => {if(pin.length<4) {setPin(pin+'0'); setError('');}}} className="h-16 bg-white text-xl rounded-xl border active:bg-slate-50">0</button>
+          <button onClick={handleLogin} disabled={pin.length !== 4 || isLoading} className="h-16 bg-blue-600 text-white rounded-xl font-bold disabled:bg-gray-300">{isLoading ? 'ВХОД...' : 'ВХОД'}</button>
         </div>
       </div>
     );
