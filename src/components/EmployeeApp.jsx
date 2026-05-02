@@ -327,9 +327,9 @@ const EmployeeApp = () => {
         {error && <div className="mb-4 text-red-500 font-bold animate-in fade-in zoom-in">{error}</div>}
         <div className="grid grid-cols-3 gap-3 w-full max-w-[280px]">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => <button key={n} onClick={() => {if(pin.length<4) {setPin(pin+n); setError('');}}} className="h-16 bg-white text-xl rounded-xl shadow-sm border active:bg-slate-50">{n}</button>)}
-          <button onClick={() => {setPin(pin.slice(0,-1)); setError('');}} className="h-16 bg-white text-gray-400 rounded-xl border active:bg-slate-50">DEL</button>
+          <div className="h-16"></div>
           <button onClick={() => {if(pin.length<4) {setPin(pin+'0'); setError('');}}} className="h-16 bg-white text-xl rounded-xl border active:bg-slate-50">0</button>
-          <button onClick={handleLogin} disabled={pin.length !== 4 || isLoading} className="h-16 bg-blue-600 text-white rounded-xl font-bold disabled:bg-gray-300">{isLoading ? 'ВХОД...' : 'ВХОД'}</button>
+          <button onClick={() => {setPin(pin.slice(0,-1)); setError('');}} className="h-16 bg-white text-gray-400 rounded-xl border active:bg-slate-50">DEL</button>
         </div>
       </div>
     );
