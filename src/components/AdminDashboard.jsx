@@ -153,25 +153,43 @@ const AdminDashboard = () => {
 
         if (debugShift.partnerId) {
           partner = employees.find(e => e.id === debugShift.partnerId);
-          myTotalItems = (c1 + c2) / 2;
-          myEarned = 3000 + (c1 / 2 * 1500) + (c2 / 2 * 1500);
+          
+          let ownerC1 = Math.ceil(c1 / 2);
+          let partnerC1 = Math.floor(c1 / 2);
+          let ownerC2 = Math.ceil(c2 / 2);
+          let partnerC2 = Math.floor(c2 / 2);
+
+          let partnerTotalItems = partnerC1 + partnerC2;
+          let partnerEarned = 1500 + (partnerC1 * 1500) + (partnerC2 * 1500);
+
+          let ownerTotalItems = ownerC1 + ownerC2;
+          let ownerEarned = 3000 + (ownerC1 * 1500) + (ownerC2 * 1500);
           
           await addDoc(collection(db, 'sales'), {
             employeeId: partner.id, employeeName: partner.name,
             dateStr: dStr, endTime: serverTimestamp(), photoUrl: 'no-photo',
-            items: { cocktail1: c1 / 2, cocktail2: c2 / 2 },
-            totalItems: myTotalItems, earned: 1500 + (c1 / 2 * 1500) + (c2 / 2 * 1500),
+            items: { cocktail1: partnerC1, cocktail2: partnerC2 },
+            totalItems: partnerTotalItems, earned: partnerEarned,
+            status: 'closed'
+          });
+
+          await addDoc(collection(db, 'sales'), {
+            employeeId: emp.id, employeeName: emp.name,
+            dateStr: dStr, endTime: serverTimestamp(), photoUrl: 'no-photo',
+            items: { cocktail1: ownerC1, cocktail2: ownerC2 },
+            totalItems: ownerTotalItems, earned: ownerEarned,
+            status: 'closed'
+          });
+
+        } else {
+          await addDoc(collection(db, 'sales'), {
+            employeeId: emp.id, employeeName: emp.name,
+            dateStr: dStr, endTime: serverTimestamp(), photoUrl: 'no-photo',
+            items: { cocktail1: c1, cocktail2: c2 },
+            totalItems: myTotalItems, earned: myEarned,
             status: 'closed'
           });
         }
-        
-        await addDoc(collection(db, 'sales'), {
-          employeeId: emp.id, employeeName: emp.name,
-          dateStr: dStr, endTime: serverTimestamp(), photoUrl: 'no-photo',
-          items: { cocktail1: debugShift.partnerId ? c1 / 2 : c1, cocktail2: debugShift.partnerId ? c2 / 2 : c2 },
-          totalItems: myTotalItems, earned: myEarned,
-          status: 'closed'
-        });
       }
       alert('Смена успешно создана через Debug!');
       setDebugShift({ ...debugShift, hookahs: 0, replacements: 0, partnerId: '' });
