@@ -23,7 +23,8 @@ const AdminDashboard = () => {
   // Настройки маржинальности владельца (Аутсорс)
   const [ownerProfits, setOwnerProfits] = useState({ hookah: 0, replacement: 0 });
   const [isSavingSettings, setIsSavingSettings] = useState(false);
-  const [debugTestEmpId, setDebugTestEmpId] = useState('');
+  const [debugShiftPhoto, setDebugShiftPhoto] = useState(null);
+  const [isUploadingPastShift, setIsUploadingPastShift] = useState(false);
 
   const availableMonths = useMemo(() => {
     const months = new Set();
@@ -93,7 +94,6 @@ const AdminDashboard = () => {
     dateStr: '',
     employeeId: '',
     partnerId: '',
-    status: 'open',
     hookahs: 0,
     replacements: 0
   });
@@ -138,70 +138,86 @@ const AdminDashboard = () => {
     const dStr = debugShift.dateStr.split('-').reverse().join('.');
     const emp = employees.find(e => e.id === debugShift.employeeId);
     
+    setIsUploadingPastShift(true);
+
     try {
-      if (debugShift.status === 'open') {
+      let uploadedImageUrl = 'no-photo';
+      if (debugShiftPhoto) {
+        const formData = new FormData();
+        formData.append('file', debugShiftPhoto);
+        formData.append('upload_preset', 'ml_default');
+
+        const cloudRes = await fetch('https://api.cloudinary.com/v1_1/dl5vgfkvr/image/upload', {
+          method: 'POST', body: formData 
+        });
+        const cloudData = await cloudRes.json();
+        if (!cloudRes.ok) throw new Error(cloudData?.error?.message || 'Ошибка Cloudinary');
+        uploadedImageUrl = cloudData.secure_url;
+      }
+
+      const ownerBase = emp.name.trim().toLowerCase() === 'tamerlan' ? 1500 : 3000;
+
+      let partner = null;
+      let c1 = Number(debugShift.hookahs) || 0;
+      let c2 = Number(debugShift.replacements) || 0;
+      let myTotalItems = c1 + c2;
+
+      if (debugShift.partnerId) {
+        partner = employees.find(e => e.id === debugShift.partnerId);
+        const partnerBase = partner.name.trim().toLowerCase() === 'tamerlan' ? 1500 : 3000;
+        
+        let targetOwnerTotal = Math.ceil((c1 + c2) / 2);
+        let ownerC1 = Math.ceil(c1 / 2);
+        let ownerC2 = targetOwnerTotal - ownerC1;
+        let partnerC1 = c1 - ownerC1;
+        let partnerC2 = c2 - ownerC2;
+
+        let partnerTotalItems = partnerC1 + partnerC2;
+        let partnerEarned = partnerBase + (partnerC1 * 1500) + (partnerC2 * 1500);
+
+        let ownerTotalItems = ownerC1 + ownerC2;
+        let ownerEarned = ownerBase + (ownerC1 * 1500) + (ownerC2 * 1500);
+        
+        await addDoc(collection(db, 'sales'), {
+          employeeId: partner.id, employeeName: partner.name,
+          dateStr: dStr, endTime: serverTimestamp(), photoUrl: uploadedImageUrl,
+          items: { cocktail1: partnerC1, cocktail2: partnerC2 },
+          totalItems: partnerTotalItems, earned: partnerEarned,
+          baseSalary: partnerBase, hookahPercentage: (partnerC1 * 1500) + (partnerC2 * 1500),
+          shiftFraction: 0.5,
+          status: 'closed'
+        });
+
         await addDoc(collection(db, 'sales'), {
           employeeId: emp.id, employeeName: emp.name,
-          dateStr: dStr, startTime: serverTimestamp(), status: 'open'
+          dateStr: dStr, endTime: serverTimestamp(), photoUrl: uploadedImageUrl,
+          items: { cocktail1: ownerC1, cocktail2: ownerC2 },
+          totalItems: ownerTotalItems, earned: ownerEarned,
+          baseSalary: ownerBase, hookahPercentage: (ownerC1 * 1500) + (ownerC2 * 1500),
+          shiftFraction: 1,
+          status: 'closed'
         });
+
       } else {
-        let partner = null;
-        let c1 = Number(debugShift.hookahs) || 0;
-        let c2 = Number(debugShift.replacements) || 0;
-        let myTotalItems = c1 + c2;
-        let myEarned = 3000 + (c1 * 1500) + (c2 * 1500);
-
-        if (debugShift.partnerId) {
-          partner = employees.find(e => e.id === debugShift.partnerId);
-          
-          let targetOwnerTotal = Math.ceil((c1 + c2) / 2);
-          let ownerC1 = Math.ceil(c1 / 2);
-          let ownerC2 = targetOwnerTotal - ownerC1;
-          let partnerC1 = c1 - ownerC1;
-          let partnerC2 = c2 - ownerC2;
-
-          let partnerTotalItems = partnerC1 + partnerC2;
-          let partnerEarned = 1500 + (partnerC1 * 1500) + (partnerC2 * 1500);
-
-          let ownerTotalItems = ownerC1 + ownerC2;
-          let ownerEarned = 3000 + (ownerC1 * 1500) + (ownerC2 * 1500);
-          
-          await addDoc(collection(db, 'sales'), {
-            employeeId: partner.id, employeeName: partner.name,
-            dateStr: dStr, endTime: serverTimestamp(), photoUrl: 'no-photo',
-            items: { cocktail1: partnerC1, cocktail2: partnerC2 },
-            totalItems: partnerTotalItems, earned: partnerEarned,
-            baseSalary: 1500, hookahPercentage: (partnerC1 * 1500) + (partnerC2 * 1500),
-            shiftFraction: 0.5,
-            status: 'closed'
-          });
-
-          await addDoc(collection(db, 'sales'), {
-            employeeId: emp.id, employeeName: emp.name,
-            dateStr: dStr, endTime: serverTimestamp(), photoUrl: 'no-photo',
-            items: { cocktail1: ownerC1, cocktail2: ownerC2 },
-            totalItems: ownerTotalItems, earned: ownerEarned,
-            baseSalary: 3000, hookahPercentage: (ownerC1 * 1500) + (ownerC2 * 1500),
-            shiftFraction: 1,
-            status: 'closed'
-          });
-
-        } else {
-          await addDoc(collection(db, 'sales'), {
-            employeeId: emp.id, employeeName: emp.name,
-            dateStr: dStr, endTime: serverTimestamp(), photoUrl: 'no-photo',
-            items: { cocktail1: c1, cocktail2: c2 },
-            totalItems: myTotalItems, earned: myEarned,
-            baseSalary: 3000, hookahPercentage: (c1 * 1500) + (c2 * 1500),
-            shiftFraction: 1,
-            status: 'closed'
-          });
-        }
+        let myEarned = ownerBase + (c1 * 1500) + (c2 * 1500);
+        await addDoc(collection(db, 'sales'), {
+          employeeId: emp.id, employeeName: emp.name,
+          dateStr: dStr, endTime: serverTimestamp(), photoUrl: uploadedImageUrl,
+          items: { cocktail1: c1, cocktail2: c2 },
+          totalItems: myTotalItems, earned: myEarned,
+          baseSalary: ownerBase, hookahPercentage: (c1 * 1500) + (c2 * 1500),
+          shiftFraction: 1,
+          status: 'closed'
+        });
       }
-      alert('Смена успешно создана через Debug!');
+      
+      alert('Смена успешно загружена!');
       setDebugShift({ ...debugShift, hookahs: 0, replacements: 0, partnerId: '' });
+      setDebugShiftPhoto(null);
     } catch (err) {
       alert('Ошибка: ' + err.message);
+    } finally {
+      setIsUploadingPastShift(false);
     }
   };
 
@@ -692,8 +708,8 @@ const AdminDashboard = () => {
           <div className="max-w-2xl animate-in fade-in duration-300 space-y-10">
             
             <div className="bg-white p-10 rounded-[40px] border border-slate-100 shadow-sm">
-              <h2 className="text-lg font-black text-slate-900 mb-2">Создать смену вручную</h2>
-              <p className="text-slate-500 mb-8 text-sm">Добавляет смену за определенное число со всеми параметрами (кто мастер, напарник).</p>
+              <h2 className="text-lg font-black text-slate-900 mb-2">Загрузить прошлые смены</h2>
+              <p className="text-slate-500 mb-8 text-sm">Добавляет прошедшую смену со всеми параметрами (кто мастер, напарник) и прикрепляет фото отчета.</p>
               
               <form onSubmit={handleCreateDebugShift} className="space-y-6">
                 <div>
@@ -709,38 +725,32 @@ const AdminDashboard = () => {
                   </select>
                 </div>
                 
-                <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Статус</label>
-                  <select value={debugShift.status} onChange={e=>setDebugShift({...debugShift, status: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" required>
-                    <option value="open">Открытая (Без результатов)</option>
-                    <option value="closed">Закрытая (С результатами)</option>
-                  </select>
-                </div>
-
-                {debugShift.status === 'closed' && (
-                  <div className="space-y-6 animate-in slide-in-from-top-4 duration-300">
+                <div className="space-y-6 animate-in slide-in-from-top-4 duration-300">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Напарник (Опционально)</label>
+                    <select value={debugShift.partnerId} onChange={e=>setDebugShift({...debugShift, partnerId: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800">
+                      <option value="">Без напарника (Один)</option>
+                      {employees.filter(e => e.id !== debugShift.employeeId).map(emp => <option key={emp.id} value={emp.id}>{emp.name}</option>)}
+                    </select>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Напарник (Опционально)</label>
-                      <select value={debugShift.partnerId} onChange={e=>setDebugShift({...debugShift, partnerId: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800">
-                        <option value="">Без напарника (Один)</option>
-                        {employees.filter(e => e.id !== debugShift.employeeId).map(emp => <option key={emp.id} value={emp.id}>{emp.name}</option>)}
-                      </select>
+                      <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Кальяны</label>
+                      <input type="number" min="0" value={debugShift.hookahs} onChange={e=>setDebugShift({...debugShift, hookahs: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" />
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Кальяны</label>
-                        <input type="number" min="0" value={debugShift.hookahs} onChange={e=>setDebugShift({...debugShift, hookahs: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Замены</label>
-                        <input type="number" min="0" value={debugShift.replacements} onChange={e=>setDebugShift({...debugShift, replacements: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" />
-                      </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Замены</label>
+                      <input type="number" min="0" value={debugShift.replacements} onChange={e=>setDebugShift({...debugShift, replacements: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" />
                     </div>
                   </div>
-                )}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Фото отчета (Опционально)</label>
+                    <input type="file" accept="image/jpeg, image/jpg, image/png, image/heic, image/heif" onChange={e => setDebugShiftPhoto(e.target.files[0] || null)} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-sm text-slate-800" />
+                  </div>
+                </div>
                 
-                <button type="submit" className="w-full p-4 mt-4 bg-gray-900 text-white rounded-2xl font-bold shadow-lg shadow-gray-200">
-                  Добавить смену
+                <button type="submit" disabled={isUploadingPastShift} className="w-full p-4 mt-4 bg-gray-900 text-white rounded-2xl font-bold shadow-lg shadow-gray-200 disabled:opacity-50">
+                  {isUploadingPastShift ? 'Загрузка...' : 'Добавить смену'}
                 </button>
               </form>
             </div>
@@ -752,53 +762,6 @@ const AdminDashboard = () => {
               <p className="text-slate-500 mb-8 text-sm">Здесь находятся инструменты для отладки базы данных. Действия необратимы.</p>
               
               <div className="space-y-6">
-                <div className="bg-blue-50 p-6 rounded-2xl border border-blue-100">
-                  <h3 className="font-bold text-blue-800 mb-2">Добавить тестовую смену (Текущая дата)</h3>
-                  <p className="text-sm text-blue-600 mb-4">Создает случайную закрытую смену для проверки графиков и дашбордов.</p>
-                  
-                  <div className="flex flex-col sm:flex-row gap-4 mb-4">
-                    <select 
-                      value={debugTestEmpId} 
-                      onChange={e => setDebugTestEmpId(e.target.value)}
-                      className="p-3 bg-white rounded-xl border border-blue-200 font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1"
-                    >
-                      <option value="">Выберите сотрудника</option>
-                      {employees.map(emp => (
-                        <option key={emp.id} value={emp.id}>{emp.name}</option>
-                      ))}
-                    </select>
-
-                    <button 
-                      onClick={async () => {
-                        if (!debugTestEmpId) {
-                          alert('Сначала выберите сотрудника.');
-                          return;
-                        }
-                        const emp = employees.find(e => e.id === debugTestEmpId);
-                        const dateStr = new Date().toLocaleDateString('ru-RU');
-                        try {
-                          await addDoc(collection(db, 'sales'), {
-                            employeeId: emp.id,
-                            employeeName: emp.name,
-                            dateStr,
-                            endTime: serverTimestamp(),
-                            photoUrl: 'no-photo',
-                            items: { cocktail1: Math.floor(Math.random() * 5) + 3, cocktail2: Math.floor(Math.random() * 3) + 1 },
-                            totalItems: 8,
-                            earned: 13500, // Примерная сумма
-                            status: 'closed'
-                          });
-                          alert('Тестовая смена успешно добавлена на ' + dateStr);
-                        } catch (err) {
-                          alert('Ошибка: ' + err.message);
-                        }
-                      }}
-                      className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition-colors whitespace-nowrap"
-                    >
-                      Создать смену
-                    </button>
-                  </div>
-                </div>
 
                 <div className="bg-red-50 p-6 rounded-2xl border border-red-100">
                   <h3 className="font-bold text-red-800 mb-2">Удалить все смены (Таблица sales)</h3>
