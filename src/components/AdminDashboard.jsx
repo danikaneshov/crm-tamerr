@@ -154,10 +154,11 @@ const AdminDashboard = () => {
         if (debugShift.partnerId) {
           partner = employees.find(e => e.id === debugShift.partnerId);
           
+          let targetOwnerTotal = Math.ceil((c1 + c2) / 2);
           let ownerC1 = Math.ceil(c1 / 2);
-          let partnerC1 = Math.floor(c1 / 2);
-          let ownerC2 = Math.ceil(c2 / 2);
-          let partnerC2 = Math.floor(c2 / 2);
+          let ownerC2 = targetOwnerTotal - ownerC1;
+          let partnerC1 = c1 - ownerC1;
+          let partnerC2 = c2 - ownerC2;
 
           let partnerTotalItems = partnerC1 + partnerC2;
           let partnerEarned = 1500 + (partnerC1 * 1500) + (partnerC2 * 1500);
