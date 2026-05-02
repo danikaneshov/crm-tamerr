@@ -109,12 +109,14 @@ const EmployeeApp = () => {
     if (partnerId) {
       const partner = employeesList.find(emp => emp.id === partnerId);
       
-      // Владельцу смены - большую часть (Math.ceil), напарнику - меньшую (Math.floor)
-      ownerC1 = Math.ceil(c1 / 2);
-      partnerC1 = Math.floor(c1 / 2);
+      // Рассчитываем так, чтобы общее количество позиций делилось поровну,
+      // а если нечетно — владельцу (кто открыл) досталась 1 лишняя позиция.
+      const targetOwnerTotal = Math.ceil((c1 + c2) / 2);
+      ownerC1 = Math.ceil(c1 / 2); // Владелец всегда получает приоритет по кальянам
+      ownerC2 = targetOwnerTotal - ownerC1; // Остаток добираем заменами
       
-      ownerC2 = Math.ceil(c2 / 2);
-      partnerC2 = Math.floor(c2 / 2);
+      partnerC1 = c1 - ownerC1;
+      partnerC2 = c2 - ownerC2;
 
       myTotalItems = ownerC1 + ownerC2;
       myEarned = myBase + (ownerC1 * 1500) + (ownerC2 * 1500);
