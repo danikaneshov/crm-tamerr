@@ -171,6 +171,8 @@ const AdminDashboard = () => {
             dateStr: dStr, endTime: serverTimestamp(), photoUrl: 'no-photo',
             items: { cocktail1: partnerC1, cocktail2: partnerC2 },
             totalItems: partnerTotalItems, earned: partnerEarned,
+            baseSalary: 1500, hookahPercentage: (partnerC1 * 1500) + (partnerC2 * 1500),
+            shiftFraction: 0.5,
             status: 'closed'
           });
 
@@ -179,6 +181,8 @@ const AdminDashboard = () => {
             dateStr: dStr, endTime: serverTimestamp(), photoUrl: 'no-photo',
             items: { cocktail1: ownerC1, cocktail2: ownerC2 },
             totalItems: ownerTotalItems, earned: ownerEarned,
+            baseSalary: 3000, hookahPercentage: (ownerC1 * 1500) + (ownerC2 * 1500),
+            shiftFraction: 1,
             status: 'closed'
           });
 
@@ -188,6 +192,8 @@ const AdminDashboard = () => {
             dateStr: dStr, endTime: serverTimestamp(), photoUrl: 'no-photo',
             items: { cocktail1: c1, cocktail2: c2 },
             totalItems: myTotalItems, earned: myEarned,
+            baseSalary: 3000, hookahPercentage: (c1 * 1500) + (c2 * 1500),
+            shiftFraction: 1,
             status: 'closed'
           });
         }
@@ -225,12 +231,19 @@ const AdminDashboard = () => {
     const hookahs = closedShifts.reduce((sum, s) => sum + (s.items?.cocktail1 || 0), 0);
     const replacements = closedShifts.reduce((sum, s) => sum + (s.items?.cocktail2 || 0), 0);
 
+    const totalEarned = closedShifts.reduce((sum, s) => sum + (s.earned || 0), 0);
+    const baseSalaryTotal = closedShifts.reduce((sum, s) => sum + (s.baseSalary || 0), 0);
+    const hookahPercentageTotal = closedShifts.reduce((sum, s) => sum + (s.hookahPercentage || 0), 0);
+    const shiftsCount = closedShifts.reduce((sum, s) => sum + (s.shiftFraction || 1), 0);
+
     return {
-      totalEarned: closedShifts.reduce((sum, s) => sum + (s.earned || 0), 0),
+      totalEarned,
+      baseSalaryTotal,
+      hookahPercentageTotal,
       hookahs,
       replacements,
       totalItems: hookahs + replacements,
-      shiftsCount: closedShifts.length,
+      shiftsCount,
       hasOpenShift,
       ownerNetProfit: (hookahs * ownerProfits.hookah) + (replacements * ownerProfits.replacement)
     };
@@ -650,8 +663,12 @@ const AdminDashboard = () => {
                     </div>
                     
                     <div className="bg-slate-50 p-5 rounded-2xl mb-6 flex-1 flex flex-col justify-center border border-slate-100">
-                      <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mb-1">ЗП за выбранный период</p>
+                      <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mb-1">Общая ЗП</p>
                       <h4 className="text-4xl font-black text-blue-600">{stats.totalEarned} ₸</h4>
+                      <div className="flex justify-between mt-3 pt-3 border-t border-slate-200 text-sm">
+                        <span className="text-slate-500 font-medium">Оклад: <strong className="text-slate-800">{stats.baseSalaryTotal} ₸</strong></span>
+                        <span className="text-slate-500 font-medium">% с кальянов: <strong className="text-slate-800">{stats.hookahPercentageTotal} ₸</strong></span>
+                      </div>
                     </div>
                     
                     <div className="grid grid-cols-2 gap-4 text-center">

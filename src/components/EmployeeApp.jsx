@@ -129,6 +129,8 @@ const EmployeeApp = () => {
         endTime: serverTimestamp(), photoUrl: imageUrl,
         items: { cocktail1: partnerC1, cocktail2: partnerC2 },
         totalItems: partnerTotalItems, earned: 1500 + (partnerC1 * 1500) + (partnerC2 * 1500),
+        baseSalary: 1500, hookahPercentage: (partnerC1 * 1500) + (partnerC2 * 1500),
+        shiftFraction: 0.5,
         status: 'closed'
       });
     } else {
@@ -139,7 +141,9 @@ const EmployeeApp = () => {
     await updateDoc(doc(db, 'sales', currentShift.id), {
       status: 'closed', endTime: serverTimestamp(), photoUrl: imageUrl,
       items: { cocktail1: ownerC1, cocktail2: ownerC2 },
-      totalItems: myTotalItems, earned: myEarned
+      totalItems: myTotalItems, earned: myEarned,
+      baseSalary: myBase, hookahPercentage: (ownerC1 * 1500) + (ownerC2 * 1500),
+      shiftFraction: 1
     });
   };
 
@@ -387,8 +391,14 @@ const EmployeeApp = () => {
               <div className="bg-slate-50 rounded-2xl p-4 text-left">
                 <p className="text-xs text-gray-400 uppercase font-bold mb-1">Начислено</p>
                 <p className="text-3xl font-black text-slate-800 mb-4">{currentShift.earned} ₸</p>
+                {(currentShift.baseSalary !== undefined) && (
+                  <div className="flex justify-between text-sm mb-3">
+                    <span className="text-gray-500 font-medium">Оклад: <strong className="text-gray-800">{currentShift.baseSalary} ₸</strong></span>
+                    <span className="text-gray-500 font-medium">% с кальянов: <strong className="text-gray-800">{currentShift.hookahPercentage} ₸</strong></span>
+                  </div>
+                )}
                 <div className="border-t border-gray-200 pt-3">
-                  <p className="text-sm text-gray-500 font-medium">Кальянов учтено: <span className="font-bold text-gray-800">{currentShift.totalItems} шт</span></p>
+                  <p className="text-sm text-gray-500 font-medium">Позиций учтено: <span className="font-bold text-gray-800">{currentShift.totalItems} шт</span></p>
                 </div>
               </div>
             </div>
