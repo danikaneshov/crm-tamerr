@@ -164,7 +164,7 @@ const AdminDashboard = () => {
 
       if (debugShift.partnerId) {
         partner = employees.find(e => e.id === debugShift.partnerId);
-        const partnerBase = partner.name.trim().toLowerCase() === 'tamerlan' ? 1500 : 3000;
+        const partnerBase = 1500; // Напарник всегда получает оклад 1500
         
         let targetOwnerTotal = Math.ceil((c1 + c2) / 2);
         let ownerC1 = Math.ceil(c1 / 2);
@@ -190,7 +190,7 @@ const AdminDashboard = () => {
 
         await addDoc(collection(db, 'sales'), {
           employeeId: emp.id, employeeName: emp.name,
-          dateStr: dStr, endTime: serverTimestamp(), photoUrl: uploadedImageUrl,
+          dateStr: dStr, startTime: serverTimestamp(), endTime: serverTimestamp(), photoUrl: uploadedImageUrl,
           items: { cocktail1: ownerC1, cocktail2: ownerC2 },
           totalItems: ownerTotalItems, earned: ownerEarned,
           baseSalary: ownerBase, hookahPercentage: (ownerC1 * 1500) + (ownerC2 * 1500),
@@ -202,7 +202,7 @@ const AdminDashboard = () => {
         let myEarned = ownerBase + (c1 * 1500) + (c2 * 1500);
         await addDoc(collection(db, 'sales'), {
           employeeId: emp.id, employeeName: emp.name,
-          dateStr: dStr, endTime: serverTimestamp(), photoUrl: uploadedImageUrl,
+          dateStr: dStr, startTime: serverTimestamp(), endTime: serverTimestamp(), photoUrl: uploadedImageUrl,
           items: { cocktail1: c1, cocktail2: c2 },
           totalItems: myTotalItems, earned: myEarned,
           baseSalary: ownerBase, hookahPercentage: (c1 * 1500) + (c2 * 1500),
