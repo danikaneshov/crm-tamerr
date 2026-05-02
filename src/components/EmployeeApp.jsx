@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { collection, query, where, getDocs, addDoc, updateDoc, doc, serverTimestamp, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
-import { LogOut, Camera, Loader2, CheckCircle2, UserPlus, PlayCircle, AlertCircle, XCircle, Clock, Banknote, CalendarDays, useMemo } from 'lucide-react';
+import { LogOut, Camera, Loader2, CheckCircle2, UserPlus, PlayCircle, AlertCircle, XCircle, Clock, Banknote, CalendarDays } from 'lucide-react';
 import heic2any from 'heic2any';
 import imageCompression from 'browser-image-compression';
 
