@@ -536,12 +536,36 @@ const AdminDashboard = () => {
           <div className="space-y-8 animate-in fade-in duration-300">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
               <h1 className="text-2xl font-bold text-slate-800">Отчеты по сменам</h1>
-              <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200">
-                <CalendarDays className="text-slate-400 ml-3" size={18}/>
-                <select value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} className="py-2 pr-4 bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer">
-                  <option value="all">Все время</option>
-                  {availableMonths.map(m => <option key={m} value={m}>{m}</option>)}
-                </select>
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => {
+                    const filteredShifts = groupedShifts.filter(g => selectedMonth === 'all' || g.dateStr.endsWith(`.${selectedMonth}`));
+                    const data = filteredShifts.map(group => {
+                      const masters = group.records.map(r => r.employeeName).join(', ');
+                      return {
+                        'Дата': group.dateStr,
+                        'Статус': group.status === 'open' ? 'Идет смена' : 'Закрыта',
+                        'Мастера': masters,
+                        'Кальяны/Замены (шт)': group.totalItems,
+                        'Общая ЗП за смену (₸)': group.totalEarned
+                      };
+                    });
+                    const ws = XLSX.utils.json_to_sheet(data);
+                    const wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, "Смены");
+                    XLSX.writeFile(wb, `Смены_${selectedMonth}.xlsx`);
+                  }}
+                  className="px-4 py-2 bg-green-500 text-white font-bold rounded-xl shadow-sm hover:bg-green-600 transition-colors"
+                >
+                  Скачать .xlsx
+                </button>
+                <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200">
+                  <CalendarDays className="text-slate-400 ml-3" size={18}/>
+                  <select value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} className="py-2 pr-4 bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer">
+                    <option value="all">Все время</option>
+                    {availableMonths.map(m => <option key={m} value={m}>{m}</option>)}
+                  </select>
+                </div>
               </div>
             </div>
             
@@ -630,9 +654,12 @@ const AdminDashboard = () => {
                     <div className="space-y-3">
                       <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-2">Фотография чека</h3>
                       {selectedEmpReport.records[0]?.photoUrl && selectedEmpReport.records[0].photoUrl !== 'no-photo' ? (
-                        <a href={selectedEmpReport.records[0].photoUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 w-full p-4 bg-blue-50 text-blue-600 rounded-2xl font-bold hover:bg-blue-100 transition-colors">
-                          <Image size={20} /> Смотреть чек
-                        </a>
+                        <img 
+                          src={selectedEmpReport.records[0].photoUrl} 
+                          alt="Чек" 
+                          className="w-full h-48 object-cover rounded-2xl border border-slate-200 cursor-pointer hover:opacity-90 transition-opacity" 
+                          onClick={() => window.open(selectedEmpReport.records[0].photoUrl, '_blank')} 
+                        />
                       ) : (
                         <div className="p-4 bg-slate-50 text-slate-400 rounded-2xl text-center font-medium text-sm italic">
                           Чек не прикреплен или смена не закрыта
