@@ -4,6 +4,7 @@ import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, L
 import { signOut } from 'firebase/auth';
 import { collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, serverTimestamp, setDoc, getDocs } from 'firebase/firestore';
 import { auth, db } from '../firebase';
+import * as XLSX from 'xlsx';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -651,12 +652,37 @@ const AdminDashboard = () => {
           <div className="space-y-8 animate-in fade-in duration-300">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
               <h1 className="text-2xl font-bold text-slate-800">Зарплаты сотрудников</h1>
-              <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200">
-                <CalendarDays className="text-slate-400 ml-3" size={18}/>
-                <select value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} className="py-2 pr-4 bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer">
-                  <option value="all">Все время</option>
-                  {availableMonths.map(m => <option key={m} value={m}>{m}</option>)}
-                </select>
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => {
+                    const data = employees.map(emp => {
+                      const stats = calculateEmployeeStats(emp.id, selectedMonth);
+                      return {
+                        'Сотрудник': emp.name,
+                        'Отработано смен': stats.shiftsCount,
+                        'Общая ЗП (₸)': stats.totalEarned,
+                        'Оклад (₸)': stats.baseSalaryTotal,
+                        '% с кальянов (₸)': stats.hookahPercentageTotal,
+                        'Кальянов (шт)': stats.hookahs,
+                        'Замен (шт)': stats.replacements
+                      };
+                    });
+                    const ws = XLSX.utils.json_to_sheet(data);
+                    const wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, "Зарплаты");
+                    XLSX.writeFile(wb, `Зарплаты_${selectedMonth}.xlsx`);
+                  }}
+                  className="px-4 py-2 bg-green-500 text-white font-bold rounded-xl shadow-sm hover:bg-green-600 transition-colors"
+                >
+                  Скачать .xlsx
+                </button>
+                <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200">
+                  <CalendarDays className="text-slate-400 ml-3" size={18}/>
+                  <select value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} className="py-2 pr-4 bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer">
+                    <option value="all">Все время</option>
+                    {availableMonths.map(m => <option key={m} value={m}>{m}</option>)}
+                  </select>
+                </div>
               </div>
             </div>
             
@@ -679,9 +705,9 @@ const AdminDashboard = () => {
                     <div className="bg-slate-50 p-5 rounded-2xl mb-6 flex-1 flex flex-col justify-center border border-slate-100">
                       <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mb-1">Общая ЗП</p>
                       <h4 className="text-4xl font-black text-blue-600">{stats.totalEarned} ₸</h4>
-                      <div className="flex justify-between mt-3 pt-3 border-t border-slate-200 text-sm">
-                        <span className="text-slate-500 font-medium">Оклад: <strong className="text-slate-800">{stats.baseSalaryTotal} ₸</strong></span>
-                        <span className="text-slate-500 font-medium">% с кальянов: <strong className="text-slate-800">{stats.hookahPercentageTotal} ₸</strong></span>
+                      <div className="flex flex-col gap-1 mt-3 pt-3 border-t border-slate-200 text-sm">
+                        <div className="flex justify-between"><span className="text-slate-500 font-medium">Оклад:</span> <strong className="text-slate-800">{stats.baseSalaryTotal} ₸</strong></div>
+                        <div className="flex justify-between"><span className="text-slate-500 font-medium">% с кальянов:</span> <strong className="text-slate-800">{stats.hookahPercentageTotal} ₸</strong></div>
                       </div>
                     </div>
                     

@@ -30,6 +30,7 @@ const EmployeeApp = () => {
   // Стейт для кастомных модальных окон
   // type: 'success', 'error', 'zeroConfirm'
   const [modal, setModal] = useState({ isOpen: false, type: '', title: '', message: '', data: null });
+  const [selectedHistoryShift, setSelectedHistoryShift] = useState(null);
 
   useEffect(() => {
     const unsubEmp = onSnapshot(collection(db, 'employees'), (snap) => {
@@ -339,6 +340,43 @@ const EmployeeApp = () => {
     <div className="min-h-screen bg-gray-50 flex flex-col max-w-md mx-auto shadow-xl relative overflow-hidden">
       
       {/* МОДАЛЬНЫЕ ОКНА */}
+      {selectedHistoryShift && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-black text-slate-800">Отчет за {selectedHistoryShift.dateStr}</h3>
+              <button onClick={() => setSelectedHistoryShift(null)} className="text-slate-400 hover:text-slate-600"><XCircle size={24}/></button>
+            </div>
+            
+            <div className="bg-slate-50 rounded-2xl p-4 text-left mb-6 border border-slate-100">
+              <p className="text-xs text-gray-400 uppercase font-bold mb-1">Заработано</p>
+              <p className="text-3xl font-black text-slate-800 mb-4">{selectedHistoryShift.earned} ₸</p>
+              <div className="flex flex-col gap-1 text-sm mb-3">
+                <div className="flex justify-between"><span className="text-gray-500 font-medium">Оклад:</span> <strong className="text-gray-800">{selectedHistoryShift.baseSalary || 0} ₸</strong></div>
+                <div className="flex justify-between"><span className="text-gray-500 font-medium">% с кальянов:</span> <strong className="text-gray-800">{selectedHistoryShift.hookahPercentage || 0} ₸</strong></div>
+              </div>
+              <div className="border-t border-gray-200 pt-3 flex justify-between">
+                <p className="text-sm text-gray-500 font-medium">Ваши позиции:</p>
+                <span className="font-bold text-gray-800">{selectedHistoryShift.totalItems} шт</span>
+              </div>
+              <div className="flex justify-between mt-1 text-xs text-gray-500">
+                <span>Кальяны: <strong className="text-gray-800">{selectedHistoryShift.items?.cocktail1 || 0}</strong></span>
+                <span>Замены: <strong className="text-gray-800">{selectedHistoryShift.items?.cocktail2 || 0}</strong></span>
+              </div>
+            </div>
+
+            {selectedHistoryShift.photoUrl && selectedHistoryShift.photoUrl !== 'no-photo' && (
+              <div className="mb-6">
+                <p className="text-xs text-gray-400 uppercase font-bold mb-2">Чек</p>
+                <img src={selectedHistoryShift.photoUrl} alt="Чек" className="w-full h-32 object-cover rounded-xl border border-slate-200 cursor-pointer" onClick={() => window.open(selectedHistoryShift.photoUrl, '_blank')} />
+              </div>
+            )}
+            
+            <button onClick={() => setSelectedHistoryShift(null)} className="w-full py-4 bg-gray-900 text-white rounded-2xl font-bold active:scale-95 transition-transform">Закрыть</button>
+          </div>
+        </div>
+      )}
+
       {modal.isOpen && (
         <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl animate-in zoom-in-95 duration-200">
@@ -467,9 +505,9 @@ const EmployeeApp = () => {
                     <p className="text-xs text-gray-400 uppercase font-bold mb-1">Начислено</p>
                     <p className="text-3xl font-black text-slate-800 mb-4">{currentShift.earned} ₸</p>
                     {(currentShift.baseSalary !== undefined) && (
-                      <div className="flex justify-between text-sm mb-3">
-                        <span className="text-gray-500 font-medium">Оклад: <strong className="text-gray-800">{currentShift.baseSalary} ₸</strong></span>
-                        <span className="text-gray-500 font-medium">% с кальянов: <strong className="text-gray-800">{currentShift.hookahPercentage} ₸</strong></span>
+                      <div className="flex flex-col gap-1 text-sm mb-3">
+                        <div className="flex justify-between"><span className="text-gray-500 font-medium">Оклад:</span> <strong className="text-gray-800">{currentShift.baseSalary} ₸</strong></div>
+                        <div className="flex justify-between"><span className="text-gray-500 font-medium">% с кальянов:</span> <strong className="text-gray-800">{currentShift.hookahPercentage} ₸</strong></div>
                       </div>
                     )}
                     <div className="border-t border-gray-200 pt-3">
@@ -510,9 +548,9 @@ const EmployeeApp = () => {
               <div className="bg-slate-50 p-5 rounded-2xl mb-6 flex-1 flex flex-col justify-center border border-slate-100">
                 <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mb-1">Заработано</p>
                 <h4 className="text-4xl font-black text-blue-600">{myStats.totalEarned} ₸</h4>
-                <div className="flex justify-between mt-3 pt-3 border-t border-slate-200 text-sm">
-                  <span className="text-slate-500 font-medium">Оклад: <strong className="text-slate-800">{myStats.baseSalaryTotal} ₸</strong></span>
-                  <span className="text-slate-500 font-medium">% с кальянов: <strong className="text-slate-800">{myStats.hookahPercentageTotal} ₸</strong></span>
+                <div className="flex flex-col gap-1 mt-3 pt-3 border-t border-slate-200 text-sm">
+                  <div className="flex justify-between"><span className="text-slate-500 font-medium">Оклад:</span> <strong className="text-slate-800">{myStats.baseSalaryTotal} ₸</strong></div>
+                  <div className="flex justify-between"><span className="text-slate-500 font-medium">% с кальянов:</span> <strong className="text-slate-800">{myStats.hookahPercentageTotal} ₸</strong></div>
                 </div>
               </div>
               
@@ -533,7 +571,7 @@ const EmployeeApp = () => {
                   <h3 className="text-lg font-black text-slate-800 mb-4">История смен</h3>
                   <div className="space-y-3">
                     {myStats.closedShifts.map(shift => (
-                      <div key={shift.id} className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex justify-between items-center">
+                      <div key={shift.id} onClick={() => setSelectedHistoryShift(shift)} className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex justify-between items-center cursor-pointer hover:bg-slate-50 transition-colors">
                         <div>
                           <p className="font-bold text-slate-800">{shift.dateStr}</p>
                           <p className="text-xs text-slate-400 font-medium">{shift.shiftFraction === 1 ? 'Полная смена' : 'Напарник (0.5)'}</p>
