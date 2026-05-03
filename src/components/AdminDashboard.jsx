@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { LogOut, Users, LayoutDashboard, Key, Trash2, Image, Settings, Menu, X, Percent, Wallet, Database, AlertTriangle, Clock, Banknote, CalendarDays } from 'lucide-react';
+import { LogOut, Users, LayoutDashboard, Key, Trash2, Image, Settings, Menu, X, Percent, Wallet, Database, AlertTriangle, Clock, Banknote, CalendarDays, Calendar as CalendarIcon } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { signOut } from 'firebase/auth';
 import { collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, serverTimestamp, setDoc, getDocs } from 'firebase/firestore';
@@ -333,6 +333,7 @@ const AdminDashboard = () => {
         <div className="mb-10 px-2 mt-12 lg:mt-0"><span className="text-2xl font-black tracking-tighter text-slate-900">CRM<span className="text-primary">.</span></span></div>
         <nav className="flex-1 space-y-2">
           <button onClick={() => switchTab('dashboard')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'dashboard' ? 'bg-primary text-white shadow-lg shadow-primary-light/50 translate-x-2' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-700 hover:translate-x-1'}`}><LayoutDashboard size={20}/>Дашборд</button>
+          <button onClick={() => switchTab('calendar')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'calendar' ? 'bg-primary text-white shadow-lg shadow-primary-light/50 translate-x-2' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-700 hover:translate-x-1'}`}><CalendarIcon size={20}/>Календарь</button>
           <button onClick={() => switchTab('shifts')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'shifts' ? 'bg-primary text-white shadow-lg shadow-primary-light/50 translate-x-2' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-700 hover:translate-x-1'}`}><Clock size={20}/>Смены</button>
           <button onClick={() => switchTab('salaries')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'salaries' ? 'bg-primary text-white shadow-lg shadow-primary-light/50 translate-x-2' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-700 hover:translate-x-1'}`}><Banknote size={20}/>Зарплаты</button>
           <button onClick={() => switchTab('profit')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'profit' ? 'bg-primary text-white shadow-lg shadow-primary-light/50 translate-x-2' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-700 hover:translate-x-1'}`}><Wallet size={20}/>Моя прибыль</button>
@@ -414,6 +415,90 @@ const AdminDashboard = () => {
                 </div>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* ВКЛАДКА: КАЛЕНДАРЬ */}
+        {activeTab === 'calendar' && (
+          <div className="space-y-8 animate-in fade-in duration-300">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <h1 className="text-2xl font-bold text-slate-800">Календарь смен</h1>
+              <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
+                <CalendarDays className="text-slate-400 ml-3" size={18}/>
+                <select 
+                  value={selectedMonth === 'all' ? (availableMonths[0] || '05.2026') : selectedMonth} 
+                  onChange={e => setSelectedMonth(e.target.value)} 
+                  className="py-2 pr-4 bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer"
+                >
+                  {availableMonths.map(m => <option key={m} value={m}>{m}</option>)}
+                </select>
+              </div>
+            </div>
+
+            <Card variant="elevated" className="p-4 lg:p-8 border border-slate-100 shadow-sm">
+              {(() => {
+                const targetMonthStr = selectedMonth === 'all' ? (availableMonths[0] || '05.2026') : selectedMonth;
+                const [month, year] = targetMonthStr.split('.');
+                const daysInMonth = new Date(year, month, 0).getDate();
+                const firstDayOfMonth = new Date(year, month - 1, 1).getDay();
+                // JS getDay(): 0 = Sun, 1 = Mon ... 6 = Sat. We want 1 = Mon, ..., 7 = Sun
+                const startOffset = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1;
+
+                const daysArray = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+                
+                return (
+                  <div>
+                    <div className="grid grid-cols-7 gap-1 lg:gap-2 mb-4 text-center">
+                      {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map(day => (
+                        <div key={day} className="text-[10px] lg:text-xs font-bold text-slate-400 uppercase tracking-widest">{day}</div>
+                      ))}
+                    </div>
+                    <div className="grid grid-cols-7 gap-1 lg:gap-4">
+                      {Array.from({ length: startOffset }).map((_, i) => (
+                        <div key={`empty-${i}`} className="p-1 lg:p-4 rounded-xl lg:rounded-2xl bg-slate-50/50 min-h-[80px] lg:min-h-[120px]"></div>
+                      ))}
+                      {daysArray.map(day => {
+                        const dateStr = `${String(day).padStart(2, '0')}.${targetMonthStr}`;
+                        const shiftGroup = groupedShifts.find(g => g.dateStr === dateStr);
+                        
+                        return (
+                          <div 
+                            key={day} 
+                            onClick={() => {
+                              if (shiftGroup) setSelectedEmpReport(shiftGroup);
+                            }}
+                            className={`p-1 lg:p-3 rounded-xl lg:rounded-2xl border min-h-[80px] lg:min-h-[120px] flex flex-col transition-all ${
+                              shiftGroup 
+                                ? 'bg-white border-blue-100 shadow-sm hover:shadow-md cursor-pointer card-hover-effect group relative overflow-hidden' 
+                                : 'bg-slate-50 border-slate-100 text-slate-400 opacity-60'
+                            }`}
+                          >
+                            {shiftGroup?.status === 'open' && <div className="absolute top-0 left-0 w-full h-1 bg-primary animate-pulse"></div>}
+                            <div className="text-right font-black text-sm lg:text-lg mb-1 lg:mb-2 opacity-50 group-hover:text-primary transition-colors">{day}</div>
+                            {shiftGroup && (
+                              <div className="flex-1 flex flex-col gap-1">
+                                {shiftGroup.records.map((rec, i) => (
+                                  <div key={i} className={`text-[9px] lg:text-xs px-1 lg:px-2 py-0.5 lg:py-1 rounded-md font-bold truncate ${
+                                    i === 0 
+                                      ? 'bg-blue-100 text-blue-700' 
+                                      : 'bg-slate-100 text-slate-600'
+                                  }`}>
+                                    {rec.employeeName}
+                                  </div>
+                                ))}
+                                <div className="mt-auto pt-1 lg:pt-2 text-[8px] lg:text-[10px] font-black text-primary text-right">
+                                  {shiftGroup.status === 'open' ? 'ИДЕТ' : `${formatMoney(shiftGroup.totalEarned)} ₸`}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
+            </Card>
           </div>
         )}
 
