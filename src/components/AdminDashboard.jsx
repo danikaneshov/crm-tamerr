@@ -460,6 +460,7 @@ const AdminDashboard = () => {
                       {daysArray.map(day => {
                         const dateStr = `${String(day).padStart(2, '0')}.${targetMonthStr}`;
                         const shiftGroup = groupedShifts.find(g => g.dateStr === dateStr);
+                        const isMonday = (startOffset + day - 1) % 7 === 0;
                         
                         return (
                           <div 
@@ -467,14 +468,24 @@ const AdminDashboard = () => {
                             onClick={() => {
                               if (shiftGroup) setSelectedEmpReport(shiftGroup);
                             }}
-                            className={`p-1 lg:p-3 rounded-xl lg:rounded-2xl border min-h-[80px] lg:min-h-[120px] flex flex-col transition-all ${
+                            className={`p-1 lg:p-3 rounded-xl lg:rounded-2xl border min-h-[80px] lg:min-h-[120px] flex flex-col transition-all relative overflow-hidden ${
                               shiftGroup 
-                                ? 'bg-white border-blue-100 shadow-sm hover:shadow-md cursor-pointer card-hover-effect group relative overflow-hidden' 
-                                : 'bg-slate-50 border-slate-100 text-slate-400 opacity-60'
+                                ? 'bg-white border-blue-100 shadow-sm hover:shadow-md cursor-pointer card-hover-effect group' 
+                                : isMonday 
+                                  ? 'bg-red-50/50 border-red-100 text-red-400 opacity-80' 
+                                  : 'bg-slate-50 border-slate-100 text-slate-400 opacity-60'
                             }`}
                           >
-                            {shiftGroup?.status === 'open' && <div className="absolute top-0 left-0 w-full h-1 bg-primary animate-pulse"></div>}
-                            <div className="text-right font-black text-sm lg:text-lg mb-1 lg:mb-2 opacity-50 group-hover:text-primary transition-colors">{day}</div>
+                            {shiftGroup?.status === 'open' && <div className="absolute top-0 left-0 w-full h-1 bg-primary animate-pulse z-10"></div>}
+                            
+                            {/* Фоновая надпись для выходного */}
+                            {isMonday && !shiftGroup && (
+                              <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20 overflow-hidden">
+                                <span className="text-red-500 font-black text-[10px] lg:text-sm uppercase tracking-widest rotate-[-30deg]">Выходной</span>
+                              </div>
+                            )}
+
+                            <div className={`text-right font-black text-sm lg:text-lg mb-1 lg:mb-2 opacity-50 transition-colors relative z-10 ${shiftGroup ? 'group-hover:text-primary' : ''}`}>{day}</div>
                             {shiftGroup && (
                               <div className="flex-1 flex flex-col gap-1">
                                 {shiftGroup.records.map((rec, i) => (
@@ -707,6 +718,25 @@ const AdminDashboard = () => {
                   </div>
                   
                   <div className="space-y-6">
+                    {/* Общая статистика за день */}
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-5 rounded-2xl border border-blue-100">
+                      <h3 className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-3">Общая статистика за день</h3>
+                      <div className="flex gap-4">
+                        <div className="flex-1 bg-white p-3 rounded-xl shadow-sm text-center">
+                          <span className="block text-[10px] text-slate-400 uppercase font-bold mb-1">Всего кальянов</span>
+                          <strong className="text-blue-600 text-xl font-black">
+                            {selectedEmpReport.status === 'open' ? '—' : selectedEmpReport.records.reduce((sum, r) => sum + (r.items?.cocktail1 || 0), 0)}
+                          </strong>
+                        </div>
+                        <div className="flex-1 bg-white p-3 rounded-xl shadow-sm text-center">
+                          <span className="block text-[10px] text-slate-400 uppercase font-bold mb-1">Всего замен</span>
+                          <strong className="text-indigo-600 text-xl font-black">
+                            {selectedEmpReport.status === 'open' ? '—' : selectedEmpReport.records.reduce((sum, r) => sum + (r.items?.cocktail2 || 0), 0)}
+                          </strong>
+                        </div>
+                      </div>
+                    </div>
+
                     {/* Список сотрудников и их ЗП */}
                     <div className="space-y-3">
                       <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-2">Начисления ЗП</h3>
