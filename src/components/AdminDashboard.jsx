@@ -704,96 +704,6 @@ const AdminDashboard = () => {
                 </div>
               )}
             </div>
-
-            {/* Модальное окно деталей смены */}
-            {selectedEmpReport && selectedEmpReport.records && (
-              <div className="fixed inset-0 bg-slate-900/50 z-50 flex items-center justify-center p-4">
-                <div className="bg-white w-full max-w-lg rounded-[32px] p-8 shadow-2xl animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto relative">
-                  <div className="flex justify-between items-center mb-8">
-                    <div>
-                      <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mb-1">Детали смены</p>
-                      <h2 className="text-2xl font-black text-slate-800">{selectedEmpReport.dateStr}</h2>
-                    </div>
-                    <button onClick={() => setSelectedEmpReport(null)} className="p-3 bg-slate-100 text-slate-500 rounded-full hover:bg-slate-200 transition-colors"><X size={20}/></button>
-                  </div>
-                  
-                  <div className="space-y-6">
-                    {/* Общая статистика за день */}
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-5 rounded-2xl border border-blue-100">
-                      <h3 className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-3">Общая статистика за день</h3>
-                      <div className="flex gap-4">
-                        <div className="flex-1 bg-white p-3 rounded-xl shadow-sm text-center">
-                          <span className="block text-[10px] text-slate-400 uppercase font-bold mb-1">Всего кальянов</span>
-                          <strong className="text-blue-600 text-xl font-black">
-                            {selectedEmpReport.status === 'open' ? '—' : selectedEmpReport.records.reduce((sum, r) => sum + (r.items?.cocktail1 || 0), 0)}
-                          </strong>
-                        </div>
-                        <div className="flex-1 bg-white p-3 rounded-xl shadow-sm text-center">
-                          <span className="block text-[10px] text-slate-400 uppercase font-bold mb-1">Всего замен</span>
-                          <strong className="text-indigo-600 text-xl font-black">
-                            {selectedEmpReport.status === 'open' ? '—' : selectedEmpReport.records.reduce((sum, r) => sum + (r.items?.cocktail2 || 0), 0)}
-                          </strong>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Список сотрудников и их ЗП */}
-                    <div className="space-y-3">
-                      <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-2">Начисления ЗП</h3>
-                      {selectedEmpReport.records.map((rec, idx) => (
-                        <div key={rec.id} className="bg-slate-50 p-4 rounded-2xl flex justify-between items-center">
-                          <div>
-                            <p className="font-bold text-slate-800">{rec.employeeName}</p>
-                            <p className="text-xs text-slate-500 font-medium mt-0.5">{idx === 0 ? 'Открыл смену' : 'Напарник'}</p>
-                          </div>
-                          <div className="text-right">
-                            <span className="block font-black text-xl text-blue-600">{rec.status === 'open' ? 'Ожидание' : `${formatMoney(rec.earned)} ₸`}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Статистика смены */}
-                    <div className="space-y-3">
-                      <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-2">Сделано позиций</h3>
-                      {selectedEmpReport.records.map((rec) => (
-                        <div key={'items'+rec.id} className="bg-slate-50 p-4 rounded-2xl">
-                          <p className="font-bold text-slate-700 mb-3">{rec.employeeName}</p>
-                          <div className="flex gap-4 text-sm">
-                            <div className="flex-1 bg-white p-3 rounded-xl border border-slate-100 text-center">
-                              <span className="block text-xs text-slate-400 uppercase font-bold mb-1">Кальяны</span>
-                              <strong className="text-slate-800 text-lg">{rec.status === 'open' ? '—' : (rec.items?.cocktail1 || 0)}</strong>
-                            </div>
-                            <div className="flex-1 bg-white p-3 rounded-xl border border-slate-100 text-center">
-                              <span className="block text-xs text-slate-400 uppercase font-bold mb-1">Замены</span>
-                              <strong className="text-slate-800 text-lg">{rec.status === 'open' ? '—' : (rec.items?.cocktail2 || 0)}</strong>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Чек */}
-                    <div className="space-y-3">
-                      <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-2">Фотография чека</h3>
-                      {selectedEmpReport.records[0]?.photoUrl && selectedEmpReport.records[0].photoUrl !== 'no-photo' ? (
-                        <img 
-                          src={selectedEmpReport.records[0].photoUrl} 
-                          alt="Чек" 
-                          className="w-full h-48 object-cover rounded-2xl border border-slate-200 cursor-pointer hover:opacity-90 transition-opacity" 
-                          onClick={() => window.open(selectedEmpReport.records[0].photoUrl, '_blank')} 
-                        />
-                      ) : (
-                        <div className="p-4 bg-slate-50 text-slate-400 rounded-2xl text-center font-medium text-sm italic">
-                          Чек не прикреплен или смена не закрыта
-                        </div>
-                      )}
-                    </div>
-
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         )}
 
@@ -966,6 +876,96 @@ const AdminDashboard = () => {
           </div>
         )}
       </div>
+
+      {/* Глобальное модальное окно деталей смены */}
+      {selectedEmpReport && selectedEmpReport.records && (
+        <div className="fixed inset-0 bg-slate-900/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white w-full max-w-lg rounded-[32px] p-8 shadow-2xl animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto relative">
+            <div className="flex justify-between items-center mb-8">
+              <div>
+                <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mb-1">Детали смены</p>
+                <h2 className="text-2xl font-black text-slate-800">{selectedEmpReport.dateStr}</h2>
+              </div>
+              <button onClick={() => setSelectedEmpReport(null)} className="p-3 bg-slate-100 text-slate-500 rounded-full hover:bg-slate-200 transition-colors"><X size={20}/></button>
+            </div>
+            
+            <div className="space-y-6">
+              {/* Общая статистика за день */}
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-5 rounded-2xl border border-blue-100">
+                <h3 className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-3">Общая статистика за день</h3>
+                <div className="flex gap-4">
+                  <div className="flex-1 bg-white p-3 rounded-xl shadow-sm text-center">
+                    <span className="block text-[10px] text-slate-400 uppercase font-bold mb-1">Всего кальянов</span>
+                    <strong className="text-blue-600 text-xl font-black">
+                      {selectedEmpReport.status === 'open' ? '—' : selectedEmpReport.records.reduce((sum, r) => sum + (r.items?.cocktail1 || 0), 0)}
+                    </strong>
+                  </div>
+                  <div className="flex-1 bg-white p-3 rounded-xl shadow-sm text-center">
+                    <span className="block text-[10px] text-slate-400 uppercase font-bold mb-1">Всего замен</span>
+                    <strong className="text-indigo-600 text-xl font-black">
+                      {selectedEmpReport.status === 'open' ? '—' : selectedEmpReport.records.reduce((sum, r) => sum + (r.items?.cocktail2 || 0), 0)}
+                    </strong>
+                  </div>
+                </div>
+              </div>
+
+              {/* Список сотрудников и их ЗП */}
+              <div className="space-y-3">
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-2">Начисления ЗП</h3>
+                {selectedEmpReport.records.map((rec, idx) => (
+                  <div key={rec.id} className="bg-slate-50 p-4 rounded-2xl flex justify-between items-center">
+                    <div>
+                      <p className="font-bold text-slate-800">{rec.employeeName}</p>
+                      <p className="text-xs text-slate-500 font-medium mt-0.5">{idx === 0 ? 'Открыл смену' : 'Напарник'}</p>
+                    </div>
+                    <div className="text-right">
+                      <span className="block font-black text-xl text-blue-600">{rec.status === 'open' ? 'Ожидание' : `${formatMoney(rec.earned)} ₸`}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Статистика смены */}
+              <div className="space-y-3">
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-2">Сделано позиций</h3>
+                {selectedEmpReport.records.map((rec) => (
+                  <div key={'items'+rec.id} className="bg-slate-50 p-4 rounded-2xl">
+                    <p className="font-bold text-slate-700 mb-3">{rec.employeeName}</p>
+                    <div className="flex gap-4 text-sm">
+                      <div className="flex-1 bg-white p-3 rounded-xl border border-slate-100 text-center">
+                        <span className="block text-xs text-slate-400 uppercase font-bold mb-1">Кальяны</span>
+                        <strong className="text-slate-800 text-lg">{rec.status === 'open' ? '—' : (rec.items?.cocktail1 || 0)}</strong>
+                      </div>
+                      <div className="flex-1 bg-white p-3 rounded-xl border border-slate-100 text-center">
+                        <span className="block text-xs text-slate-400 uppercase font-bold mb-1">Замены</span>
+                        <strong className="text-slate-800 text-lg">{rec.status === 'open' ? '—' : (rec.items?.cocktail2 || 0)}</strong>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Чек */}
+              <div className="space-y-3">
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-2">Фотография чека</h3>
+                {selectedEmpReport.records[0]?.photoUrl && selectedEmpReport.records[0].photoUrl !== 'no-photo' ? (
+                  <img 
+                    src={selectedEmpReport.records[0].photoUrl} 
+                    alt="Чек" 
+                    className="w-full h-48 object-cover rounded-2xl border border-slate-200 cursor-pointer hover:opacity-90 transition-opacity" 
+                    onClick={() => window.open(selectedEmpReport.records[0].photoUrl, '_blank')} 
+                  />
+                ) : (
+                  <div className="p-4 bg-slate-50 text-slate-400 rounded-2xl text-center font-medium text-sm italic">
+                    Чек не прикреплен или смена не закрыта
+                  </div>
+                )}
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
