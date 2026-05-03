@@ -4,9 +4,17 @@ import { db } from '../firebase';
 import { LogOut, Camera, Loader2, CheckCircle2, UserPlus, PlayCircle, AlertCircle, XCircle, Clock, Banknote, CalendarDays } from 'lucide-react';
 import heic2any from 'heic2any';
 import imageCompression from 'browser-image-compression';
+import { Button } from './ui/Button';
+import { Card } from './ui/Card';
+import { Badge } from './ui/Badge';
 
 const CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/dl5vgfkvr/image/upload';
 const UPLOAD_PRESET = 'ml_default';
+
+const formatMoney = (amount) => {
+  if (amount === undefined || amount === null) return 0;
+  return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+};
 
 const EmployeeApp = () => {
   const [pin, setPin] = useState('');
@@ -321,17 +329,63 @@ const EmployeeApp = () => {
   };
 
   if (!employee) {
+    const handlePinClick = (n) => {
+      if (navigator.vibrate) navigator.vibrate(50);
+      if(pin.length<4) {setPin(pin+n); setError('');}
+    };
+    
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
-        <div className="bg-white shadow-sm border border-gray-100 rounded-2xl px-6 py-4 mb-8"><span className="font-bold text-2xl text-blue-600">CRM</span></div>
-        <div className="flex gap-4 mb-8">{[...Array(4)].map((_, i) => <div key={i} className={`w-3 h-3 rounded-full ${i < pin.length ? 'bg-blue-600' : 'bg-gray-200'}`} />)}</div>
-        {error && <div className="mb-4 text-red-500 font-bold animate-in fade-in zoom-in">{error}</div>}
-        <div className="grid grid-cols-3 gap-3 w-full max-w-[280px]">
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => <button key={n} onClick={() => {if(pin.length<4) {setPin(pin+n); setError('');}}} className="h-16 bg-white text-xl rounded-xl shadow-sm border active:bg-slate-50">{n}</button>)}
-          <div className="h-16"></div>
-          <button onClick={() => {if(pin.length<4) {setPin(pin+'0'); setError('');}}} className="h-16 bg-white text-xl rounded-xl border active:bg-slate-50">0</button>
-          <button onClick={() => {setPin(pin.slice(0,-1)); setError('');}} className="h-16 bg-white text-gray-400 rounded-xl border active:bg-slate-50">DEL</button>
-        </div>
+      <div className="min-h-screen bg-gradient-to-b from-neutral-50 to-primary-light/30 dark:from-dark-bg dark:to-dark-surface flex flex-col items-center justify-center p-4 transition-colors">
+        <Card variant="elevated" className="w-full max-w-sm p-8 flex flex-col items-center border-0 shadow-2xl dark:bg-dark-surface">
+          <div className="mb-10 text-center">
+            <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">CRM<span className="text-primary">.</span></h1>
+            <p className="text-slate-400 dark:text-slate-500 text-sm mt-2 font-medium">Введите ваш PIN-код</p>
+          </div>
+          
+          <div className="flex gap-4 mb-10">
+            {[...Array(4)].map((_, i) => (
+              <div 
+                key={i} 
+                className={`w-4 h-4 rounded-full transition-all duration-300 ${
+                  i < pin.length 
+                    ? 'bg-primary scale-110 shadow-[0_0_12px_rgba(37,99,235,0.5)]' 
+                    : 'bg-slate-200 dark:bg-slate-700'
+                }`} 
+              />
+            ))}
+          </div>
+          
+          {error && <div className="mb-6 px-4 py-2 bg-red-50 text-error rounded-xl font-bold animate-slide-in-top text-sm">{error}</div>}
+          {isLoading && <div className="mb-6 flex items-center text-primary"><Loader2 className="animate-spin mr-2"/> Вход...</div>}
+          
+          <div className="grid grid-cols-3 gap-4 w-full max-w-[280px]">
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => (
+              <button 
+                key={n} 
+                onClick={() => handlePinClick(n)} 
+                className="h-16 bg-white dark:bg-slate-800 text-2xl font-bold rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 text-slate-800 dark:text-white btn-hover-effect"
+              >
+                {n}
+              </button>
+            ))}
+            <div className="h-16"></div>
+            <button 
+              onClick={() => handlePinClick('0')} 
+              className="h-16 bg-white dark:bg-slate-800 text-2xl font-bold rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 text-slate-800 dark:text-white btn-hover-effect"
+            >
+              0
+            </button>
+            <button 
+              onClick={() => {
+                if (navigator.vibrate) navigator.vibrate(30);
+                setPin(pin.slice(0,-1)); setError('');
+              }} 
+              className="h-16 bg-slate-50 dark:bg-slate-800/50 text-slate-400 dark:text-slate-500 font-bold rounded-2xl border border-slate-100 dark:border-slate-700 btn-hover-effect text-sm"
+            >
+              DEL
+            </button>
+          </div>
+        </Card>
       </div>
     );
   }
@@ -350,10 +404,10 @@ const EmployeeApp = () => {
             
             <div className="bg-slate-50 rounded-2xl p-4 text-left mb-6 border border-slate-100">
               <p className="text-xs text-gray-400 uppercase font-bold mb-1">Заработано</p>
-              <p className="text-3xl font-black text-slate-800 mb-4">{selectedHistoryShift.earned} ₸</p>
+              <p className="text-3xl font-black text-slate-800 mb-4">{formatMoney(selectedHistoryShift.earned)} ₸</p>
               <div className="flex flex-col gap-1 text-sm mb-3">
-                <div className="flex justify-between"><span className="text-gray-500 font-medium">Оклад:</span> <strong className="text-gray-800">{selectedHistoryShift.baseSalary || 0} ₸</strong></div>
-                <div className="flex justify-between"><span className="text-gray-500 font-medium">% с кальянов:</span> <strong className="text-gray-800">{selectedHistoryShift.hookahPercentage || 0} ₸</strong></div>
+                <div className="flex justify-between"><span className="text-gray-500 font-medium">Оклад:</span> <strong className="text-gray-800">{formatMoney(selectedHistoryShift.baseSalary || 0)} ₸</strong></div>
+                <div className="flex justify-between"><span className="text-gray-500 font-medium">% с кальянов:</span> <strong className="text-gray-800">{formatMoney(selectedHistoryShift.hookahPercentage || 0)} ₸</strong></div>
               </div>
               <div className="border-t border-gray-200 pt-3 flex justify-between">
                 <p className="text-sm text-gray-500 font-medium">Ваши позиции:</p>
@@ -449,72 +503,75 @@ const EmployeeApp = () => {
 
             {/* СОСТОЯНИЕ 1: СМЕНА НЕ ОТКРЫТА */}
             {!currentShift && (
-              <div className="flex-1 flex flex-col items-center justify-center animate-in fade-in zoom-in duration-300">
-                <div className="bg-white p-8 rounded-[40px] shadow-sm border border-gray-100 text-center w-full">
-                  <div className="w-20 h-20 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6"><PlayCircle size={40} /></div>
-                  <h2 className="text-2xl font-black text-gray-800 mb-2">Новая смена</h2>
-                  <p className="text-gray-400 mb-8 text-sm">Нажмите кнопку ниже, чтобы начать рабочий день. Дата зафиксируется автоматически.</p>
-                  <button onClick={handleOpenShift} disabled={isLoading} className="w-full py-5 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-200 active:scale-95 transition-transform">
-                    {isLoading ? 'Открытие...' : 'ОТКРЫТЬ СМЕНУ'}
-                  </button>
-                </div>
+              <div className="flex-1 flex flex-col items-center justify-center animate-scale-in duration-300">
+                <Card variant="elevated" className="w-full p-8 text-center border-0 shadow-xl">
+                  <div className="w-20 h-20 bg-primary-light/50 text-primary rounded-full flex items-center justify-center mx-auto mb-6 relative">
+                    <div className="absolute inset-0 bg-primary/20 rounded-full animate-ping opacity-75"></div>
+                    <PlayCircle size={40} className="relative z-10" />
+                  </div>
+                  <h2 className="text-2xl font-black text-slate-800 mb-2">Новая смена</h2>
+                  <p className="text-slate-500 mb-8 text-sm">Нажмите кнопку ниже, чтобы начать рабочий день. Дата зафиксируется автоматически.</p>
+                  <Button onClick={handleOpenShift} isLoading={isLoading} size="xl" className="w-full">
+                    ОТКРЫТЬ СМЕНУ
+                  </Button>
+                </Card>
               </div>
             )}
 
             {/* СОСТОЯНИЕ 2: СМЕНА ОТКРЫТА */}
             {currentShift?.status === 'open' && (
-              <div className="flex flex-col h-full animate-in fade-in duration-300">
-                <div className="bg-blue-600 rounded-3xl p-6 text-white shadow-lg shadow-blue-200 mb-6">
+              <div className="flex flex-col h-full animate-scale-in duration-300">
+                <Card variant="gradient" className="p-6 mb-6">
                   <div className="flex justify-between items-center mb-4">
-                    <span className="bg-white/20 px-3 py-1 rounded-full text-xs font-bold tracking-widest uppercase">Смена идет</span>
-                    <span className="font-mono text-blue-100">{currentShift.dateStr}</span>
+                    <Badge variant="dark" className="bg-white/20 text-white animate-pulse"><div className="w-2 h-2 rounded-full bg-white mr-2"></div>Смена идет</Badge>
+                    <span className="font-mono text-primary-light">{currentShift.dateStr}</span>
                   </div>
                   <h2 className="text-xl font-medium opacity-90">Ждем закрытия и отчет</h2>
-                </div>
+                </Card>
 
-                <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm mb-6">
-                  <label className="block text-xs font-bold text-gray-400 uppercase mb-3 ml-1">С кем работал?</label>
+                <Card className="p-4 mb-6 shadow-sm">
+                  <label className="block text-xs font-bold text-slate-400 uppercase mb-3 ml-1">С кем работал?</label>
                   <div className="relative">
-                    <select value={partnerId} onChange={(e) => setPartnerId(e.target.value)} className="w-full bg-slate-50 border border-transparent p-4 rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 font-bold">
+                    <select value={partnerId} onChange={(e) => setPartnerId(e.target.value)} className="w-full bg-slate-50 border border-transparent p-4 rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-primary text-slate-800 font-bold transition-all">
                       <option value="">Один (Вся ЗП моя)</option>
                       {employeesList.filter(e => e.id !== employee.id).map(emp => <option key={emp.id} value={emp.id}>{emp.name}</option>)}
                     </select>
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400"><UserPlus size={20}/></div>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400"><UserPlus size={20}/></div>
                   </div>
-                </div>
+                </Card>
 
                 <div className="mt-auto pb-4">
                   <input type="file" accept="image/jpeg, image/jpg, image/png, image/heic, image/heif" ref={fileInputRef} onChange={handleFileUpload} className="hidden" />
-                  <button onClick={() => fileInputRef.current.click()} disabled={isUploading} className="w-full py-5 rounded-3xl font-bold shadow-lg transition-all flex items-center justify-center gap-3 bg-gray-900 text-white active:scale-95 disabled:bg-gray-400">
-                    {isUploading ? <><Loader2 className="animate-spin"/> Считаем...</> : <><Camera/> ЗАКРЫТЬ СМЕНУ И ОТПРАВИТЬ ЧЕК</>}
-                  </button>
+                  <Button onClick={() => fileInputRef.current.click()} isLoading={isUploading} variant="dark" size="xl" className="w-full" leftIcon={<Camera/>}>
+                    ЗАКРЫТЬ СМЕНУ И ОТПРАВИТЬ ЧЕК
+                  </Button>
                 </div>
               </div>
             )}
 
             {/* СОСТОЯНИЕ 3: СМЕНА ЗАКРЫТА */}
             {currentShift?.status === 'closed' && (
-              <div className="flex-1 flex flex-col items-center justify-center animate-in slide-in-from-bottom-4 duration-500">
-                <div className="bg-white p-8 rounded-[40px] shadow-sm border border-gray-100 text-center w-full relative overflow-hidden">
-                  <div className="absolute top-0 left-0 w-full h-2 bg-green-500"></div>
-                  <div className="w-20 h-20 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6"><CheckCircle2 size={40} /></div>
-                  <h2 className="text-2xl font-black text-gray-800 mb-1">Смена закрыта</h2>
-                  <p className="text-gray-400 mb-8 font-mono text-sm">{currentShift.dateStr}</p>
+              <div className="flex-1 flex flex-col items-center justify-center animate-slide-in-bottom duration-500">
+                <Card variant="elevated" className="w-full p-8 text-center border-0 relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-full h-2 bg-success"></div>
+                  <div className="w-20 h-20 bg-green-50 text-success rounded-full flex items-center justify-center mx-auto mb-6"><CheckCircle2 size={40} /></div>
+                  <h2 className="text-2xl font-black text-slate-800 mb-1">Смена закрыта</h2>
+                  <p className="text-slate-400 mb-8 font-mono text-sm">{currentShift.dateStr}</p>
                   
-                  <div className="bg-slate-50 rounded-2xl p-4 text-left">
-                    <p className="text-xs text-gray-400 uppercase font-bold mb-1">Начислено</p>
-                    <p className="text-3xl font-black text-slate-800 mb-4">{currentShift.earned} ₸</p>
+                  <div className="bg-slate-50 rounded-2xl p-4 text-left border border-slate-100">
+                    <p className="text-xs text-slate-400 uppercase font-bold mb-1">Начислено</p>
+                    <p className="text-3xl font-black text-slate-800 mb-4">{formatMoney(currentShift.earned)} ₸</p>
                     {(currentShift.baseSalary !== undefined) && (
                       <div className="flex flex-col gap-1 text-sm mb-3">
-                        <div className="flex justify-between"><span className="text-gray-500 font-medium">Оклад:</span> <strong className="text-gray-800">{currentShift.baseSalary} ₸</strong></div>
-                        <div className="flex justify-between"><span className="text-gray-500 font-medium">% с кальянов:</span> <strong className="text-gray-800">{currentShift.hookahPercentage} ₸</strong></div>
+                        <div className="flex justify-between"><span className="text-slate-500 font-medium">Оклад:</span> <strong className="text-slate-800">{formatMoney(currentShift.baseSalary)} ₸</strong></div>
+                        <div className="flex justify-between"><span className="text-slate-500 font-medium">% с кальянов:</span> <strong className="text-slate-800">{formatMoney(currentShift.hookahPercentage)} ₸</strong></div>
                       </div>
                     )}
-                    <div className="border-t border-gray-200 pt-3">
-                      <p className="text-sm text-gray-500 font-medium">Позиций учтено: <span className="font-bold text-gray-800">{currentShift.totalItems} шт</span></p>
+                    <div className="border-t border-slate-200 pt-3">
+                      <p className="text-sm text-slate-500 font-medium">Позиций учтено: <span className="font-bold text-slate-800">{currentShift.totalItems} шт</span></p>
                     </div>
                   </div>
-                </div>
+                </Card>
               </div>
             )}
           </div>
@@ -522,21 +579,21 @@ const EmployeeApp = () => {
 
         {/* ВКЛАДКА: МОЯ ЗП */}
         {activeTab === 'stats' && (
-          <div className="flex-1 flex flex-col h-full animate-in fade-in zoom-in-95 duration-300 pb-4">
+          <div className="flex-1 flex flex-col h-full animate-scale-in duration-300 pb-4">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-black text-gray-800">Моя ЗП</h2>
-              <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-gray-200">
-                <CalendarDays className="text-gray-400 ml-3" size={18}/>
-                <select value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} className="py-2 pr-4 bg-transparent font-bold text-gray-700 focus:outline-none cursor-pointer">
+              <h2 className="text-2xl font-black text-slate-800">Моя ЗП</h2>
+              <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
+                <CalendarDays className="text-slate-400 ml-3" size={18}/>
+                <select value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} className="py-2 pr-4 bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer">
                   <option value="all">Все время</option>
                   {availableMonths.map(m => <option key={m} value={m}>{m}</option>)}
                 </select>
               </div>
             </div>
 
-            <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm relative overflow-hidden flex flex-col h-full">
+            <Card variant="elevated" className="p-8 flex flex-col h-full border-0">
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-14 h-14 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center text-blue-600 font-black text-2xl shadow-inner">
+                <div className="w-14 h-14 bg-gradient-to-br from-primary-light to-primary rounded-full flex items-center justify-center text-white font-black text-2xl shadow-inner">
                   {employee.name.charAt(0).toUpperCase()}
                 </div>
                 <div>
@@ -547,19 +604,19 @@ const EmployeeApp = () => {
               
               <div className="bg-slate-50 p-5 rounded-2xl mb-6 flex-1 flex flex-col justify-center border border-slate-100">
                 <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mb-1">Заработано</p>
-                <h4 className="text-4xl font-black text-blue-600">{myStats.totalEarned} ₸</h4>
+                <h4 className="text-4xl font-black text-primary">{formatMoney(myStats.totalEarned)} ₸</h4>
                 <div className="flex flex-col gap-1 mt-3 pt-3 border-t border-slate-200 text-sm">
-                  <div className="flex justify-between"><span className="text-slate-500 font-medium">Оклад:</span> <strong className="text-slate-800">{myStats.baseSalaryTotal} ₸</strong></div>
-                  <div className="flex justify-between"><span className="text-slate-500 font-medium">% с кальянов:</span> <strong className="text-slate-800">{myStats.hookahPercentageTotal} ₸</strong></div>
+                  <div className="flex justify-between"><span className="text-slate-500 font-medium">Оклад:</span> <strong className="text-slate-800">{formatMoney(myStats.baseSalaryTotal)} ₸</strong></div>
+                  <div className="flex justify-between"><span className="text-slate-500 font-medium">% с кальянов:</span> <strong className="text-slate-800">{formatMoney(myStats.hookahPercentageTotal)} ₸</strong></div>
                 </div>
               </div>
               
               <div className="grid grid-cols-2 gap-4 text-center">
-                <div className="bg-white border border-slate-100 p-3 rounded-2xl shadow-sm">
+                <div className="bg-white border border-slate-100 p-3 rounded-2xl shadow-sm card-hover-effect">
                   <p className="text-xs text-slate-400 uppercase font-bold mb-1">Кальянов</p>
                   <p className="font-black text-slate-800 text-xl">{myStats.hookahs}</p>
                 </div>
-                <div className="bg-white border border-slate-100 p-3 rounded-2xl shadow-sm">
+                <div className="bg-white border border-slate-100 p-3 rounded-2xl shadow-sm card-hover-effect">
                   <p className="text-xs text-slate-400 uppercase font-bold mb-1">Замен</p>
                   <p className="font-black text-slate-800 text-xl">{myStats.replacements}</p>
                 </div>
@@ -577,7 +634,7 @@ const EmployeeApp = () => {
                           <p className="text-xs text-slate-400 font-medium">{shift.shiftFraction === 1 ? 'Полная смена' : 'Напарник (0.5)'}</p>
                         </div>
                         <div className="text-right">
-                          <p className="font-black text-blue-600">{shift.earned} ₸</p>
+                          <p className="font-black text-primary">{formatMoney(shift.earned)} ₸</p>
                           <p className="text-xs text-slate-400">{shift.totalItems} поз.</p>
                         </div>
                       </div>
@@ -585,7 +642,7 @@ const EmployeeApp = () => {
                   </div>
                 </div>
               )}
-            </div>
+            </Card>
           </div>
         )}
       </div>

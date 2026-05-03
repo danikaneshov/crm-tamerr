@@ -1,9 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-body {
-  background-color: #f3f4f6; /* Светло-серый фон, стандарт для SaaS */
-  color: #1f2937;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+@layer base {
+  body {
+    @apply bg-neutral-50 text-neutral-900 font-sans antialiased selection:bg-primary-light selection:text-primary-dark;
+  }
+  
+  h1 { @apply text-4xl leading-tight font-black; }
+  h2 { @apply text-3xl leading-snug font-extrabold; }
+  h3 { @apply text-2xl leading-normal font-bold; }
+  h4 { @apply text-xl leading-normal font-bold; }
+  
+  code, pre, .mono {
+    @apply font-mono;
+  }
+}
+
+@layer utilities {
+  .skeleton {
+    background: linear-gradient(
+      90deg, 
+      #f3f4f6 25%, 
+      #e5e7eb 50%, 
+      #f3f4f6 75%
+    );
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite linear;
+  }
+  
+  .dark .skeleton {
+    background: linear-gradient(
+      90deg, 
+      #1e293b 25%, 
+      #334155 50%, 
+      #1e293b 75%
+    );
+    background-size: 1000px 100%;
+  }
+
+  .pt-safe { padding-top: env(safe-area-inset-top); }
+  .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+  .pl-safe { padding-left: env(safe-area-inset-left); }
+  .pr-safe { padding-right: env(safe-area-inset-right); }
+}
+
+@layer components {
+  .btn-hover-effect {
+    @apply transition-all duration-200 active:scale-95 hover:-translate-y-0.5 hover:shadow-lg;
+  }
+  
+  .card-hover-effect {
+    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-xl;
+  }
 }

@@ -5,6 +5,14 @@ import { signOut } from 'firebase/auth';
 import { collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, serverTimestamp, setDoc, getDocs } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 import * as XLSX from 'xlsx';
+import { Card } from './ui/Card';
+import { Button } from './ui/Button';
+import { Badge } from './ui/Badge';
+
+const formatMoney = (amount) => {
+  if (amount === undefined || amount === null) return 0;
+  return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+};
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -322,15 +330,15 @@ const AdminDashboard = () => {
 
       {/* Sidebar (Адаптивный) */}
       <div className={`fixed lg:static inset-y-0 left-0 z-40 transform ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 transition-transform duration-300 w-72 bg-white border-r border-slate-200 flex flex-col p-6 shadow-2xl lg:shadow-none`}>
-        <div className="mb-10 px-2 mt-12 lg:mt-0"><span className="text-2xl font-black tracking-tighter text-slate-900">CRM<span className="text-blue-600">.</span></span></div>
+        <div className="mb-10 px-2 mt-12 lg:mt-0"><span className="text-2xl font-black tracking-tighter text-slate-900">CRM<span className="text-primary">.</span></span></div>
         <nav className="flex-1 space-y-2">
-          <button onClick={() => switchTab('dashboard')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'dashboard' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'text-slate-400 hover:bg-slate-50'}`}><LayoutDashboard size={20}/>Дашборд</button>
-          <button onClick={() => switchTab('shifts')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'shifts' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'text-slate-400 hover:bg-slate-50'}`}><Clock size={20}/>Смены</button>
-          <button onClick={() => switchTab('salaries')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'salaries' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'text-slate-400 hover:bg-slate-50'}`}><Banknote size={20}/>Зарплаты</button>
-          <button onClick={() => switchTab('profit')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'profit' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'text-slate-400 hover:bg-slate-50'}`}><Wallet size={20}/>Моя прибыль</button>
-          <button onClick={() => switchTab('employees')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'employees' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'text-slate-400 hover:bg-slate-50'}`}><Users size={20}/>Персонал</button>
-          <button onClick={() => switchTab('settings')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'settings' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'text-slate-400 hover:bg-slate-50'}`}><Settings size={20}/>Настройки БД</button>
-          <button onClick={() => switchTab('debug')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'debug' ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'text-slate-400 hover:bg-slate-50'}`}><Database size={20}/>Debug</button>
+          <button onClick={() => switchTab('dashboard')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'dashboard' ? 'bg-primary text-white shadow-lg shadow-primary-light/50 translate-x-2' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-700 hover:translate-x-1'}`}><LayoutDashboard size={20}/>Дашборд</button>
+          <button onClick={() => switchTab('shifts')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'shifts' ? 'bg-primary text-white shadow-lg shadow-primary-light/50 translate-x-2' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-700 hover:translate-x-1'}`}><Clock size={20}/>Смены</button>
+          <button onClick={() => switchTab('salaries')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'salaries' ? 'bg-primary text-white shadow-lg shadow-primary-light/50 translate-x-2' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-700 hover:translate-x-1'}`}><Banknote size={20}/>Зарплаты</button>
+          <button onClick={() => switchTab('profit')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'profit' ? 'bg-primary text-white shadow-lg shadow-primary-light/50 translate-x-2' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-700 hover:translate-x-1'}`}><Wallet size={20}/>Моя прибыль</button>
+          <button onClick={() => switchTab('employees')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'employees' ? 'bg-primary text-white shadow-lg shadow-primary-light/50 translate-x-2' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-700 hover:translate-x-1'}`}><Users size={20}/>Персонал</button>
+          <button onClick={() => switchTab('settings')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'settings' ? 'bg-primary text-white shadow-lg shadow-primary-light/50 translate-x-2' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-700 hover:translate-x-1'}`}><Settings size={20}/>Настройки БД</button>
+          <button onClick={() => switchTab('debug')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'debug' ? 'bg-primary text-white shadow-lg shadow-primary-light/50 translate-x-2' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-700 hover:translate-x-1'}`}><Database size={20}/>Debug</button>
         </nav>
         <button onClick={() => signOut(auth)} className="flex items-center gap-3 p-4 text-slate-400 font-bold hover:text-red-500 transition-all"><LogOut size={20}/>Выйти</button>
       </div>
@@ -347,24 +355,24 @@ const AdminDashboard = () => {
             <h1 className="text-2xl font-bold text-slate-800">Общая статистика</h1>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm">
+              <Card variant="elevated" className="p-6 card-hover-effect">
                 <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">Фонд ЗП</p>
-                <h3 className="text-2xl font-black text-slate-900">{totalSystemEarned} ₸</h3>
-              </div>
-              <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm">
+                <h3 className="text-2xl font-black text-slate-900">{formatMoney(totalSystemEarned)} ₸</h3>
+              </Card>
+              <Card variant="elevated" className="p-6 card-hover-effect">
                 <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">Кальяны</p>
                 <h3 className="text-2xl font-black text-slate-900">{globalHookahs} шт</h3>
-              </div>
-              <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm">
+              </Card>
+              <Card variant="elevated" className="p-6 card-hover-effect">
                 <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">Замены</p>
                 <h3 className="text-2xl font-black text-slate-900">{globalReplacements} шт</h3>
-              </div>
-              <div className="bg-gradient-to-br from-blue-600 to-blue-800 p-6 rounded-[32px] shadow-lg shadow-blue-200 text-white relative overflow-hidden">
+              </Card>
+              <Card variant="gradient" className="p-6 relative">
                 <Percent className="absolute right-4 top-4 opacity-20" size={60}/>
                 <p className="font-bold text-xs uppercase tracking-widest mb-2 opacity-80">Процент замен</p>
-                <h3 className="text-3xl font-black">{replacementRate}%</h3>
-                <p className="text-xs opacity-70 mt-1">От общего числа кальянов</p>
-              </div>
+                <h3 className="text-3xl font-black text-white">{replacementRate}%</h3>
+                <p className="text-xs opacity-70 mt-1 text-white">От общего числа кальянов</p>
+              </Card>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -420,28 +428,28 @@ const AdminDashboard = () => {
                 <div className="flex flex-col sm:flex-row gap-8 justify-between relative z-10">
                   <div>
                     <p className="font-bold text-sm uppercase tracking-widest mb-2 opacity-80">Общая чистая прибыль</p>
-                    <h3 className="text-4xl font-black">{globalOwnerProfit - totalSystemEarned} ₸</h3>
-                    <p className="text-sm opacity-80 mt-2">С вычетом зарплат сотрудников ({totalSystemEarned} ₸)</p>
+                    <h3 className="text-4xl font-black">{formatMoney(globalOwnerProfit - totalSystemEarned)} ₸</h3>
+                    <p className="text-sm opacity-80 mt-2">С вычетом зарплат сотрудников ({formatMoney(totalSystemEarned)} ₸)</p>
                   </div>
                   <div className="text-right sm:mt-0 mt-4">
                     <p className="font-bold text-xs uppercase tracking-widest mb-1 opacity-80">Без вычета ЗП</p>
-                    <h4 className="text-2xl font-black">{globalOwnerProfit} ₸</h4>
+                    <h4 className="text-2xl font-black">{formatMoney(globalOwnerProfit)} ₸</h4>
                     <p className="font-bold text-xs uppercase tracking-widest mb-1 opacity-80 mt-4 text-green-200">Без вычета ЗП Tamerlan</p>
-                    <h4 className="text-xl font-black text-white">{profitWithoutTamerlan} ₸</h4>
+                    <h4 className="text-xl font-black text-white">{formatMoney(profitWithoutTamerlan)} ₸</h4>
                   </div>
                 </div>
               </div>
               
               <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm flex flex-col justify-center">
                 <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">Прибыль с кальянов</p>
-                <h3 className="text-2xl font-black text-slate-900">{globalHookahs * ownerProfits.hookah} ₸</h3>
-                <p className="text-slate-400 text-sm mt-1">{globalHookahs} шт. × {ownerProfits.hookah} ₸</p>
+                <h3 className="text-2xl font-black text-slate-900">{formatMoney(globalHookahs * ownerProfits.hookah)} ₸</h3>
+                <p className="text-slate-400 text-sm mt-1">{globalHookahs} шт. × {formatMoney(ownerProfits.hookah)} ₸</p>
               </div>
 
               <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm flex flex-col justify-center">
                 <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">Прибыль с замен</p>
-                <h3 className="text-2xl font-black text-slate-900">{globalReplacements * ownerProfits.replacement} ₸</h3>
-                <p className="text-slate-400 text-sm mt-1">{globalReplacements} шт. × {ownerProfits.replacement} ₸</p>
+                <h3 className="text-2xl font-black text-slate-900">{formatMoney(globalReplacements * ownerProfits.replacement)} ₸</h3>
+                <p className="text-slate-400 text-sm mt-1">{globalReplacements} шт. × {formatMoney(ownerProfits.replacement)} ₸</p>
               </div>
             </div>
 
@@ -465,7 +473,7 @@ const AdminDashboard = () => {
                         <td className="p-6 font-bold text-slate-900">{emp.name}</td>
                         <td className="p-6 text-slate-600 font-medium">{emp.hookahs} шт.</td>
                         <td className="p-6 text-slate-600 font-medium">{emp.replacements} шт.</td>
-                        <td className="p-6 text-right text-lg font-black text-green-600">{emp.ownerNetProfit} ₸</td>
+                        <td className="p-6 text-right text-lg font-black text-green-600">{formatMoney(emp.ownerNetProfit)} ₸</td>
                       </tr>
                     ))}
                   </tbody>
@@ -571,14 +579,14 @@ const AdminDashboard = () => {
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {groupedShifts.filter(g => selectedMonth === 'all' || g.dateStr.endsWith(`.${selectedMonth}`)).map(group => (
-                <div key={group.dateStr} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow cursor-pointer relative overflow-hidden" onClick={() => setSelectedEmpReport(group)}>
-                  {group.status === 'open' && <div className="absolute top-0 left-0 w-full h-1.5 bg-blue-500 animate-pulse"></div>}
+                <Card variant="elevated" key={group.dateStr} className="p-6 cursor-pointer relative overflow-hidden card-hover-effect" onClick={() => setSelectedEmpReport(group)}>
+                  {group.status === 'open' && <div className="absolute top-0 left-0 w-full h-1.5 bg-primary animate-pulse"></div>}
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mb-1">Смена</p>
                       <h3 className="text-xl font-black text-slate-800">{group.dateStr}</h3>
                     </div>
-                    {group.status === 'open' ? <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">Идет смена</span> : <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">Закрыта</span>}
+                    {group.status === 'open' ? <Badge variant="primary" className="animate-pulse">Идет смена</Badge> : <Badge variant="success">Закрыта</Badge>}
                   </div>
                   <div className="space-y-3">
                     <p className="text-sm text-slate-600 font-medium border-b border-slate-50 pb-3">Мастера: <span className="font-bold text-slate-800">{group.records.map(r => r.employeeName).join(', ')}</span></p>
@@ -588,10 +596,10 @@ const AdminDashboard = () => {
                     </div>
                     <div className="flex justify-between items-center text-sm">
                       <span className="text-slate-400">Общая ЗП за смену:</span>
-                      <span className="font-bold text-blue-600">{group.totalEarned} ₸</span>
+                      <span className="font-bold text-primary">{formatMoney(group.totalEarned)} ₸</span>
                     </div>
                   </div>
-                </div>
+                </Card>
               ))}
               
               {groupedShifts.filter(g => selectedMonth === 'all' || g.dateStr.endsWith(`.${selectedMonth}`)).length === 0 && (
@@ -624,7 +632,7 @@ const AdminDashboard = () => {
                             <p className="text-xs text-slate-500 font-medium mt-0.5">{idx === 0 ? 'Открыл смену' : 'Напарник'}</p>
                           </div>
                           <div className="text-right">
-                            <span className="block font-black text-xl text-blue-600">{rec.status === 'open' ? 'Ожидание' : `${rec.earned} ₸`}</span>
+                            <span className="block font-black text-xl text-blue-600">{rec.status === 'open' ? 'Ожидание' : `${formatMoney(rec.earned)} ₸`}</span>
                           </div>
                         </div>
                       ))}
@@ -717,10 +725,10 @@ const AdminDashboard = () => {
               {employees.map(emp => {
                 const stats = calculateEmployeeStats(emp.id, selectedMonth);
                 return (
-                  <div key={emp.id} className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm relative overflow-hidden flex flex-col">
-                    {stats.hasOpenShift && <div className="absolute top-0 left-0 w-full h-1.5 bg-blue-500 animate-pulse"></div>}
+                  <Card variant="elevated" key={emp.id} className="p-8 relative flex flex-col h-full card-hover-effect">
+                    {stats.hasOpenShift && <div className="absolute top-0 left-0 w-full h-1.5 bg-primary animate-pulse"></div>}
                     <div className="flex items-center gap-4 mb-6">
-                      <div className="w-14 h-14 bg-gradient-to-br from-slate-100 to-slate-200 rounded-full flex items-center justify-center text-slate-600 font-black text-2xl shadow-inner">
+                      <div className="w-14 h-14 bg-gradient-to-br from-primary-light to-primary rounded-full flex items-center justify-center text-white font-black text-2xl shadow-inner">
                         {emp.name.charAt(0).toUpperCase()}
                       </div>
                       <div>
@@ -731,24 +739,24 @@ const AdminDashboard = () => {
                     
                     <div className="bg-slate-50 p-5 rounded-2xl mb-6 flex-1 flex flex-col justify-center border border-slate-100">
                       <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mb-1">Общая ЗП</p>
-                      <h4 className="text-4xl font-black text-blue-600">{stats.totalEarned} ₸</h4>
+                      <h4 className="text-4xl font-black text-primary">{formatMoney(stats.totalEarned)} ₸</h4>
                       <div className="flex flex-col gap-1 mt-3 pt-3 border-t border-slate-200 text-sm">
-                        <div className="flex justify-between"><span className="text-slate-500 font-medium">Оклад:</span> <strong className="text-slate-800">{stats.baseSalaryTotal} ₸</strong></div>
-                        <div className="flex justify-between"><span className="text-slate-500 font-medium">% с кальянов:</span> <strong className="text-slate-800">{stats.hookahPercentageTotal} ₸</strong></div>
+                        <div className="flex justify-between"><span className="text-slate-500 font-medium">Оклад:</span> <strong className="text-slate-800">{formatMoney(stats.baseSalaryTotal)} ₸</strong></div>
+                        <div className="flex justify-between"><span className="text-slate-500 font-medium">% с кальянов:</span> <strong className="text-slate-800">{formatMoney(stats.hookahPercentageTotal)} ₸</strong></div>
                       </div>
                     </div>
                     
                     <div className="grid grid-cols-2 gap-4 text-center">
-                      <div className="bg-white border border-slate-100 p-3 rounded-2xl">
+                      <div className="bg-white border border-slate-100 p-3 rounded-2xl shadow-sm">
                         <p className="text-xs text-slate-400 uppercase font-bold mb-1">Кальянов</p>
                         <p className="font-black text-slate-800 text-xl">{stats.hookahs}</p>
                       </div>
-                      <div className="bg-white border border-slate-100 p-3 rounded-2xl">
+                      <div className="bg-white border border-slate-100 p-3 rounded-2xl shadow-sm">
                         <p className="text-xs text-slate-400 uppercase font-bold mb-1">Замен</p>
                         <p className="font-black text-slate-800 text-xl">{stats.replacements}</p>
                       </div>
                     </div>
-                  </div>
+                  </Card>
                 );
               })}
             </div>
