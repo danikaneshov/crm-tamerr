@@ -2,19 +2,43 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/icons-client/icon-192x192.png" id="dynamic-favicon" />
-    <link rel="apple-touch-icon" href="/icons-client/icon-192x192.png" id="dynamic-apple-icon" />
-    <link rel="manifest" href="/manifest-client.json" id="dynamic-manifest" />
-    <script>
-      // Мгновенно переключаем иконки/манифест для /admin ДО загрузки React
-      if (window.location.pathname.startsWith('/admin')) {
-        document.getElementById('dynamic-favicon').href = '/icons-admin/icon-192x192.png';
-        document.getElementById('dynamic-apple-icon').href = '/icons-admin/icon-192x192.png';
-        document.getElementById('dynamic-manifest').href = '/manifest-admin.json';
-      }
-    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <title>Fifty ERP</title>
+    <script>
+      // Определяем роут ДО загрузки React и СОЗДАЁМ нужные теги
+      (function() {
+        var isAdmin = window.location.pathname.startsWith('/admin');
+        var iconFolder = isAdmin ? '/icons-admin' : '/icons-client';
+        var manifestFile = isAdmin ? '/manifest-admin.json' : '/manifest-client.json';
+
+        // Favicon
+        var favicon = document.createElement('link');
+        favicon.rel = 'icon';
+        favicon.type = 'image/png';
+        favicon.id = 'dynamic-favicon';
+        favicon.href = iconFolder + '/icon-192x192.png';
+        document.head.appendChild(favicon);
+
+        // Apple Touch Icon (для iPhone домашнего экрана)
+        var sizes = ['180', '152', '144', '192'];
+        sizes.forEach(function(size) {
+          var apple = document.createElement('link');
+          apple.rel = 'apple-touch-icon';
+          apple.sizes = size + 'x' + size;
+          apple.href = iconFolder + '/icon-' + (size === '180' ? '192x192' : size + 'x' + size) + '.png';
+          document.head.appendChild(apple);
+        });
+
+        // Manifest (PWA)
+        var manifest = document.createElement('link');
+        manifest.rel = 'manifest';
+        manifest.id = 'dynamic-manifest';
+        manifest.href = manifestFile;
+        document.head.appendChild(manifest);
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
