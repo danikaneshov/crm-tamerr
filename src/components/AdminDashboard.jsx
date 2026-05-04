@@ -737,6 +737,11 @@ const AdminDashboard = () => {
             {subTab === 'stock' && (
               <div className="space-y-6">
                 <h1 className="text-2xl font-bold text-slate-800">Текущие остатки</h1>
+                <Card variant="gradient" className="p-6 relative">
+                  <p className="font-bold text-xs uppercase tracking-widest mb-2 opacity-80">Хватит примерно на</p>
+                  <h3 className="text-3xl font-black text-white">≈ {Math.max(0, Math.floor(Math.min(coalStock / invStandards.coalPerBowl, tobaccoStock / invStandards.tobaccoPerBowl)))} чаш</h3>
+                  <p className="text-xs opacity-70 mt-1 text-white">По стандарту: {invStandards.coalPerBowl} углей + {invStandards.tobaccoPerBowl}г табака на чашу</p>
+                </Card>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Card variant="elevated" className="p-8 card-hover-effect">
                     <div className="flex items-center gap-4 mb-4"><div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl flex items-center justify-center text-white text-xl">🔥</div><div><p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Уголь</p><h3 className="text-3xl font-black text-slate-900">{formatMoney(Math.round(coalStock))} шт</h3></div></div>
@@ -757,11 +762,6 @@ const AdminDashboard = () => {
                     <div className="mt-3 px-4 py-2 bg-blue-50 rounded-xl border border-blue-100 text-center"><span className="text-blue-600 font-black text-sm">≈ {Math.max(0, Math.floor(tobaccoStock / invStandards.tobaccoPerBowl))} чаш</span></div>
                   </Card>
                 </div>
-                <Card variant="gradient" className="p-6 relative">
-                  <p className="font-bold text-xs uppercase tracking-widest mb-2 opacity-80">Хватит примерно на</p>
-                  <h3 className="text-3xl font-black text-white">≈ {Math.max(0, Math.floor(Math.min(coalStock / invStandards.coalPerBowl, tobaccoStock / invStandards.tobaccoPerBowl)))} чаш</h3>
-                  <p className="text-xs opacity-70 mt-1 text-white">По стандарту: {invStandards.coalPerBowl} углей + {invStandards.tobaccoPerBowl}г табака на чашу</p>
-                </Card>
               </div>
             )}
 
