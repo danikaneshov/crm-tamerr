@@ -753,7 +753,7 @@ const AdminDashboard = () => {
                   <Card variant="elevated" key={emp.id} className="p-8 relative flex flex-col h-full card-hover-effect">
                     {stats.hasOpenShift && <div className="absolute top-0 left-0 w-full h-1.5 bg-primary animate-pulse"></div>}
                     <div className="flex items-center gap-4 mb-6">
-                      <div className="w-14 h-14 bg-gradient-to-br from-primary-light to-primary rounded-full flex items-center justify-center text-white font-black text-2xl shadow-inner">
+                      <div className="w-14 h-14 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center text-white font-black text-2xl shadow-inner">
                         {emp.name.charAt(0).toUpperCase()}
                       </div>
                       <div>
