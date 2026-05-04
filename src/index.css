@@ -5,8 +5,17 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    touch-action: manipulation;
+    -webkit-text-size-adjust: 100%;
+    overflow-x: hidden;
+  }
+  
   body {
     @apply bg-neutral-50 text-neutral-900 font-sans antialiased selection:bg-primary-light selection:text-primary-dark;
+    touch-action: manipulation;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
   }
   
   h1 { @apply text-4xl leading-tight font-black; }
