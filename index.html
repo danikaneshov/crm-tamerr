@@ -5,6 +5,14 @@
     <link rel="icon" type="image/png" href="/icons-client/icon-192x192.png" id="dynamic-favicon" />
     <link rel="apple-touch-icon" href="/icons-client/icon-192x192.png" id="dynamic-apple-icon" />
     <link rel="manifest" href="/manifest-client.json" id="dynamic-manifest" />
+    <script>
+      // Мгновенно переключаем иконки/манифест для /admin ДО загрузки React
+      if (window.location.pathname.startsWith('/admin')) {
+        document.getElementById('dynamic-favicon').href = '/icons-admin/icon-192x192.png';
+        document.getElementById('dynamic-apple-icon').href = '/icons-admin/icon-192x192.png';
+        document.getElementById('dynamic-manifest').href = '/manifest-admin.json';
+      }
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Fifty ERP</title>
   </head>
