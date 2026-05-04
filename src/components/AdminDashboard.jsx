@@ -745,6 +745,7 @@ const AdminDashboard = () => {
                       <div className="flex justify-between"><span className="text-slate-500">Расход (авто, {totalBowls} чаш × {invStandards.coalPerBowl}):</span><strong className="text-red-500">-{formatMoney(autoCoalUsed)}</strong></div>
                       <div className="flex justify-between"><span className="text-slate-500">Списано вручную:</span><strong className="text-orange-500">-{formatMoney(coalWriteoff)}</strong></div>
                     </div>
+                    <div className="mt-3 px-4 py-2 bg-blue-50 rounded-xl border border-blue-100 text-center"><span className="text-blue-600 font-black text-sm">≈ {Math.max(0, Math.floor(coalStock / invStandards.coalPerBowl))} чаш</span></div>
                   </Card>
                   <Card variant="elevated" className="p-8 card-hover-effect">
                     <div className="flex items-center gap-4 mb-4"><div className="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-600 rounded-2xl flex items-center justify-center text-white text-xl">🍃</div><div><p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Табак</p><h3 className="text-3xl font-black text-slate-900">{formatMoney(Math.round(tobaccoStock))} г</h3></div></div>
@@ -753,11 +754,13 @@ const AdminDashboard = () => {
                       <div className="flex justify-between"><span className="text-slate-500">Расход (авто, {totalBowls} чаш × {invStandards.tobaccoPerBowl}г):</span><strong className="text-red-500">-{formatMoney(autoTobaccoUsed)} г</strong></div>
                       <div className="flex justify-between"><span className="text-slate-500">Списано вручную:</span><strong className="text-orange-500">-{formatMoney(tobaccoWriteoff)} г</strong></div>
                     </div>
+                    <div className="mt-3 px-4 py-2 bg-blue-50 rounded-xl border border-blue-100 text-center"><span className="text-blue-600 font-black text-sm">≈ {Math.max(0, Math.floor(tobaccoStock / invStandards.tobaccoPerBowl))} чаш</span></div>
                   </Card>
                 </div>
-                <Card variant="elevated" className="p-6">
-                  <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mb-1">Стандарт расхода на 1 чашу</p>
-                  <p className="text-slate-700 font-medium">{invStandards.coalPerBowl} углей + {invStandards.tobaccoPerBowl}г табака</p>
+                <Card variant="gradient" className="p-6 relative">
+                  <p className="font-bold text-xs uppercase tracking-widest mb-2 opacity-80">Хватит примерно на</p>
+                  <h3 className="text-3xl font-black text-white">≈ {Math.max(0, Math.floor(Math.min(coalStock / invStandards.coalPerBowl, tobaccoStock / invStandards.tobaccoPerBowl)))} чаш</h3>
+                  <p className="text-xs opacity-70 mt-1 text-white">По стандарту: {invStandards.coalPerBowl} углей + {invStandards.tobaccoPerBowl}г табака на чашу</p>
                 </Card>
               </div>
             )}
