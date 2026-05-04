@@ -36,8 +36,10 @@ const AdminDashboard = () => {
 
   // Склад
   const [invMovements, setInvMovements] = useState([]);
-  const [invStandards, setInvStandards] = useState({ coalPerBowl: 5, tobaccoPerBowl: 23 });
-  const [invForm, setInvForm] = useState({ type: 'in', item: 'coal', amount: '', note: '' });
+  const [invTemplates, setInvTemplates] = useState([]);
+  const [invStandards, setInvStandards] = useState({ coalPerBowl: 5, tobaccoPerBowl: 23, mouthpiecePerBowl: 1 });
+  const [invForm, setInvForm] = useState({ type: 'in', item: 'coal', amount: '', cost: '', note: '', templateId: '' });
+  const [newTemplate, setNewTemplate] = useState({ name: '', item: 'tobacco', amount: '' });
   const [isSavingInv, setIsSavingInv] = useState(false);
 
   const availableMonths = useMemo(() => {
@@ -142,7 +144,12 @@ const AdminDashboard = () => {
       setInvMovements(snap.docs.map(d => ({ id: d.id, ...d.data() })));
     });
 
-    return () => { unsubEmp(); unsubSales(); unsubSettings(); unsubInvStd(); unsubInvMov(); };
+    // Склад: шаблоны
+    const unsubInvTemplates = onSnapshot(query(collection(db, 'inventory_templates'), orderBy('name', 'asc')), (snap) => {
+      setInvTemplates(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    });
+
+    return () => { unsubEmp(); unsubSales(); unsubSettings(); unsubInvStd(); unsubInvMov(); unsubInvTemplates(); };
   }, []);
 
   const handleSaveSettings = async () => {
@@ -289,15 +296,42 @@ const AdminDashboard = () => {
     };
   }, [allShifts, ownerProfits, selectedMonth]);
 
-  // Данные для графиков
+  // Данные для финансовых отчетов (с учетом выбранного месяца)
+  const monthlyStats = useMemo(() => {
+    const isAll = selectedMonth === 'all';
+    const filteredShifts = allShifts.filter(s => s.status === 'closed' && (isAll || (s.dateStr && s.dateStr.endsWith(`.${selectedMonth}`))));
+    
+    const earned = filteredShifts.reduce((a, b) => a + (b.earned || 0), 0);
+    const hookahs = filteredShifts.reduce((a, b) => a + (b.items?.cocktail1 || 0), 0);
+    const replacements = filteredShifts.reduce((a, b) => a + (b.items?.cocktail2 || 0), 0);
+    const ownerProfit = (hookahs * ownerProfits.hookah) + (replacements * ownerProfits.replacement);
+    
+    const tamerlanEarned = filteredShifts
+      .filter(s => s.employeeName && s.employeeName.trim().toLowerCase() === 'tamerlan')
+      .reduce((a, b) => a + (b.earned || 0), 0);
+    
+    const purchases = invMovements
+      .filter(m => m.type === 'in' && (isAll || (m.dateStr && m.dateStr.endsWith(`.${selectedMonth}`))))
+      .reduce((a, b) => a + (b.cost || 0), 0);
+
+    return {
+      earned,
+      hookahs,
+      replacements,
+      ownerProfit,
+      tamerlanEarned,
+      purchases,
+      netProfit: ownerProfit - earned - purchases,
+      profitWithoutTamerlan: ownerProfit - (earned - tamerlanEarned) - purchases
+    };
+  }, [allShifts, selectedMonth, ownerProfits, invMovements]);
+
+  // Старые переменные для совместимости с дашбордом (глобальные)
   const closedSystemShifts = allShifts.filter(s => s.status === 'closed');
   const totalSystemEarned = closedSystemShifts.reduce((a,b) => a + (b.earned || 0), 0);
   const globalHookahs = closedSystemShifts.reduce((a,b) => a + (b.items?.cocktail1 || 0), 0);
   const globalReplacements = closedSystemShifts.reduce((a,b) => a + (b.items?.cocktail2 || 0), 0);
   const globalOwnerProfit = (globalHookahs * ownerProfits.hookah) + (globalReplacements * ownerProfits.replacement);
-  
-  const tamerlanEarned = closedSystemShifts.filter(s => s.employeeName && s.employeeName.trim().toLowerCase() === 'tamerlan').reduce((a,b) => a + (b.earned || 0), 0);
-  const profitWithoutTamerlan = globalOwnerProfit - totalSystemEarned + tamerlanEarned;
   
   const replacementRate = globalHookahs > 0 ? ((globalReplacements / globalHookahs) * 100).toFixed(1) : 0;
 
@@ -593,7 +627,16 @@ const AdminDashboard = () => {
 
             {subTab === 'profit' && (
           <div className="space-y-10">
-            <h1 className="text-2xl font-bold text-slate-800">Финансовый отчет аутсорса</h1>
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <h1 className="text-2xl font-bold text-slate-800">Финансовый отчет аутсорса</h1>
+              <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200">
+                <CalendarDays className="text-slate-400 ml-3" size={18}/>
+                <select value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} className="py-2 pr-4 bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer">
+                  <option value="all">За все время</option>
+                  {availableMonths.map(m => <option key={m} value={m}>{m}</option>)}
+                </select>
+              </div>
+            </div>
             
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <div className="bg-gradient-to-br from-green-500 to-green-700 p-8 rounded-[32px] shadow-lg shadow-green-200 text-white relative overflow-hidden md:col-span-2">
@@ -601,23 +644,30 @@ const AdminDashboard = () => {
                 <div className="flex flex-col sm:flex-row gap-8 justify-between relative z-10">
                   <div>
                     <p className="font-bold text-sm uppercase tracking-widest mb-2 opacity-80">Общая чистая прибыль</p>
-                    <h3 className="text-4xl font-black">{formatMoney(globalOwnerProfit - totalSystemEarned)} ₸</h3>
-                    <p className="text-sm opacity-80 mt-2">С вычетом зарплат сотрудников ({formatMoney(totalSystemEarned)} ₸)</p>
+                    <h3 className="text-4xl font-black">{formatMoney(monthlyStats.netProfit)} ₸</h3>
+                    <p className="text-sm opacity-80 mt-2">Вычеты: ЗП ({formatMoney(monthlyStats.earned)} ₸) + Закупы ({formatMoney(monthlyStats.purchases)} ₸)</p>
                   </div>
                   <div className="text-right sm:mt-0 mt-4">
-                    <p className="font-bold text-xs uppercase tracking-widest mb-1 opacity-80">Без вычета ЗП</p>
-                    <h4 className="text-2xl font-black">{formatMoney(globalOwnerProfit)} ₸</h4>
+                    <p className="font-bold text-xs uppercase tracking-widest mb-1 opacity-80">Грязная прибыль</p>
+                    <h4 className="text-2xl font-black">{formatMoney(monthlyStats.ownerProfit)} ₸</h4>
                     <p className="font-bold text-xs uppercase tracking-widest mb-1 opacity-80 mt-4 text-green-200">Без вычета ЗП Tamerlan</p>
-                    <h4 className="text-xl font-black text-white">{formatMoney(profitWithoutTamerlan)} ₸</h4>
+                    <h4 className="text-xl font-black text-white">{formatMoney(monthlyStats.profitWithoutTamerlan)} ₸</h4>
                   </div>
                 </div>
               </div>
               
               <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm flex flex-col justify-center">
-                <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">Прибыль с кальянов</p>
-                <h3 className="text-2xl font-black text-slate-900">{formatMoney(globalHookahs * ownerProfits.hookah)} ₸</h3>
-                <p className="text-slate-400 text-sm mt-1">{globalHookahs} шт. × {formatMoney(ownerProfits.hookah)} ₸</p>
+                <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">Общие расходы (закуп)</p>
+                <h3 className="text-2xl font-black text-red-500">-{formatMoney(monthlyStats.purchases)} ₸</h3>
+                <p className="text-slate-400 text-sm mt-1">Всего {invMovements.filter(m => m.type === 'in' && (selectedMonth === 'all' || (m.dateStr && m.dateStr.endsWith(`.${selectedMonth}`)))).length} приходов</p>
               </div>
+
+              <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm flex flex-col justify-center">
+                <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">Прибыль с кальянов/замен</p>
+                <h3 className="text-2xl font-black text-slate-900">{formatMoney(monthlyStats.ownerProfit)} ₸</h3>
+                <p className="text-slate-400 text-sm mt-1">{monthlyStats.hookahs} кал. / {monthlyStats.replacements} зам.</p>
+              </div>
+            </div>
 
               <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm flex flex-col justify-center">
                 <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">Прибыль с замен</p>
@@ -693,13 +743,20 @@ const AdminDashboard = () => {
         {activeTab === 'inventory' && (() => {
           const totalBowls = closedSystemShifts.reduce((a, s) => a + (s.items?.cocktail1 || 0) + (s.items?.cocktail2 || 0), 0);
           const autoCoalUsed = totalBowls * invStandards.coalPerBowl;
-          const autoTobaccoUsed = totalBowls * invStandards.tobaccoPerBowl;
+          const autoTobaccoUsed = totalBowls * (invStandards.tobaccoPerBowl || 0);
+          const autoMouthpieceUsed = totalBowls * (invStandards.mouthpiecePerBowl || 0);
+
           const coalIn = invMovements.filter(m => m.item === 'coal' && m.type === 'in').reduce((a, m) => a + (m.amount || 0), 0);
           const tobaccoIn = invMovements.filter(m => m.item === 'tobacco' && m.type === 'in').reduce((a, m) => a + (m.amount || 0), 0);
+          const mouthpieceIn = invMovements.filter(m => m.item === 'mouthpiece' && m.type === 'in').reduce((a, m) => a + (m.amount || 0), 0);
+
           const coalWriteoff = invMovements.filter(m => m.item === 'coal' && m.type === 'writeoff').reduce((a, m) => a + (m.amount || 0), 0);
           const tobaccoWriteoff = invMovements.filter(m => m.item === 'tobacco' && m.type === 'writeoff').reduce((a, m) => a + (m.amount || 0), 0);
+          const mouthpieceWriteoff = invMovements.filter(m => m.item === 'mouthpiece' && m.type === 'writeoff').reduce((a, m) => a + (m.amount || 0), 0);
+
           const coalStock = coalIn - autoCoalUsed - coalWriteoff;
           const tobaccoStock = tobaccoIn - autoTobaccoUsed - tobaccoWriteoff;
+          const mouthpieceStock = mouthpieceIn - autoMouthpieceUsed - mouthpieceWriteoff;
 
           const handleInvSubmit = async (e) => {
             e.preventDefault();
@@ -709,11 +766,13 @@ const AdminDashboard = () => {
               const now = new Date();
               await addDoc(collection(db, 'inventory_movements'), {
                 type: invForm.type, item: invForm.item,
-                amount: Number(invForm.amount), note: invForm.note || '',
+                amount: Number(invForm.amount), 
+                cost: invForm.type === 'in' ? Number(invForm.cost || 0) : 0,
+                note: invForm.note || '',
                 dateStr: `${String(now.getDate()).padStart(2,'0')}.${String(now.getMonth()+1).padStart(2,'0')}.${now.getFullYear()}`,
                 createdAt: serverTimestamp()
               });
-              setInvForm({ ...invForm, amount: '', note: '' });
+              setInvForm({ type: 'in', item: 'coal', amount: '', cost: '', note: '', templateId: '' });
             } catch (err) { alert('Ошибка: ' + err.message); }
             finally { setIsSavingInv(false); }
           };
@@ -725,11 +784,27 @@ const AdminDashboard = () => {
             finally { setIsSavingInv(false); }
           };
 
+          const handleTemplateSubmit = async (e) => {
+            e.preventDefault();
+            if (!newTemplate.name || !newTemplate.amount) return;
+            setIsSavingInv(true);
+            try {
+              await addDoc(collection(db, 'inventory_templates'), {
+                ...newTemplate,
+                amount: Number(newTemplate.amount),
+                createdAt: serverTimestamp()
+              });
+              setNewTemplate({ name: '', item: 'tobacco', amount: '' });
+            } catch (err) { alert('Ошибка: ' + err.message); }
+            finally { setIsSavingInv(false); }
+          };
+
           return (
           <div className="space-y-8 animate-in fade-in duration-300">
             <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm w-fit flex-wrap">
               <button onClick={() => setSubTab('stock')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${subTab === 'stock' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Остатки</button>
               <button onClick={() => setSubTab('incoming')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${subTab === 'incoming' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Приход</button>
+              <button onClick={() => setSubTab('templates')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${subTab === 'templates' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Шаблоны</button>
               <button onClick={() => setSubTab('writeoff')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${subTab === 'writeoff' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Списание</button>
               <button onClick={() => setSubTab('standards')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${subTab === 'standards' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Стандарты</button>
             </div>
@@ -761,6 +836,15 @@ const AdminDashboard = () => {
                     </div>
                     <div className="mt-3 px-4 py-2 bg-blue-50 rounded-xl border border-blue-100 text-center"><span className="text-blue-600 font-black text-sm">≈ {Math.max(0, Math.floor(tobaccoStock / invStandards.tobaccoPerBowl))} чаш</span></div>
                   </Card>
+                  <Card variant="elevated" className="p-8 card-hover-effect">
+                    <div className="flex items-center gap-4 mb-4"><div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-2xl flex items-center justify-center text-white text-xl">💠</div><div><p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Мундштуки</p><h3 className="text-3xl font-black text-slate-900">{formatMoney(Math.round(mouthpieceStock))} шт</h3></div></div>
+                    <div className="bg-slate-50 p-4 rounded-2xl space-y-2 text-sm border border-slate-100">
+                      <div className="flex justify-between"><span className="text-slate-500">Приход (всего):</span><strong className="text-green-600">+{formatMoney(mouthpieceIn)}</strong></div>
+                      <div className="flex justify-between"><span className="text-slate-500">Расход (авто, {totalBowls} чаш × {invStandards.mouthpiecePerBowl}):</span><strong className="text-red-500">-{formatMoney(autoMouthpieceUsed)}</strong></div>
+                      <div className="flex justify-between"><span className="text-slate-500">Списано вручную:</span><strong className="text-orange-500">-{formatMoney(mouthpieceWriteoff)}</strong></div>
+                    </div>
+                    <div className="mt-3 px-4 py-2 bg-blue-50 rounded-xl border border-blue-100 text-center"><span className="text-blue-600 font-black text-sm">≈ {Math.max(0, Math.floor(mouthpieceStock / invStandards.mouthpiecePerBowl))} чаш</span></div>
+                  </Card>
                 </div>
               </div>
             )}
@@ -770,8 +854,26 @@ const AdminDashboard = () => {
                 <h1 className="text-2xl font-bold text-slate-800">Приход товара</h1>
                 <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm max-w-xl">
                   <form onSubmit={(e) => { setInvForm({...invForm, type: 'in'}); handleInvSubmit(e); }} className="space-y-5">
-                    <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Товар</label><select value={invForm.item} onChange={e => setInvForm({...invForm, item: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800"><option value="coal">🔥 Уголь (шт)</option><option value="tobacco">🍃 Табак (г)</option></select></div>
-                    <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Количество</label><input type="number" min="1" value={invForm.amount} onChange={e => setInvForm({...invForm, amount: e.target.value})} placeholder={invForm.item === 'coal' ? 'Кол-во штук' : 'Кол-во грамм'} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" required /></div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Шаблон (опц.)</label>
+                      <select 
+                        value={invForm.templateId} 
+                        onChange={e => {
+                          const t = invTemplates.find(x => x.id === e.target.value);
+                          if (t) setInvForm({...invForm, templateId: t.id, item: t.item, amount: t.amount});
+                          else setInvForm({...invForm, templateId: '', item: 'coal', amount: ''});
+                        }} 
+                        className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-slate-800"
+                      >
+                        <option value="">Без шаблона</option>
+                        {invTemplates.map(t => <option key={t.id} value={t.id}>{t.name} ({t.amount} {t.item === 'coal' || t.item === 'mouthpiece' ? 'шт' : 'г'})</option>)}
+                      </select>
+                    </div>
+                    <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Товар</label><select value={invForm.item} onChange={e => setInvForm({...invForm, item: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800"><option value="coal">🔥 Уголь (шт)</option><option value="tobacco">🍃 Табак (г)</option><option value="mouthpiece">💠 Мундштуки (шт)</option></select></div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Количество</label><input type="number" min="1" value={invForm.amount} onChange={e => setInvForm({...invForm, amount: e.target.value})} placeholder="Кол-во" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" required /></div>
+                      <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Стоимость закупа (₸)</label><input type="number" min="0" value={invForm.cost} onChange={e => setInvForm({...invForm, cost: e.target.value})} placeholder="Цена" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" /></div>
+                    </div>
                     <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Комментарий</label><input type="text" value={invForm.note} onChange={e => setInvForm({...invForm, note: e.target.value})} placeholder="Например: закупка 05.05" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-slate-800" /></div>
                     <button type="submit" disabled={isSavingInv} className="w-full p-4 bg-green-600 text-white rounded-2xl font-bold shadow-lg shadow-green-100 disabled:opacity-50">{isSavingInv ? 'Сохранение...' : '+ Добавить приход'}</button>
                   </form>
@@ -782,8 +884,46 @@ const AdminDashboard = () => {
                     {invMovements.filter(m => m.type === 'in').length === 0 && <div className="p-6 text-center text-slate-400">Нет записей</div>}
                     {invMovements.filter(m => m.type === 'in').map(m => (
                       <div key={m.id} className="p-4 flex justify-between items-center hover:bg-slate-50 transition-colors">
-                        <div><p className="font-bold text-slate-800">{m.item === 'coal' ? '🔥 Уголь' : '🍃 Табак'} <span className="text-green-600">+{formatMoney(m.amount)} {m.item === 'coal' ? 'шт' : 'г'}</span></p>{m.note && <p className="text-xs text-slate-400 mt-0.5">{m.note}</p>}</div>
+                        <div>
+                          <p className="font-bold text-slate-800">
+                            {m.item === 'coal' ? '🔥 Уголь' : m.item === 'tobacco' ? '🍃 Табак' : '💠 Мундштуки'} 
+                            <span className="text-green-600"> +{formatMoney(m.amount)} {m.item === 'coal' || m.item === 'mouthpiece' ? 'шт' : 'г'}</span>
+                          </p>
+                          <div className="flex gap-2 items-center mt-0.5">
+                            {m.cost > 0 && <span className="text-xs font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">{formatMoney(m.cost)} ₸</span>}
+                            {m.note && <p className="text-xs text-slate-400">{m.note}</p>}
+                          </div>
+                        </div>
                         <div className="flex items-center gap-3"><span className="text-xs text-slate-400">{m.dateStr}</span><button onClick={() => deleteDoc(doc(db, 'inventory_movements', m.id))} className="text-slate-300 hover:text-red-500"><Trash2 size={16}/></button></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {subTab === 'templates' && (
+              <div className="space-y-6">
+                <h1 className="text-2xl font-bold text-slate-800">Шаблоны закупа</h1>
+                <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm max-w-xl">
+                  <h2 className="text-lg font-black mb-6">Создать шаблон</h2>
+                  <form onSubmit={handleTemplateSubmit} className="space-y-5">
+                    <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Название</label><input type="text" value={newTemplate.name} onChange={e => setNewTemplate({...newTemplate, name: e.target.value})} placeholder="Например: Hell 200гр" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold" required /></div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Тип</label><select value={newTemplate.item} onChange={e => setNewTemplate({...newTemplate, item: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold"><option value="tobacco">🍃 Табак</option><option value="coal">🔥 Уголь</option><option value="mouthpiece">💠 Мундштуки</option></select></div>
+                      <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Кол-во (г/шт)</label><input type="number" min="1" value={newTemplate.amount} onChange={e => setNewTemplate({...newTemplate, amount: e.target.value})} placeholder="200" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold" required /></div>
+                    </div>
+                    <button type="submit" disabled={isSavingInv} className="w-full p-4 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-100 disabled:opacity-50">Создать шаблон</button>
+                  </form>
+                </div>
+                <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
+                  <div className="p-6 border-b border-slate-100"><h2 className="text-lg font-black text-slate-800">Мои шаблоны</h2></div>
+                  <div className="divide-y divide-slate-50">
+                    {invTemplates.length === 0 && <div className="p-6 text-center text-slate-400">Шаблонов пока нет</div>}
+                    {invTemplates.map(t => (
+                      <div key={t.id} className="p-4 flex justify-between items-center hover:bg-slate-50 transition-colors">
+                        <div><p className="font-bold text-slate-800">{t.name}</p><p className="text-xs text-slate-400 mt-0.5">{t.item === 'coal' ? 'Уголь' : t.item === 'tobacco' ? 'Табак' : 'Мундштуки'} — {t.amount} {t.item === 'coal' || t.item === 'mouthpiece' ? 'шт' : 'г'}</p></div>
+                        <button onClick={() => deleteDoc(doc(db, 'inventory_templates', t.id))} className="text-slate-300 hover:text-red-500"><Trash2 size={18}/></button>
                       </div>
                     ))}
                   </div>
@@ -796,7 +936,7 @@ const AdminDashboard = () => {
                 <h1 className="text-2xl font-bold text-slate-800">Списание</h1>
                 <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm max-w-xl">
                   <form onSubmit={(e) => { setInvForm({...invForm, type: 'writeoff'}); handleInvSubmit(e); }} className="space-y-5">
-                    <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Товар</label><select value={invForm.item} onChange={e => setInvForm({...invForm, item: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800"><option value="coal">🔥 Уголь (шт)</option><option value="tobacco">🍃 Табак (г)</option></select></div>
+                    <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Товар</label><select value={invForm.item} onChange={e => setInvForm({...invForm, item: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800"><option value="coal">🔥 Уголь (шт)</option><option value="tobacco">🍃 Табак (г)</option><option value="mouthpiece">💠 Мундштуки (шт)</option></select></div>
                     <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Количество</label><input type="number" min="1" value={invForm.amount} onChange={e => setInvForm({...invForm, amount: e.target.value})} placeholder="Сколько списать" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" required /></div>
                     <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Причина</label><input type="text" value={invForm.note} onChange={e => setInvForm({...invForm, note: e.target.value})} placeholder="Например: отправил на вторую точку" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-slate-800" /></div>
                     <button type="submit" disabled={isSavingInv} className="w-full p-4 bg-orange-500 text-white rounded-2xl font-bold shadow-lg shadow-orange-100 disabled:opacity-50">{isSavingInv ? 'Сохранение...' : 'Списать'}</button>
@@ -821,10 +961,11 @@ const AdminDashboard = () => {
               <div className="max-w-xl space-y-6">
                 <h1 className="text-2xl font-bold text-slate-800">Стандарты расхода</h1>
                 <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
-                  <p className="text-slate-500 mb-6 text-sm">Укажи сколько угля и табака уходит на 1 чашу (кальян/замена). Система автоматически рассчитает расход по продажам.</p>
+                  <p className="text-slate-500 mb-6 text-sm">Укажи сколько ресурсов уходит на 1 чашу. Система автоматически рассчитает расход по продажам.</p>
                   <div className="space-y-5">
                     <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">🔥 Углей на 1 чашу (шт)</label><input type="number" min="1" value={invStandards.coalPerBowl} onChange={e => setInvStandards({...invStandards, coalPerBowl: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" /></div>
                     <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">🍃 Табака на 1 чашу (г)</label><input type="number" min="1" value={invStandards.tobaccoPerBowl} onChange={e => setInvStandards({...invStandards, tobaccoPerBowl: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" /></div>
+                    <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">💠 Мундштуков на 1 чашу (шт)</label><input type="number" min="0" value={invStandards.mouthpiecePerBowl} onChange={e => setInvStandards({...invStandards, mouthpiecePerBowl: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" /></div>
                     <button onClick={handleSaveStandards} disabled={isSavingInv} className="w-full p-4 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-100 disabled:opacity-50">{isSavingInv ? 'Сохранение...' : 'Сохранить стандарты'}</button>
                   </div>
                 </div>
