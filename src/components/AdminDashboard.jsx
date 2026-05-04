@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { LogOut, Users, LayoutDashboard, Key, Trash2, Image, Settings, Menu, X, Percent, Wallet, Database, AlertTriangle, Clock, Banknote, CalendarDays, Calendar as CalendarIcon, Package, ArrowDownToLine, ArrowUpFromLine, Calculator, Ruler } from 'lucide-react';
+import { LogOut, Users, LayoutDashboard, Key, Trash2, Image, Settings, Menu, X, Percent, Wallet, Database, AlertTriangle, Clock, Banknote, CalendarDays, Calendar as CalendarIcon, Package, ArrowDownToLine, ArrowUpFromLine, Calculator, Ruler, ShoppingCart, CheckCircle2, Plus } from 'lucide-react';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { signOut } from 'firebase/auth';
 import { collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, serverTimestamp, setDoc, getDocs } from 'firebase/firestore';
@@ -39,7 +39,8 @@ const AdminDashboard = () => {
   const [invTemplates, setInvTemplates] = useState([]);
   const [invStandards, setInvStandards] = useState({ coalPerBowl: 5, tobaccoPerBowl: 23, mouthpiecePerBowl: 1 });
   const [invForm, setInvForm] = useState({ type: 'in', item: 'coal', amount: '', cost: '', note: '', templateId: '' });
-  const [newTemplate, setNewTemplate] = useState({ name: '', item: 'tobacco', amount: '' });
+  const [invCart, setInvCart] = useState([]);
+  const [newTemplate, setNewTemplate] = useState({ name: '', item: 'tobacco', amount: '', price: '' });
   const [isSavingInv, setIsSavingInv] = useState(false);
 
   const availableMonths = useMemo(() => {
@@ -626,84 +627,77 @@ const AdminDashboard = () => {
             </div>
 
             {subTab === 'profit' && (
-          <div className="space-y-10">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-              <h1 className="text-2xl font-bold text-slate-800">Финансовый отчет аутсорса</h1>
-              <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200">
-                <CalendarDays className="text-slate-400 ml-3" size={18}/>
-                <select value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} className="py-2 pr-4 bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer">
-                  <option value="all">За все время</option>
-                  {availableMonths.map(m => <option key={m} value={m}>{m}</option>)}
-                </select>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div className="bg-gradient-to-br from-green-500 to-green-700 p-8 rounded-[32px] shadow-lg shadow-green-200 text-white relative overflow-hidden md:col-span-2">
-                <Wallet className="absolute right-4 top-4 opacity-20" size={80}/>
-                <div className="flex flex-col sm:flex-row gap-8 justify-between relative z-10">
-                  <div>
-                    <p className="font-bold text-sm uppercase tracking-widest mb-2 opacity-80">Общая чистая прибыль</p>
-                    <h3 className="text-4xl font-black">{formatMoney(monthlyStats.netProfit)} ₸</h3>
-                    <p className="text-sm opacity-80 mt-2">Вычеты: ЗП ({formatMoney(monthlyStats.earned)} ₸) + Закупы ({formatMoney(monthlyStats.purchases)} ₸)</p>
+              <div className="space-y-10">
+                <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                  <h1 className="text-2xl font-bold text-slate-800">Финансовый отчет аутсорса</h1>
+                  <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200">
+                    <CalendarDays className="text-slate-400 ml-3" size={18}/>
+                    <select value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} className="py-2 pr-4 bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer">
+                      <option value="all">За все время</option>
+                      {availableMonths.map(m => <option key={m} value={m}>{m}</option>)}
+                    </select>
                   </div>
-                  <div className="text-right sm:mt-0 mt-4">
-                    <p className="font-bold text-xs uppercase tracking-widest mb-1 opacity-80">Грязная прибыль</p>
-                    <h4 className="text-2xl font-black">{formatMoney(monthlyStats.ownerProfit)} ₸</h4>
-                    <p className="font-bold text-xs uppercase tracking-widest mb-1 opacity-80 mt-4 text-green-200">Без вычета ЗП Tamerlan</p>
-                    <h4 className="text-xl font-black text-white">{formatMoney(monthlyStats.profitWithoutTamerlan)} ₸</h4>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                  <div className="bg-gradient-to-br from-green-500 to-green-700 p-8 rounded-[32px] shadow-lg shadow-green-200 text-white relative overflow-hidden md:col-span-2">
+                    <Wallet className="absolute right-4 top-4 opacity-20" size={80}/>
+                    <div className="flex flex-col sm:flex-row gap-8 justify-between relative z-10">
+                      <div>
+                        <p className="font-bold text-sm uppercase tracking-widest mb-2 opacity-80">Общая чистая прибыль</p>
+                        <h3 className="text-4xl font-black">{formatMoney(monthlyStats.netProfit)} ₸</h3>
+                        <p className="text-sm opacity-80 mt-2">Вычеты: ЗП ({formatMoney(monthlyStats.earned)} ₸) + Закупы ({formatMoney(monthlyStats.purchases)} ₸)</p>
+                      </div>
+                      <div className="text-right sm:mt-0 mt-4">
+                        <p className="font-bold text-xs uppercase tracking-widest mb-1 opacity-80">Грязная прибыль</p>
+                        <h4 className="text-2xl font-black">{formatMoney(monthlyStats.ownerProfit)} ₸</h4>
+                        <p className="font-bold text-xs uppercase tracking-widest mb-1 opacity-80 mt-4 text-green-200">Без вычета ЗП Tamerlan</p>
+                        <h4 className="text-xl font-black text-white">{formatMoney(monthlyStats.profitWithoutTamerlan)} ₸</h4>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm flex flex-col justify-center">
+                    <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">Общие расходы (закуп)</p>
+                    <h3 className="text-2xl font-black text-red-500">-{formatMoney(monthlyStats.purchases)} ₸</h3>
+                    <p className="text-slate-400 text-sm mt-1">Всего {invMovements.filter(m => m.type === 'in' && (selectedMonth === 'all' || (m.dateStr && m.dateStr.endsWith(`.${selectedMonth}`)))).length} приходов</p>
+                  </div>
+
+                  <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm flex flex-col justify-center">
+                    <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">Прибыль с кальянов/замен</p>
+                    <h3 className="text-2xl font-black text-slate-900">{formatMoney(monthlyStats.ownerProfit)} ₸</h3>
+                    <p className="text-slate-400 text-sm mt-1">{monthlyStats.hookahs} кал. / {monthlyStats.replacements} зам.</p>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
+                  <div className="p-8 border-b border-slate-100">
+                    <h2 className="text-xl font-black text-slate-800">Прибыль по мастерам</h2>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full min-w-[600px]">
+                      <thead>
+                        <tr className="bg-slate-50">
+                          <th className="p-6 text-left text-xs font-black text-slate-400 uppercase">Сотрудник</th>
+                          <th className="p-6 text-left text-xs font-black text-slate-400 uppercase">Кальяны</th>
+                          <th className="p-6 text-left text-xs font-black text-slate-400 uppercase">Замены</th>
+                          <th className="p-6 text-right text-xs font-black text-green-600 uppercase">Принес прибыли</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-50">
+                        {profitByMaster.map(emp => (
+                          <tr key={emp.id} className="hover:bg-slate-50 transition-colors">
+                            <td className="p-6 font-bold text-slate-900">{emp.name}</td>
+                            <td className="p-6 text-slate-600 font-medium">{emp.hookahs} шт.</td>
+                            <td className="p-6 text-slate-600 font-medium">{emp.replacements} шт.</td>
+                            <td className="p-6 text-right text-lg font-black text-green-600">{formatMoney(emp.ownerNetProfit)} ₸</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </div>
-              
-              <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm flex flex-col justify-center">
-                <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">Общие расходы (закуп)</p>
-                <h3 className="text-2xl font-black text-red-500">-{formatMoney(monthlyStats.purchases)} ₸</h3>
-                <p className="text-slate-400 text-sm mt-1">Всего {invMovements.filter(m => m.type === 'in' && (selectedMonth === 'all' || (m.dateStr && m.dateStr.endsWith(`.${selectedMonth}`)))).length} приходов</p>
-              </div>
-
-              <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm flex flex-col justify-center">
-                <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">Прибыль с кальянов/замен</p>
-                <h3 className="text-2xl font-black text-slate-900">{formatMoney(monthlyStats.ownerProfit)} ₸</h3>
-                <p className="text-slate-400 text-sm mt-1">{monthlyStats.hookahs} кал. / {monthlyStats.replacements} зам.</p>
-              </div>
-            </div>
-
-              <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm flex flex-col justify-center">
-                <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">Прибыль с замен</p>
-                <h3 className="text-2xl font-black text-slate-900">{formatMoney(globalReplacements * ownerProfits.replacement)} ₸</h3>
-                <p className="text-slate-400 text-sm mt-1">{globalReplacements} шт. × {formatMoney(ownerProfits.replacement)} ₸</p>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
-              <div className="p-8 border-b border-slate-100">
-                 <h2 className="text-xl font-black text-slate-800">Прибыль по мастерам</h2>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[600px]">
-                  <thead>
-                    <tr className="bg-slate-50">
-                      <th className="p-6 text-left text-xs font-black text-slate-400 uppercase">Сотрудник</th>
-                      <th className="p-6 text-left text-xs font-black text-slate-400 uppercase">Кальяны</th>
-                      <th className="p-6 text-left text-xs font-black text-slate-400 uppercase">Замены</th>
-                      <th className="p-6 text-right text-xs font-black text-green-600 uppercase">Принес прибыли</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-50">
-                    {profitByMaster.map(emp => (
-                      <tr key={emp.id} className="hover:bg-slate-50 transition-colors">
-                        <td className="p-6 font-bold text-slate-900">{emp.name}</td>
-                        <td className="p-6 text-slate-600 font-medium">{emp.hookahs} шт.</td>
-                        <td className="p-6 text-slate-600 font-medium">{emp.replacements} шт.</td>
-                        <td className="p-6 text-right text-lg font-black text-green-600">{formatMoney(emp.ownerNetProfit)} ₸</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
             )}
 
             {subTab === 'salaries' && (
@@ -777,6 +771,53 @@ const AdminDashboard = () => {
             finally { setIsSavingInv(false); }
           };
 
+          const addToCart = (template) => {
+            setInvCart(prev => {
+              const existing = prev.find(x => x.templateId === template.id);
+              if (existing) {
+                return prev.map(x => x.templateId === template.id ? { ...x, quantity: x.quantity + 1 } : x);
+              }
+              return [...prev, {
+                id: Date.now() + Math.random(),
+                templateId: template.id,
+                name: template.name,
+                item: template.item,
+                amountPerUnit: Number(template.amount),
+                pricePerUnit: Number(template.price || 0),
+                quantity: 1
+              }];
+            });
+          };
+
+          const removeFromCart = (id) => setInvCart(prev => prev.filter(x => x.id !== id));
+          const updateCartItem = (id, field, value) => {
+            setInvCart(prev => prev.map(x => x.id === id ? { ...x, [field]: value } : x));
+          };
+
+          const handleCartSubmit = async () => {
+            if (invCart.length === 0) return;
+            setIsSavingInv(true);
+            try {
+              const now = new Date();
+              const dateStr = `${String(now.getDate()).padStart(2,'0')}.${String(now.getMonth()+1).padStart(2,'0')}.${now.getFullYear()}`;
+              await Promise.all(invCart.map(item =>
+                addDoc(collection(db, 'inventory_movements'), {
+                  type: 'in',
+                  item: item.item,
+                  amount: item.amountPerUnit * item.quantity,
+                  cost: item.pricePerUnit * item.quantity,
+                  templateName: item.name,
+                  note: '',
+                  dateStr,
+                  createdAt: serverTimestamp()
+                })
+              ));
+              setInvCart([]);
+              alert('Приход сохранён!');
+            } catch (err) { alert('Ошибка: ' + err.message); }
+            finally { setIsSavingInv(false); }
+          };
+
           const handleSaveStandards = async () => {
             setIsSavingInv(true);
             try { await setDoc(doc(db, 'settings', 'inventory_standards'), invStandards); alert('Стандарты сохранены!'); }
@@ -792,9 +833,10 @@ const AdminDashboard = () => {
               await addDoc(collection(db, 'inventory_templates'), {
                 ...newTemplate,
                 amount: Number(newTemplate.amount),
+                price: Number(newTemplate.price || 0),
                 createdAt: serverTimestamp()
               });
-              setNewTemplate({ name: '', item: 'tobacco', amount: '' });
+              setNewTemplate({ name: '', item: 'tobacco', amount: '', price: '' });
             } catch (err) { alert('Ошибка: ' + err.message); }
             finally { setIsSavingInv(false); }
           };
@@ -850,43 +892,106 @@ const AdminDashboard = () => {
             )}
 
             {subTab === 'incoming' && (
-              <div className="space-y-6">
+              <div className="space-y-8">
                 <h1 className="text-2xl font-bold text-slate-800">Приход товара</h1>
-                <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm max-w-xl">
-                  <form onSubmit={(e) => { setInvForm({...invForm, type: 'in'}); handleInvSubmit(e); }} className="space-y-5">
-                    <div>
-                      <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Шаблон (опц.)</label>
-                      <select 
-                        value={invForm.templateId} 
-                        onChange={e => {
-                          const t = invTemplates.find(x => x.id === e.target.value);
-                          if (t) setInvForm({...invForm, templateId: t.id, item: t.item, amount: t.amount});
-                          else setInvForm({...invForm, templateId: '', item: 'coal', amount: ''});
-                        }} 
-                        className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-slate-800"
+                
+                {/* Плитки шаблонов */}
+                <div>
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Выбери шаблон для добавления</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                    {invTemplates.length === 0 && <p className="text-sm text-slate-400 col-span-full">Нет созданных шаблонов. Создай их во вкладке «Шаблоны».</p>}
+                    {invTemplates.map(t => (
+                      <button 
+                        key={t.id} 
+                        onClick={() => addToCart(t)}
+                        className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm hover:border-primary hover:shadow-md transition-all text-left flex flex-col gap-2 group active:scale-95"
                       >
-                        <option value="">Без шаблона</option>
-                        {invTemplates.map(t => <option key={t.id} value={t.id}>{t.name} ({t.amount} {t.item === 'coal' || t.item === 'mouthpiece' ? 'шт' : 'г'})</option>)}
-                      </select>
-                    </div>
-                    <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Товар</label><select value={invForm.item} onChange={e => setInvForm({...invForm, item: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800"><option value="coal">🔥 Уголь (шт)</option><option value="tobacco">🍃 Табак (г)</option><option value="mouthpiece">💠 Мундштуки (шт)</option></select></div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Количество</label><input type="number" min="1" value={invForm.amount} onChange={e => setInvForm({...invForm, amount: e.target.value})} placeholder="Кол-во" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" required /></div>
-                      <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Стоимость закупа (₸)</label><input type="number" min="0" value={invForm.cost} onChange={e => setInvForm({...invForm, cost: e.target.value})} placeholder="Цена" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" /></div>
-                    </div>
-                    <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Комментарий</label><input type="text" value={invForm.note} onChange={e => setInvForm({...invForm, note: e.target.value})} placeholder="Например: закупка 05.05" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-slate-800" /></div>
-                    <button type="submit" disabled={isSavingInv} className="w-full p-4 bg-green-600 text-white rounded-2xl font-bold shadow-lg shadow-green-100 disabled:opacity-50">{isSavingInv ? 'Сохранение...' : '+ Добавить приход'}</button>
-                  </form>
+                        <div className="flex justify-between items-start">
+                          <span className="text-2xl group-hover:scale-110 transition-transform">{t.item === 'coal' ? '🔥' : t.item === 'tobacco' ? '🍃' : '💠'}</span>
+                          <Plus size={16} className="text-slate-300 group-hover:text-primary transition-colors" />
+                        </div>
+                        <p className="font-black text-slate-800 text-sm line-clamp-2">{t.name}</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase">{t.amount} {t.item === 'coal' || t.item === 'mouthpiece' ? 'шт' : 'г'}</p>
+                        {t.price > 0 && <p className="text-[10px] font-bold text-blue-500">{formatMoney(t.price)} ₸</p>}
+                      </button>
+                    ))}
+                  </div>
                 </div>
+
+                {/* Корзина прихода */}
+                {invCart.length > 0 && (
+                  <div className="bg-white rounded-[32px] border-2 border-primary/20 shadow-xl overflow-hidden animate-in zoom-in-95 duration-200">
+                    <div className="bg-primary/5 p-6 border-b border-primary/10 flex justify-between items-center">
+                      <div>
+                        <h2 className="text-lg font-black text-primary flex items-center gap-2"><ShoppingCart size={20}/> Временная корзина</h2>
+                        <p className="text-xs text-slate-500 font-medium">Проверь данные перед сохранением</p>
+                      </div>
+                      <button onClick={() => setInvCart([])} className="text-xs font-bold text-red-500 hover:bg-red-50 px-3 py-2 rounded-xl transition-colors">Очистить всё</button>
+                    </div>
+                    
+                    <div className="divide-y divide-slate-100">
+                      {invCart.map((item) => (
+                        <div key={item.id} className="p-5 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-lg">{item.item === 'coal' ? '🔥' : item.item === 'tobacco' ? '🍃' : '💠'}</span>
+                              <h4 className="font-black text-slate-900 truncate">{item.name}</h4>
+                            </div>
+                            <p className="text-xs text-slate-400 font-medium">{item.amountPerUnit} {item.item === 'coal' || item.item === 'mouthpiece' ? 'шт' : 'г'} / ед.</p>
+                          </div>
+                          
+                          <div className="flex flex-wrap gap-3 items-center">
+                            <div className="flex flex-col gap-1">
+                              <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Кол-во</label>
+                              <div className="flex items-center gap-1.5 bg-slate-50 p-1 rounded-xl border border-slate-200">
+                                <button onClick={() => updateCartItem(item.id, 'quantity', Math.max(1, item.quantity - 1))} className="w-8 h-8 flex items-center justify-center bg-white rounded-lg text-slate-600 shadow-sm hover:bg-slate-100 transition-colors font-bold">−</button>
+                                <span className="w-8 text-center font-black text-slate-800">{item.quantity}</span>
+                                <button onClick={() => updateCartItem(item.id, 'quantity', item.quantity + 1)} className="w-8 h-8 flex items-center justify-center bg-white rounded-lg text-slate-600 shadow-sm hover:bg-slate-100 transition-colors font-bold">+</button>
+                              </div>
+                            </div>
+
+                            <div className="flex flex-col gap-1">
+                              <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Цена</label>
+                              <p className="px-2 py-2 font-black text-slate-800 text-sm">{formatMoney(item.pricePerUnit * item.quantity)} ₸</p>
+                            </div>
+
+                            <div className="text-right min-w-[80px]">
+                              <p className="text-[10px] font-bold text-slate-400 uppercase mb-0.5">Итого</p>
+                              <p className="font-black text-primary text-base">{formatMoney(item.amountPerUnit * item.quantity)} {item.item === 'coal' || item.item === 'mouthpiece' ? 'шт' : 'г'}</p>
+                            </div>
+
+                            <button onClick={() => removeFromCart(item.id)} className="p-2 text-slate-300 hover:text-red-500 transition-colors"><Trash2 size={18}/></button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="bg-slate-50 p-6 flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-slate-100">
+                      <div>
+                        <p className="text-slate-500 font-medium text-sm">Общая сумма закупа:</p>
+                        <h3 className="text-2xl font-black text-slate-900">{formatMoney(invCart.reduce((a,b) => a + (b.pricePerUnit * b.quantity), 0))} ₸</h3>
+                      </div>
+                      <button 
+                        onClick={handleCartSubmit} 
+                        disabled={isSavingInv}
+                        className="w-full sm:w-auto px-8 py-3.5 bg-primary text-white rounded-2xl font-black text-base shadow-xl shadow-primary/20 hover:scale-105 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                      >
+                        {isSavingInv ? 'Сохранение...' : <><CheckCircle2 size={20}/> Принять и сохранить</>}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* История приходов */}
                 <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
                   <div className="p-6 border-b border-slate-100"><h2 className="text-lg font-black text-slate-800">История приходов</h2></div>
-                  <div className="divide-y divide-slate-50">
+                  <div className="divide-y divide-slate-50 max-h-[400px] overflow-y-auto">
                     {invMovements.filter(m => m.type === 'in').length === 0 && <div className="p-6 text-center text-slate-400">Нет записей</div>}
                     {invMovements.filter(m => m.type === 'in').map(m => (
                       <div key={m.id} className="p-4 flex justify-between items-center hover:bg-slate-50 transition-colors">
                         <div>
                           <p className="font-bold text-slate-800">
-                            {m.item === 'coal' ? '🔥 Уголь' : m.item === 'tobacco' ? '🍃 Табак' : '💠 Мундштуки'} 
+                            {m.templateName || (m.item === 'coal' ? '🔥 Уголь' : m.item === 'tobacco' ? '🍃 Табак' : '💠 Мундштуки')} 
                             <span className="text-green-600"> +{formatMoney(m.amount)} {m.item === 'coal' || m.item === 'mouthpiece' ? 'шт' : 'г'}</span>
                           </p>
                           <div className="flex gap-2 items-center mt-0.5">
@@ -913,6 +1018,7 @@ const AdminDashboard = () => {
                       <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Тип</label><select value={newTemplate.item} onChange={e => setNewTemplate({...newTemplate, item: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold"><option value="tobacco">🍃 Табак</option><option value="coal">🔥 Уголь</option><option value="mouthpiece">💠 Мундштуки</option></select></div>
                       <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Кол-во (г/шт)</label><input type="number" min="1" value={newTemplate.amount} onChange={e => setNewTemplate({...newTemplate, amount: e.target.value})} placeholder="200" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold" required /></div>
                     </div>
+                    <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Цена закупа (₸)</label><input type="number" min="0" value={newTemplate.price} onChange={e => setNewTemplate({...newTemplate, price: e.target.value})} placeholder="Например: 5000" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold" /></div>
                     <button type="submit" disabled={isSavingInv} className="w-full p-4 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-100 disabled:opacity-50">Создать шаблон</button>
                   </form>
                 </div>
@@ -922,7 +1028,7 @@ const AdminDashboard = () => {
                     {invTemplates.length === 0 && <div className="p-6 text-center text-slate-400">Шаблонов пока нет</div>}
                     {invTemplates.map(t => (
                       <div key={t.id} className="p-4 flex justify-between items-center hover:bg-slate-50 transition-colors">
-                        <div><p className="font-bold text-slate-800">{t.name}</p><p className="text-xs text-slate-400 mt-0.5">{t.item === 'coal' ? 'Уголь' : t.item === 'tobacco' ? 'Табак' : 'Мундштуки'} — {t.amount} {t.item === 'coal' || t.item === 'mouthpiece' ? 'шт' : 'г'}</p></div>
+                        <div><p className="font-bold text-slate-800">{t.name}</p><p className="text-xs text-slate-400 mt-0.5">{t.item === 'coal' ? 'Уголь' : t.item === 'tobacco' ? 'Табак' : 'Мундштуки'} — {t.amount} {t.item === 'coal' || t.item === 'mouthpiece' ? 'шт' : 'г'}{t.price > 0 ? ` • ${formatMoney(t.price)} ₸` : ''}</p></div>
                         <button onClick={() => deleteDoc(doc(db, 'inventory_templates', t.id))} className="text-slate-300 hover:text-red-500"><Trash2 size={18}/></button>
                       </div>
                     ))}
