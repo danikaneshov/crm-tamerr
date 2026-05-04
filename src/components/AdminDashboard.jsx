@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { LogOut, Users, LayoutDashboard, Key, Trash2, Image, Settings, Menu, X, Percent, Wallet, Database, AlertTriangle, Clock, Banknote, CalendarDays, Calendar as CalendarIcon } from 'lucide-react';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { LogOut, Users, LayoutDashboard, Key, Trash2, Image, Settings, Menu, X, Percent, Wallet, Database, AlertTriangle, Clock, Banknote, CalendarDays, Calendar as CalendarIcon, Package, ArrowDownToLine, ArrowUpFromLine, Calculator, Ruler } from 'lucide-react';
+import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { signOut } from 'firebase/auth';
 import { collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, serverTimestamp, setDoc, getDocs } from 'firebase/firestore';
 import { auth, db } from '../firebase';
@@ -16,7 +16,8 @@ const formatMoney = (amount) => {
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // Для мобильной версии
+  const [subTab, setSubTab] = useState(''); // Суб-табы внутри разделов
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   const [employees, setEmployees] = useState([]);
   const [allShifts, setAllShifts] = useState([]);
@@ -32,6 +33,12 @@ const AdminDashboard = () => {
   const [isSavingSettings, setIsSavingSettings] = useState(false);
   const [debugShiftPhoto, setDebugShiftPhoto] = useState(null);
   const [isUploadingPastShift, setIsUploadingPastShift] = useState(false);
+
+  // Склад
+  const [invMovements, setInvMovements] = useState([]);
+  const [invStandards, setInvStandards] = useState({ coalPerBowl: 5, tobaccoPerBowl: 23 });
+  const [invForm, setInvForm] = useState({ type: 'in', item: 'coal', amount: '', note: '' });
+  const [isSavingInv, setIsSavingInv] = useState(false);
 
   const availableMonths = useMemo(() => {
     const months = new Set();
@@ -125,7 +132,17 @@ const AdminDashboard = () => {
       if (docSnap.exists()) setOwnerProfits(docSnap.data());
     });
 
-    return () => { unsubEmp(); unsubSales(); unsubSettings(); };
+    // Склад: стандарты
+    const unsubInvStd = onSnapshot(doc(db, 'settings', 'inventory_standards'), (docSnap) => {
+      if (docSnap.exists()) setInvStandards(docSnap.data());
+    });
+
+    // Склад: движения
+    const unsubInvMov = onSnapshot(query(collection(db, 'inventory_movements'), orderBy('createdAt', 'desc')), (snap) => {
+      setInvMovements(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    });
+
+    return () => { unsubEmp(); unsubSales(); unsubSettings(); unsubInvStd(); unsubInvMov(); };
   }, []);
 
   const handleSaveSettings = async () => {
@@ -311,10 +328,11 @@ const AdminDashboard = () => {
     return Object.values(map).reverse();
   }, [closedSystemShifts]);
 
-  const switchTab = (tabName) => {
+  const switchTab = (tabName, defaultSubTab = '') => {
     setActiveTab(tabName);
+    setSubTab(defaultSubTab);
     setSelectedEmpReport(null);
-    setIsMobileMenuOpen(false); // Закрываем меню на мобилке при клике
+    setIsMobileMenuOpen(false);
   };
 
   return (
@@ -333,13 +351,10 @@ const AdminDashboard = () => {
         <div className="mb-10 px-2 mt-12 lg:mt-0"><span className="text-2xl font-black tracking-tighter text-slate-900">ERP<span className="text-primary">.</span></span></div>
         <nav className="flex-1 space-y-2">
           <button onClick={() => switchTab('dashboard')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'dashboard' ? 'bg-primary text-white shadow-lg shadow-primary-light/50 translate-x-2' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-700 hover:translate-x-1'}`}><LayoutDashboard size={20}/>Дашборд</button>
-          <button onClick={() => switchTab('calendar')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'calendar' ? 'bg-primary text-white shadow-lg shadow-primary-light/50 translate-x-2' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-700 hover:translate-x-1'}`}><CalendarIcon size={20}/>Календарь</button>
-          <button onClick={() => switchTab('shifts')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'shifts' ? 'bg-primary text-white shadow-lg shadow-primary-light/50 translate-x-2' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-700 hover:translate-x-1'}`}><Clock size={20}/>Смены</button>
-          <button onClick={() => switchTab('salaries')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'salaries' ? 'bg-primary text-white shadow-lg shadow-primary-light/50 translate-x-2' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-700 hover:translate-x-1'}`}><Banknote size={20}/>Зарплаты</button>
-          <button onClick={() => switchTab('profit')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'profit' ? 'bg-primary text-white shadow-lg shadow-primary-light/50 translate-x-2' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-700 hover:translate-x-1'}`}><Wallet size={20}/>Моя прибыль</button>
-          <button onClick={() => switchTab('employees')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'employees' ? 'bg-primary text-white shadow-lg shadow-primary-light/50 translate-x-2' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-700 hover:translate-x-1'}`}><Users size={20}/>Персонал</button>
-          <button onClick={() => switchTab('settings')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'settings' ? 'bg-primary text-white shadow-lg shadow-primary-light/50 translate-x-2' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-700 hover:translate-x-1'}`}><Settings size={20}/>Настройки БД</button>
-          <button onClick={() => switchTab('debug')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'debug' ? 'bg-primary text-white shadow-lg shadow-primary-light/50 translate-x-2' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-700 hover:translate-x-1'}`}><Database size={20}/>Debug</button>
+          <button onClick={() => switchTab('shifts', 'calendar')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'shifts' ? 'bg-primary text-white shadow-lg shadow-primary-light/50 translate-x-2' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-700 hover:translate-x-1'}`}><CalendarIcon size={20}/>Смены</button>
+          <button onClick={() => switchTab('finances', 'salaries')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'finances' ? 'bg-primary text-white shadow-lg shadow-primary-light/50 translate-x-2' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-700 hover:translate-x-1'}`}><Banknote size={20}/>Финансы</button>
+          <button onClick={() => switchTab('inventory', 'stock')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'inventory' ? 'bg-primary text-white shadow-lg shadow-primary-light/50 translate-x-2' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-700 hover:translate-x-1'}`}><Package size={20}/>Склад</button>
+          <button onClick={() => switchTab('settings', 'employees')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'settings' ? 'bg-primary text-white shadow-lg shadow-primary-light/50 translate-x-2' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-700 hover:translate-x-1'}`}><Settings size={20}/>Настройки</button>
         </nav>
         <button onClick={() => signOut(auth)} className="flex items-center gap-3 p-4 text-slate-400 font-bold hover:text-red-500 transition-all"><LogOut size={20}/>Выйти</button>
       </div>
@@ -384,13 +399,19 @@ const AdminDashboard = () => {
                 </div>
                 <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={chartData}>
+                    <AreaChart data={chartData}>
+                      <defs>
+                        <linearGradient id="salaryGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#2563EB" stopOpacity={0.2}/>
+                          <stop offset="95%" stopColor="#2563EB" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
                       <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#CBD5E1', fontSize: 12}} dy={10} />
                       <YAxis hide />
                       <Tooltip contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'}} />
-                      <Line type="stepAfter" dataKey="revenue" stroke="#2563EB" strokeWidth={4} dot={false} />
-                    </LineChart>
+                      <Area type="monotone" dataKey="revenue" stroke="#2563EB" strokeWidth={3} fill="url(#salaryGradient)" dot={false} />
+                    </AreaChart>
                   </ResponsiveContainer>
                 </div>
               </div>
@@ -418,9 +439,16 @@ const AdminDashboard = () => {
           </div>
         )}
 
-        {/* ВКЛАДКА: КАЛЕНДАРЬ */}
-        {activeTab === 'calendar' && (
+        {/* ВКЛАДКА: СМЕНЫ (Календарь + Список) */}
+        {activeTab === 'shifts' && (
           <div className="space-y-8 animate-in fade-in duration-300">
+            {/* Суб-табы */}
+            <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm w-fit">
+              <button onClick={() => setSubTab('calendar')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${subTab === 'calendar' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Календарь</button>
+              <button onClick={() => setSubTab('list')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${subTab === 'list' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Список смен</button>
+            </div>
+
+            {subTab === 'calendar' && (<div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
               <h1 className="text-2xl font-bold text-slate-800">Календарь смен</h1>
               <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
@@ -510,12 +538,61 @@ const AdminDashboard = () => {
                 );
               })()}
             </Card>
+            </div>)}
+
+            {subTab === 'list' && (
+              <div className="space-y-8">
+                <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                  <h1 className="text-2xl font-bold text-slate-800">Отчеты по сменам</h1>
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => {
+                      const filteredShifts = groupedShifts.filter(g => selectedMonth === 'all' || g.dateStr.endsWith(`.${selectedMonth}`));
+                      const data = filteredShifts.map(group => ({ 'Дата': group.dateStr, 'Статус': group.status === 'open' ? 'Идет смена' : 'Закрыта', 'Мастера': group.records.map(r => r.employeeName).join(', '), 'Кальяны/Замены (шт)': group.totalItems, 'Общая ЗП за смену (₸)': group.totalEarned }));
+                      const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Смены"); XLSX.writeFile(wb, `Смены_${selectedMonth}.xlsx`);
+                    }} className="px-4 py-2 bg-green-500 text-white font-bold rounded-xl shadow-sm hover:bg-green-600 transition-colors">Скачать .xlsx</button>
+                    <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200">
+                      <CalendarDays className="text-slate-400 ml-3" size={18}/>
+                      <select value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} className="py-2 pr-4 bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer">
+                        <option value="all">Все время</option>
+                        {availableMonths.map(m => <option key={m} value={m}>{m}</option>)}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {groupedShifts.filter(g => selectedMonth === 'all' || g.dateStr.endsWith(`.${selectedMonth}`)).map(group => (
+                    <Card variant="elevated" key={group.dateStr} className="p-6 cursor-pointer relative overflow-hidden card-hover-effect" onClick={() => setSelectedEmpReport(group)}>
+                      {group.status === 'open' && <div className="absolute top-0 left-0 w-full h-1.5 bg-primary animate-pulse"></div>}
+                      <div className="flex justify-between items-start mb-4">
+                        <div><p className="text-xs text-slate-400 font-bold uppercase tracking-widest mb-1">Смена</p><h3 className="text-xl font-black text-slate-800">{group.dateStr}</h3></div>
+                        {group.status === 'open' ? <Badge variant="primary" className="animate-pulse">Идет смена</Badge> : <Badge variant="success">Закрыта</Badge>}
+                      </div>
+                      <div className="space-y-3">
+                        <p className="text-sm text-slate-600 font-medium border-b border-slate-50 pb-3">Мастера: <span className="font-bold text-slate-800">{group.records.map(r => r.employeeName).join(', ')}</span></p>
+                        <div className="flex justify-between items-center text-sm pt-1"><span className="text-slate-400">Кальяны/Замены:</span><span className="font-bold text-slate-700">{group.totalItems} шт</span></div>
+                        <div className="flex justify-between items-center text-sm"><span className="text-slate-400">Общая ЗП за смену:</span><span className="font-bold text-primary">{formatMoney(group.totalEarned)} ₸</span></div>
+                      </div>
+                    </Card>
+                  ))}
+                  {groupedShifts.filter(g => selectedMonth === 'all' || g.dateStr.endsWith(`.${selectedMonth}`)).length === 0 && (
+                    <div className="col-span-full py-20 text-center text-slate-400">Нет отчетов за выбранный месяц</div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
-        {/* ВКЛАДКА: ПРИБЫЛЬ */}
-        {activeTab === 'profit' && (
-          <div className="space-y-10 animate-in fade-in duration-300">
+        {/* ВКЛАДКА: ФИНАНСЫ */}
+        {activeTab === 'finances' && (
+          <div className="space-y-8 animate-in fade-in duration-300">
+            <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm w-fit">
+              <button onClick={() => setSubTab('salaries')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${subTab === 'salaries' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Зарплаты</button>
+              <button onClick={() => setSubTab('profit')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${subTab === 'profit' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Моя прибыль</button>
+            </div>
+
+            {subTab === 'profit' && (
+          <div className="space-y-10">
             <h1 className="text-2xl font-bold text-slate-800">Финансовый отчет аутсорса</h1>
             
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -577,307 +654,248 @@ const AdminDashboard = () => {
               </div>
             </div>
           </div>
-        )}
+            )}
 
-        {/* ВКЛАДКА 4: НАСТРОЙКИ (АУТСОРС) */}
-        {activeTab === 'settings' && (
-          <div className="max-w-2xl animate-in fade-in duration-300">
-            <h1 className="text-2xl font-bold text-slate-800 mb-8">Настройки Аутсорса</h1>
-            <div className="bg-white p-10 rounded-[40px] border border-slate-100 shadow-sm">
-              <h2 className="text-lg font-black text-slate-900 mb-2">Маржинальность</h2>
-              <p className="text-slate-500 mb-8 text-sm">Укажи свою чистую прибыль с каждой позиции, чтобы система считала твой доход в персональных отчетах мастеров.</p>
-              
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Твоя прибыль с 1 Кальяна (₸)</label>
-                  <input type="number" value={ownerProfits.hookah} onChange={e=>setOwnerProfits({...ownerProfits, hookah: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-blue-500 font-black text-lg text-slate-800" />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Твоя прибыль с 1 Замены (₸)</label>
-                  <input type="number" value={ownerProfits.replacement} onChange={e=>setOwnerProfits({...ownerProfits, replacement: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-blue-500 font-black text-lg text-slate-800" />
-                </div>
-                <button onClick={handleSaveSettings} disabled={isSavingSettings} className="w-full p-4 mt-4 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-100 disabled:opacity-50">
-                  {isSavingSettings ? 'Сохранение...' : 'Сохранить настройки'}
-                </button>
+            {subTab === 'salaries' && (
+          <div className="space-y-8">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <h1 className="text-2xl font-bold text-slate-800">Зарплаты сотрудников</h1>
+              <div className="flex items-center gap-2">
+                <button onClick={() => { const data = employees.map(emp => { const stats = calculateEmployeeStats(emp.id, selectedMonth); return { 'Сотрудник': emp.name, 'Смен': stats.shiftsCount, 'ЗП': stats.totalEarned, 'Оклад': stats.baseSalaryTotal, '%': stats.hookahPercentageTotal, 'Кальянов': stats.hookahs, 'Замен': stats.replacements }; }); const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Зарплаты"); XLSX.writeFile(wb, `Зарплаты_${selectedMonth}.xlsx`); }} className="px-4 py-2 bg-green-500 text-white font-bold rounded-xl shadow-sm hover:bg-green-600 transition-colors">Скачать .xlsx</button>
+                <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200"><CalendarDays className="text-slate-400 ml-3" size={18}/><select value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} className="py-2 pr-4 bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer"><option value="all">Все время</option>{availableMonths.map(m => <option key={m} value={m}>{m}</option>)}</select></div>
               </div>
             </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {employees.map(emp => { const stats = calculateEmployeeStats(emp.id, selectedMonth); return (
+                <Card variant="elevated" key={emp.id} className="p-8 relative flex flex-col h-full card-hover-effect">
+                  {stats.hasOpenShift && <div className="absolute top-0 left-0 w-full h-1.5 bg-primary animate-pulse"></div>}
+                  <div className="flex items-center gap-4 mb-6"><div className="w-14 h-14 bg-gradient-to-br from-green-300 to-green-600 rounded-full flex items-center justify-center text-white font-black text-2xl shadow-inner">{emp.name.charAt(0).toUpperCase()}</div><div><h3 className="text-xl font-black text-slate-900">{emp.name}</h3><p className="text-sm text-slate-400 font-medium">{stats.shiftsCount} смен</p></div></div>
+                  <div className="bg-slate-50 p-5 rounded-2xl mb-6 flex-1 flex flex-col justify-center border border-slate-100">
+                    <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mb-1">Общая ЗП</p>
+                    <h4 className="text-4xl font-black text-green-600">{formatMoney(stats.totalEarned)} ₸</h4>
+                    <div className="flex flex-col gap-1 mt-3 pt-3 border-t border-slate-200 text-sm">
+                      <div className="flex justify-between"><span className="text-slate-500 font-medium">Оклад:</span> <strong className="text-slate-800">{formatMoney(stats.baseSalaryTotal)} ₸</strong></div>
+                      <div className="flex justify-between"><span className="text-slate-500 font-medium">% с кальянов:</span> <strong className="text-slate-800">{formatMoney(stats.hookahPercentageTotal)} ₸</strong></div>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 text-center">
+                    <div className="bg-white border border-slate-100 p-3 rounded-2xl shadow-sm"><p className="text-xs text-slate-400 uppercase font-bold mb-1">Кальянов</p><p className="font-black text-slate-800 text-xl">{stats.hookahs}</p></div>
+                    <div className="bg-white border border-slate-100 p-3 rounded-2xl shadow-sm"><p className="text-xs text-slate-400 uppercase font-bold mb-1">Замен</p><p className="font-black text-slate-800 text-xl">{stats.replacements}</p></div>
+                  </div>
+                </Card>); })}
+            </div>
+          </div>
+            )}
           </div>
         )}
 
-        {/* ПЕРСОНАЛ (Как было) */}
-        {activeTab === 'employees' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 animate-in fade-in duration-300">
+        {/* ВКЛАДКА: СКЛАД */}
+        {activeTab === 'inventory' && (() => {
+          const totalBowls = closedSystemShifts.reduce((a, s) => a + (s.items?.cocktail1 || 0) + (s.items?.cocktail2 || 0), 0);
+          const autoCoalUsed = totalBowls * invStandards.coalPerBowl;
+          const autoTobaccoUsed = totalBowls * invStandards.tobaccoPerBowl;
+          const coalIn = invMovements.filter(m => m.item === 'coal' && m.type === 'in').reduce((a, m) => a + (m.amount || 0), 0);
+          const tobaccoIn = invMovements.filter(m => m.item === 'tobacco' && m.type === 'in').reduce((a, m) => a + (m.amount || 0), 0);
+          const coalWriteoff = invMovements.filter(m => m.item === 'coal' && m.type === 'writeoff').reduce((a, m) => a + (m.amount || 0), 0);
+          const tobaccoWriteoff = invMovements.filter(m => m.item === 'tobacco' && m.type === 'writeoff').reduce((a, m) => a + (m.amount || 0), 0);
+          const coalStock = coalIn - autoCoalUsed - coalWriteoff;
+          const tobaccoStock = tobaccoIn - autoTobaccoUsed - tobaccoWriteoff;
+
+          const handleInvSubmit = async (e) => {
+            e.preventDefault();
+            if (!invForm.amount || Number(invForm.amount) <= 0) return alert('Укажите количество');
+            setIsSavingInv(true);
+            try {
+              const now = new Date();
+              await addDoc(collection(db, 'inventory_movements'), {
+                type: invForm.type, item: invForm.item,
+                amount: Number(invForm.amount), note: invForm.note || '',
+                dateStr: `${String(now.getDate()).padStart(2,'0')}.${String(now.getMonth()+1).padStart(2,'0')}.${now.getFullYear()}`,
+                createdAt: serverTimestamp()
+              });
+              setInvForm({ ...invForm, amount: '', note: '' });
+            } catch (err) { alert('Ошибка: ' + err.message); }
+            finally { setIsSavingInv(false); }
+          };
+
+          const handleSaveStandards = async () => {
+            setIsSavingInv(true);
+            try { await setDoc(doc(db, 'settings', 'inventory_standards'), invStandards); alert('Стандарты сохранены!'); }
+            catch (err) { alert('Ошибка: ' + err.message); }
+            finally { setIsSavingInv(false); }
+          };
+
+          return (
+          <div className="space-y-8 animate-in fade-in duration-300">
+            <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm w-fit flex-wrap">
+              <button onClick={() => setSubTab('stock')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${subTab === 'stock' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Остатки</button>
+              <button onClick={() => setSubTab('incoming')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${subTab === 'incoming' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Приход</button>
+              <button onClick={() => setSubTab('writeoff')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${subTab === 'writeoff' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Списание</button>
+              <button onClick={() => setSubTab('standards')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${subTab === 'standards' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Стандарты</button>
+            </div>
+
+            {subTab === 'stock' && (
+              <div className="space-y-6">
+                <h1 className="text-2xl font-bold text-slate-800">Текущие остатки</h1>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Card variant="elevated" className="p-8 card-hover-effect">
+                    <div className="flex items-center gap-4 mb-4"><div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl flex items-center justify-center text-white text-xl">🔥</div><div><p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Уголь</p><h3 className="text-3xl font-black text-slate-900">{formatMoney(Math.round(coalStock))} шт</h3></div></div>
+                    <div className="bg-slate-50 p-4 rounded-2xl space-y-2 text-sm border border-slate-100">
+                      <div className="flex justify-between"><span className="text-slate-500">Приход (всего):</span><strong className="text-green-600">+{formatMoney(coalIn)}</strong></div>
+                      <div className="flex justify-between"><span className="text-slate-500">Расход (авто, {totalBowls} чаш × {invStandards.coalPerBowl}):</span><strong className="text-red-500">-{formatMoney(autoCoalUsed)}</strong></div>
+                      <div className="flex justify-between"><span className="text-slate-500">Списано вручную:</span><strong className="text-orange-500">-{formatMoney(coalWriteoff)}</strong></div>
+                    </div>
+                  </Card>
+                  <Card variant="elevated" className="p-8 card-hover-effect">
+                    <div className="flex items-center gap-4 mb-4"><div className="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-600 rounded-2xl flex items-center justify-center text-white text-xl">🍃</div><div><p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Табак</p><h3 className="text-3xl font-black text-slate-900">{formatMoney(Math.round(tobaccoStock))} г</h3></div></div>
+                    <div className="bg-slate-50 p-4 rounded-2xl space-y-2 text-sm border border-slate-100">
+                      <div className="flex justify-between"><span className="text-slate-500">Приход (всего):</span><strong className="text-green-600">+{formatMoney(tobaccoIn)} г</strong></div>
+                      <div className="flex justify-between"><span className="text-slate-500">Расход (авто, {totalBowls} чаш × {invStandards.tobaccoPerBowl}г):</span><strong className="text-red-500">-{formatMoney(autoTobaccoUsed)} г</strong></div>
+                      <div className="flex justify-between"><span className="text-slate-500">Списано вручную:</span><strong className="text-orange-500">-{formatMoney(tobaccoWriteoff)} г</strong></div>
+                    </div>
+                  </Card>
+                </div>
+                <Card variant="elevated" className="p-6">
+                  <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mb-1">Стандарт расхода на 1 чашу</p>
+                  <p className="text-slate-700 font-medium">{invStandards.coalPerBowl} углей + {invStandards.tobaccoPerBowl}г табака</p>
+                </Card>
+              </div>
+            )}
+
+            {subTab === 'incoming' && (
+              <div className="space-y-6">
+                <h1 className="text-2xl font-bold text-slate-800">Приход товара</h1>
+                <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm max-w-xl">
+                  <form onSubmit={(e) => { setInvForm({...invForm, type: 'in'}); handleInvSubmit(e); }} className="space-y-5">
+                    <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Товар</label><select value={invForm.item} onChange={e => setInvForm({...invForm, item: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800"><option value="coal">🔥 Уголь (шт)</option><option value="tobacco">🍃 Табак (г)</option></select></div>
+                    <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Количество</label><input type="number" min="1" value={invForm.amount} onChange={e => setInvForm({...invForm, amount: e.target.value})} placeholder={invForm.item === 'coal' ? 'Кол-во штук' : 'Кол-во грамм'} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" required /></div>
+                    <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Комментарий</label><input type="text" value={invForm.note} onChange={e => setInvForm({...invForm, note: e.target.value})} placeholder="Например: закупка 05.05" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-slate-800" /></div>
+                    <button type="submit" disabled={isSavingInv} className="w-full p-4 bg-green-600 text-white rounded-2xl font-bold shadow-lg shadow-green-100 disabled:opacity-50">{isSavingInv ? 'Сохранение...' : '+ Добавить приход'}</button>
+                  </form>
+                </div>
+                <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
+                  <div className="p-6 border-b border-slate-100"><h2 className="text-lg font-black text-slate-800">История приходов</h2></div>
+                  <div className="divide-y divide-slate-50">
+                    {invMovements.filter(m => m.type === 'in').length === 0 && <div className="p-6 text-center text-slate-400">Нет записей</div>}
+                    {invMovements.filter(m => m.type === 'in').map(m => (
+                      <div key={m.id} className="p-4 flex justify-between items-center hover:bg-slate-50 transition-colors">
+                        <div><p className="font-bold text-slate-800">{m.item === 'coal' ? '🔥 Уголь' : '🍃 Табак'} <span className="text-green-600">+{formatMoney(m.amount)} {m.item === 'coal' ? 'шт' : 'г'}</span></p>{m.note && <p className="text-xs text-slate-400 mt-0.5">{m.note}</p>}</div>
+                        <div className="flex items-center gap-3"><span className="text-xs text-slate-400">{m.dateStr}</span><button onClick={() => deleteDoc(doc(db, 'inventory_movements', m.id))} className="text-slate-300 hover:text-red-500"><Trash2 size={16}/></button></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {subTab === 'writeoff' && (
+              <div className="space-y-6">
+                <h1 className="text-2xl font-bold text-slate-800">Списание</h1>
+                <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm max-w-xl">
+                  <form onSubmit={(e) => { setInvForm({...invForm, type: 'writeoff'}); handleInvSubmit(e); }} className="space-y-5">
+                    <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Товар</label><select value={invForm.item} onChange={e => setInvForm({...invForm, item: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800"><option value="coal">🔥 Уголь (шт)</option><option value="tobacco">🍃 Табак (г)</option></select></div>
+                    <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Количество</label><input type="number" min="1" value={invForm.amount} onChange={e => setInvForm({...invForm, amount: e.target.value})} placeholder="Сколько списать" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" required /></div>
+                    <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Причина</label><input type="text" value={invForm.note} onChange={e => setInvForm({...invForm, note: e.target.value})} placeholder="Например: отправил на вторую точку" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-slate-800" /></div>
+                    <button type="submit" disabled={isSavingInv} className="w-full p-4 bg-orange-500 text-white rounded-2xl font-bold shadow-lg shadow-orange-100 disabled:opacity-50">{isSavingInv ? 'Сохранение...' : 'Списать'}</button>
+                  </form>
+                </div>
+                <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
+                  <div className="p-6 border-b border-slate-100"><h2 className="text-lg font-black text-slate-800">История списаний</h2></div>
+                  <div className="divide-y divide-slate-50">
+                    {invMovements.filter(m => m.type === 'writeoff').length === 0 && <div className="p-6 text-center text-slate-400">Нет записей</div>}
+                    {invMovements.filter(m => m.type === 'writeoff').map(m => (
+                      <div key={m.id} className="p-4 flex justify-between items-center hover:bg-slate-50 transition-colors">
+                        <div><p className="font-bold text-slate-800">{m.item === 'coal' ? '🔥 Уголь' : '🍃 Табак'} <span className="text-orange-500">-{formatMoney(m.amount)} {m.item === 'coal' ? 'шт' : 'г'}</span></p>{m.note && <p className="text-xs text-slate-400 mt-0.5">{m.note}</p>}</div>
+                        <div className="flex items-center gap-3"><span className="text-xs text-slate-400">{m.dateStr}</span><button onClick={() => deleteDoc(doc(db, 'inventory_movements', m.id))} className="text-slate-300 hover:text-red-500"><Trash2 size={16}/></button></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {subTab === 'standards' && (
+              <div className="max-w-xl space-y-6">
+                <h1 className="text-2xl font-bold text-slate-800">Стандарты расхода</h1>
+                <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
+                  <p className="text-slate-500 mb-6 text-sm">Укажи сколько угля и табака уходит на 1 чашу (кальян/замена). Система автоматически рассчитает расход по продажам.</p>
+                  <div className="space-y-5">
+                    <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">🔥 Углей на 1 чашу (шт)</label><input type="number" min="1" value={invStandards.coalPerBowl} onChange={e => setInvStandards({...invStandards, coalPerBowl: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" /></div>
+                    <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">🍃 Табака на 1 чашу (г)</label><input type="number" min="1" value={invStandards.tobaccoPerBowl} onChange={e => setInvStandards({...invStandards, tobaccoPerBowl: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" /></div>
+                    <button onClick={handleSaveStandards} disabled={isSavingInv} className="w-full p-4 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-100 disabled:opacity-50">{isSavingInv ? 'Сохранение...' : 'Сохранить стандарты'}</button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>);
+        })()}
+
+        {/* ВКЛАДКА: НАСТРОЙКИ */}
+        {activeTab === 'settings' && (
+          <div className="space-y-8 animate-in fade-in duration-300">
+            <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm w-fit">
+              <button onClick={() => setSubTab('employees')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${subTab === 'employees' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Персонал</button>
+              <button onClick={() => setSubTab('margins')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${subTab === 'margins' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Маржинальность</button>
+              <button onClick={() => setSubTab('debug')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${subTab === 'debug' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Debug</button>
+            </div>
+
+            {subTab === 'employees' && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
             <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm h-fit">
               <h2 className="text-xl font-black mb-6">Добавить мастера</h2>
               <form onSubmit={handleAddEmployee} className="space-y-4">
                 <input type="text" value={newEmpName} onChange={e=>setNewEmpName(e.target.value)} placeholder="Имя мастера" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold" required />
-                <div className="flex gap-2">
-                  <input type="text" maxLength="4" value={newEmpPin} onChange={e=>setNewEmpPin(e.target.value.replace(/\D/g, ''))} placeholder="PIN" className="w-full p-4 bg-slate-50 rounded-2xl border-none text-center font-mono font-bold" required />
-                  <button type="button" onClick={generatePin} className="p-4 bg-slate-100 rounded-2xl"><Key size={20}/></button>
-                </div>
+                <div className="flex gap-2"><input type="text" maxLength="4" value={newEmpPin} onChange={e=>setNewEmpPin(e.target.value.replace(/\D/g, ''))} placeholder="PIN" className="w-full p-4 bg-slate-50 rounded-2xl border-none text-center font-mono font-bold" required /><button type="button" onClick={generatePin} className="p-4 bg-slate-100 rounded-2xl"><Key size={20}/></button></div>
                 <button type="submit" disabled={isAdding || !newEmpName || newEmpPin.length !== 4} className="w-full p-4 bg-blue-600 text-white rounded-2xl font-bold disabled:bg-blue-300">Создать аккаунт</button>
               </form>
             </div>
             <div className="col-span-1 lg:col-span-2 bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-x-auto">
-              <table className="w-full min-w-[500px]">
-                <thead><tr className="bg-slate-50"><th className="p-6 text-left text-xs font-black text-slate-400 uppercase">Мастер</th><th className="p-6 text-left text-xs font-black text-slate-400 uppercase">Доступ</th><th className="p-6"></th></tr></thead>
-                <tbody className="divide-y divide-slate-50">
-                  {employees.map(emp => (
-                    <tr key={emp.id}>
-                      <td className="p-6 font-bold text-slate-900">{emp.name}</td>
-                      <td className="p-6 font-mono text-slate-500">{emp.pin}</td>
-                      <td className="p-6 text-right"><button onClick={()=>deleteDoc(doc(db,'employees',emp.id))} className="text-slate-300 hover:text-red-500"><Trash2 size={18}/></button></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <table className="w-full min-w-[500px]"><thead><tr className="bg-slate-50"><th className="p-6 text-left text-xs font-black text-slate-400 uppercase">Мастер</th><th className="p-6 text-left text-xs font-black text-slate-400 uppercase">Доступ</th><th className="p-6"></th></tr></thead>
+              <tbody className="divide-y divide-slate-50">{employees.map(emp => (<tr key={emp.id}><td className="p-6 font-bold text-slate-900">{emp.name}</td><td className="p-6 font-mono text-slate-500">{emp.pin}</td><td className="p-6 text-right"><button onClick={()=>deleteDoc(doc(db,'employees',emp.id))} className="text-slate-300 hover:text-red-500"><Trash2 size={18}/></button></td></tr>))}</tbody></table>
             </div>
           </div>
-        )}
+            )}
 
-        {/* ВКЛАДКА: СМЕНЫ */}
-        {activeTab === 'shifts' && (
-          <div className="space-y-8 animate-in fade-in duration-300">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-              <h1 className="text-2xl font-bold text-slate-800">Отчеты по сменам</h1>
-              <div className="flex items-center gap-2">
-                <button 
-                  onClick={() => {
-                    const filteredShifts = groupedShifts.filter(g => selectedMonth === 'all' || g.dateStr.endsWith(`.${selectedMonth}`));
-                    const data = filteredShifts.map(group => {
-                      const masters = group.records.map(r => r.employeeName).join(', ');
-                      return {
-                        'Дата': group.dateStr,
-                        'Статус': group.status === 'open' ? 'Идет смена' : 'Закрыта',
-                        'Мастера': masters,
-                        'Кальяны/Замены (шт)': group.totalItems,
-                        'Общая ЗП за смену (₸)': group.totalEarned
-                      };
-                    });
-                    const ws = XLSX.utils.json_to_sheet(data);
-                    const wb = XLSX.utils.book_new();
-                    XLSX.utils.book_append_sheet(wb, ws, "Смены");
-                    XLSX.writeFile(wb, `Смены_${selectedMonth}.xlsx`);
-                  }}
-                  className="px-4 py-2 bg-green-500 text-white font-bold rounded-xl shadow-sm hover:bg-green-600 transition-colors"
-                >
-                  Скачать .xlsx
-                </button>
-                <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200">
-                  <CalendarDays className="text-slate-400 ml-3" size={18}/>
-                  <select value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} className="py-2 pr-4 bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer">
-                    <option value="all">Все время</option>
-                    {availableMonths.map(m => <option key={m} value={m}>{m}</option>)}
-                  </select>
+            {subTab === 'margins' && (
+              <div className="max-w-2xl"><div className="bg-white p-10 rounded-[40px] border border-slate-100 shadow-sm">
+                <h2 className="text-lg font-black text-slate-900 mb-2">Маржинальность</h2>
+                <p className="text-slate-500 mb-8 text-sm">Укажи свою чистую прибыль с каждой позиции.</p>
+                <div className="space-y-6">
+                  <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Прибыль с 1 Кальяна (₸)</label><input type="number" value={ownerProfits.hookah} onChange={e=>setOwnerProfits({...ownerProfits, hookah: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-blue-500 font-black text-lg text-slate-800" /></div>
+                  <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Прибыль с 1 Замены (₸)</label><input type="number" value={ownerProfits.replacement} onChange={e=>setOwnerProfits({...ownerProfits, replacement: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-blue-500 font-black text-lg text-slate-800" /></div>
+                  <button onClick={handleSaveSettings} disabled={isSavingSettings} className="w-full p-4 mt-4 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-100 disabled:opacity-50">{isSavingSettings ? 'Сохранение...' : 'Сохранить настройки'}</button>
                 </div>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {groupedShifts.filter(g => selectedMonth === 'all' || g.dateStr.endsWith(`.${selectedMonth}`)).map(group => (
-                <Card variant="elevated" key={group.dateStr} className="p-6 cursor-pointer relative overflow-hidden card-hover-effect" onClick={() => setSelectedEmpReport(group)}>
-                  {group.status === 'open' && <div className="absolute top-0 left-0 w-full h-1.5 bg-primary animate-pulse"></div>}
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mb-1">Смена</p>
-                      <h3 className="text-xl font-black text-slate-800">{group.dateStr}</h3>
-                    </div>
-                    {group.status === 'open' ? <Badge variant="primary" className="animate-pulse">Идет смена</Badge> : <Badge variant="success">Закрыта</Badge>}
-                  </div>
-                  <div className="space-y-3">
-                    <p className="text-sm text-slate-600 font-medium border-b border-slate-50 pb-3">Мастера: <span className="font-bold text-slate-800">{group.records.map(r => r.employeeName).join(', ')}</span></p>
-                    <div className="flex justify-between items-center text-sm pt-1">
-                      <span className="text-slate-400">Кальяны/Замены:</span>
-                      <span className="font-bold text-slate-700">{group.totalItems} шт</span>
-                    </div>
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-slate-400">Общая ЗП за смену:</span>
-                      <span className="font-bold text-primary">{formatMoney(group.totalEarned)} ₸</span>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-              
-              {groupedShifts.filter(g => selectedMonth === 'all' || g.dateStr.endsWith(`.${selectedMonth}`)).length === 0 && (
-                <div className="col-span-full py-20 text-center text-slate-400">
-                  Нет отчетов за выбранный месяц
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+              </div></div>
+            )}
 
-        {/* ВКЛАДКА: ЗАРПЛАТЫ */}
-        {activeTab === 'salaries' && (
-          <div className="space-y-8 animate-in fade-in duration-300">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-              <h1 className="text-2xl font-bold text-slate-800">Зарплаты сотрудников</h1>
-              <div className="flex items-center gap-2">
-                <button 
-                  onClick={() => {
-                    const data = employees.map(emp => {
-                      const stats = calculateEmployeeStats(emp.id, selectedMonth);
-                      return {
-                        'Сотрудник': emp.name,
-                        'Отработано смен': stats.shiftsCount,
-                        'Общая ЗП (₸)': stats.totalEarned,
-                        'Оклад (₸)': stats.baseSalaryTotal,
-                        '% с кальянов (₸)': stats.hookahPercentageTotal,
-                        'Кальянов (шт)': stats.hookahs,
-                        'Замен (шт)': stats.replacements
-                      };
-                    });
-                    const ws = XLSX.utils.json_to_sheet(data);
-                    const wb = XLSX.utils.book_new();
-                    XLSX.utils.book_append_sheet(wb, ws, "Зарплаты");
-                    XLSX.writeFile(wb, `Зарплаты_${selectedMonth}.xlsx`);
-                  }}
-                  className="px-4 py-2 bg-green-500 text-white font-bold rounded-xl shadow-sm hover:bg-green-600 transition-colors"
-                >
-                  Скачать .xlsx
-                </button>
-                <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200">
-                  <CalendarDays className="text-slate-400 ml-3" size={18}/>
-                  <select value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} className="py-2 pr-4 bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer">
-                    <option value="all">Все время</option>
-                    {availableMonths.map(m => <option key={m} value={m}>{m}</option>)}
-                  </select>
-                </div>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {employees.map(emp => {
-                const stats = calculateEmployeeStats(emp.id, selectedMonth);
-                return (
-                  <Card variant="elevated" key={emp.id} className="p-8 relative flex flex-col h-full card-hover-effect">
-                    {stats.hasOpenShift && <div className="absolute top-0 left-0 w-full h-1.5 bg-primary animate-pulse"></div>}
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="w-14 h-14 bg-gradient-to-br from-green-300 to-green-600 rounded-full flex items-center justify-center text-white font-black text-2xl shadow-inner">
-                        {emp.name.charAt(0).toUpperCase()}
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-black text-slate-900">{emp.name}</h3>
-                        <p className="text-sm text-slate-400 font-medium">{stats.shiftsCount} смен отработано</p>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-slate-50 p-5 rounded-2xl mb-6 flex-1 flex flex-col justify-center border border-slate-100">
-                      <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mb-1">Общая ЗП</p>
-                      <h4 className="text-4xl font-black text-green-600
-                      ">{formatMoney(stats.totalEarned)} ₸</h4>
-                      <div className="flex flex-col gap-1 mt-3 pt-3 border-t border-slate-200 text-sm">
-                        <div className="flex justify-between"><span className="text-slate-500 font-medium">Оклад:</span> <strong className="text-slate-800">{formatMoney(stats.baseSalaryTotal)} ₸</strong></div>
-                        <div className="flex justify-between"><span className="text-slate-500 font-medium">% с кальянов:</span> <strong className="text-slate-800">{formatMoney(stats.hookahPercentageTotal)} ₸</strong></div>
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4 text-center">
-                      <div className="bg-white border border-slate-100 p-3 rounded-2xl shadow-sm">
-                        <p className="text-xs text-slate-400 uppercase font-bold mb-1">Кальянов</p>
-                        <p className="font-black text-slate-800 text-xl">{stats.hookahs}</p>
-                      </div>
-                      <div className="bg-white border border-slate-100 p-3 rounded-2xl shadow-sm">
-                        <p className="text-xs text-slate-400 uppercase font-bold mb-1">Замен</p>
-                        <p className="font-black text-slate-800 text-xl">{stats.replacements}</p>
-                      </div>
-                    </div>
-                  </Card>
-                );
-              })}
-            </div>
-          </div>
-        )}
-        {/* ВКЛАДКА 5: DEBUG */}
-        {activeTab === 'debug' && (
-          <div className="max-w-2xl animate-in fade-in duration-300 space-y-10">
-            
+            {subTab === 'debug' && (
+          <div className="max-w-2xl space-y-10">
             <div className="bg-white p-10 rounded-[40px] border border-slate-100 shadow-sm">
               <h2 className="text-lg font-black text-slate-900 mb-2">Загрузить прошлые смены</h2>
-              <p className="text-slate-500 mb-8 text-sm">Добавляет прошедшую смену со всеми параметрами (кто мастер, напарник) и прикрепляет фото отчета.</p>
-              
+              <p className="text-slate-500 mb-8 text-sm">Добавляет прошедшую смену со всеми параметрами.</p>
               <form onSubmit={handleCreateDebugShift} className="space-y-6">
-                <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Дата</label>
-                  <input type="date" value={debugShift.dateStr} onChange={e=>setDebugShift({...debugShift, dateStr: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" required />
-                </div>
-                
-                <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Кальянный мастер</label>
-                  <select value={debugShift.employeeId} onChange={e=>setDebugShift({...debugShift, employeeId: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" required>
-                    <option value="">Выберите мастера</option>
-                    {employees.map(emp => <option key={emp.id} value={emp.id}>{emp.name}</option>)}
-                  </select>
-                </div>
-                
-                <div className="space-y-6 animate-in slide-in-from-top-4 duration-300">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Напарник (Опционально)</label>
-                    <select value={debugShift.partnerId} onChange={e=>setDebugShift({...debugShift, partnerId: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800">
-                      <option value="">Без напарника (Один)</option>
-                      {employees.filter(e => e.id !== debugShift.employeeId).map(emp => <option key={emp.id} value={emp.id}>{emp.name}</option>)}
-                    </select>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Кальяны</label>
-                      <input type="number" min="0" value={debugShift.hookahs} onChange={e=>setDebugShift({...debugShift, hookahs: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Замены</label>
-                      <input type="number" min="0" value={debugShift.replacements} onChange={e=>setDebugShift({...debugShift, replacements: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Фото отчета (Опционально)</label>
-                    <input type="file" accept="image/jpeg, image/jpg, image/png, image/heic, image/heif" onChange={e => setDebugShiftPhoto(e.target.files[0] || null)} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-sm text-slate-800" />
-                  </div>
-                </div>
-                
-                <button type="submit" disabled={isUploadingPastShift} className="w-full p-4 mt-4 bg-gray-900 text-white rounded-2xl font-bold shadow-lg shadow-gray-200 disabled:opacity-50">
-                  {isUploadingPastShift ? 'Загрузка...' : 'Добавить смену'}
-                </button>
+                <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Дата</label><input type="date" value={debugShift.dateStr} onChange={e=>setDebugShift({...debugShift, dateStr: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" required /></div>
+                <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Кальянный мастер</label><select value={debugShift.employeeId} onChange={e=>setDebugShift({...debugShift, employeeId: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" required><option value="">Выберите мастера</option>{employees.map(emp => <option key={emp.id} value={emp.id}>{emp.name}</option>)}</select></div>
+                <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Напарник (Опц.)</label><select value={debugShift.partnerId} onChange={e=>setDebugShift({...debugShift, partnerId: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800"><option value="">Без напарника</option>{employees.filter(e => e.id !== debugShift.employeeId).map(emp => <option key={emp.id} value={emp.id}>{emp.name}</option>)}</select></div>
+                <div className="grid grid-cols-2 gap-4"><div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Кальяны</label><input type="number" min="0" value={debugShift.hookahs} onChange={e=>setDebugShift({...debugShift, hookahs: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" /></div><div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Замены</label><input type="number" min="0" value={debugShift.replacements} onChange={e=>setDebugShift({...debugShift, replacements: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" /></div></div>
+                <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Фото (Опц.)</label><input type="file" accept="image/*" onChange={e => setDebugShiftPhoto(e.target.files[0] || null)} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-sm text-slate-800" /></div>
+                <button type="submit" disabled={isUploadingPastShift} className="w-full p-4 mt-4 bg-gray-900 text-white rounded-2xl font-bold shadow-lg shadow-gray-200 disabled:opacity-50">{isUploadingPastShift ? 'Загрузка...' : 'Добавить смену'}</button>
               </form>
             </div>
             <div className="bg-white p-10 rounded-[40px] border border-red-100 shadow-sm">
-              <div className="flex items-center gap-4 mb-4 text-red-500">
-                <AlertTriangle size={32} />
-                <h2 className="text-lg font-black">Опасная зона</h2>
-              </div>
-              <p className="text-slate-500 mb-8 text-sm">Здесь находятся инструменты для отладки базы данных. Действия необратимы.</p>
-              
-              <div className="space-y-6">
-
-                <div className="bg-red-50 p-6 rounded-2xl border border-red-100">
-                  <h3 className="font-bold text-red-800 mb-2">Удалить все смены (Таблица sales)</h3>
-                  <p className="text-sm text-red-600 mb-4">Это действие удалит абсолютно все записи о сменах, зарплатах и отчетах из базы данных. Сотрудники останутся.</p>
-                  <button 
-                    onClick={async () => {
-                      if (window.confirm('Вы абсолютно уверены? Это удалит ВСЕ смены навсегда!')) {
-                        const confirmPin = window.prompt('Введите слово DELETE для подтверждения:');
-                        if (confirmPin === 'DELETE') {
-                          try {
-                            const salesSnap = await getDocs(collection(db, 'sales'));
-                            const deletePromises = salesSnap.docs.map(d => deleteDoc(doc(db, 'sales', d.id)));
-                            await Promise.all(deletePromises);
-                            alert('Таблица sales успешно очищена.');
-                          } catch (err) {
-                            alert('Ошибка при удалении: ' + err.message);
-                          }
-                        }
-                      }
-                    }}
-                    className="px-6 py-3 bg-red-600 text-white rounded-xl font-bold shadow-lg shadow-red-200 hover:bg-red-700 transition-colors"
-                  >
-                    Дропнуть таблицу sales
-                  </button>
-                </div>
+              <div className="flex items-center gap-4 mb-4 text-red-500"><AlertTriangle size={32}/><h2 className="text-lg font-black">Опасная зона</h2></div>
+              <p className="text-slate-500 mb-8 text-sm">Действия необратимы.</p>
+              <div className="bg-red-50 p-6 rounded-2xl border border-red-100">
+                <h3 className="font-bold text-red-800 mb-2">Удалить все смены</h3>
+                <p className="text-sm text-red-600 mb-4">Удалит все записи о сменах из базы данных.</p>
+                <button onClick={async () => { if (window.confirm('Удалить ВСЕ смены?')) { const c = window.prompt('Введите DELETE:'); if (c === 'DELETE') { try { const s = await getDocs(collection(db, 'sales')); await Promise.all(s.docs.map(d => deleteDoc(doc(db, 'sales', d.id)))); alert('Очищено.'); } catch (err) { alert('Ошибка: ' + err.message); } } } }} className="px-6 py-3 bg-red-600 text-white rounded-xl font-bold shadow-lg shadow-red-200 hover:bg-red-700 transition-colors">Дропнуть таблицу sales</button>
               </div>
             </div>
           </div>
+            )}
+          </div>
         )}
       </div>
-
       {/* Глобальное модальное окно деталей смены */}
       {selectedEmpReport && selectedEmpReport.records && (
         <div className="fixed inset-0 bg-slate-900/50 z-50 flex items-center justify-center p-4">
