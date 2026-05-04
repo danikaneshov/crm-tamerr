@@ -1,6 +1,6 @@
 {
   "rewrites": [
     { "source": "/api/analyze", "destination": "/api/analyze.js" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/((?!icons-client|icons-admin|manifest-).*)", "destination": "/index.html" }
   ]
 }
