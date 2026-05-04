@@ -764,7 +764,8 @@ const AdminDashboard = () => {
                     
                     <div className="bg-slate-50 p-5 rounded-2xl mb-6 flex-1 flex flex-col justify-center border border-slate-100">
                       <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mb-1">Общая ЗП</p>
-                      <h4 className="text-4xl font-black text-primary">{formatMoney(stats.totalEarned)} ₸</h4>
+                      <h4 className="text-4xl font-black text-green-600
+                      ">{formatMoney(stats.totalEarned)} ₸</h4>
                       <div className="flex flex-col gap-1 mt-3 pt-3 border-t border-slate-200 text-sm">
                         <div className="flex justify-between"><span className="text-slate-500 font-medium">Оклад:</span> <strong className="text-slate-800">{formatMoney(stats.baseSalaryTotal)} ₸</strong></div>
                         <div className="flex justify-between"><span className="text-slate-500 font-medium">% с кальянов:</span> <strong className="text-slate-800">{formatMoney(stats.hookahPercentageTotal)} ₸</strong></div>
