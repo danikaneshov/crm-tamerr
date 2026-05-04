@@ -338,7 +338,7 @@ const EmployeeApp = () => {
       <div className="min-h-screen bg-gradient-to-b from-neutral-50 to-primary-light/30 dark:from-dark-bg dark:to-dark-surface flex flex-col items-center justify-center p-4 transition-colors">
         <Card variant="elevated" className="w-full max-w-sm p-8 flex flex-col items-center border-0 shadow-2xl dark:bg-dark-surface">
           <div className="mb-10 text-center">
-            <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">CRM<span className="text-primary">.</span></h1>
+            <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">ERP<span className="text-primary">.</span></h1>
             <p className="text-slate-400 dark:text-slate-500 text-sm mt-2 font-medium">Введите ваш PIN-код</p>
           </div>
           

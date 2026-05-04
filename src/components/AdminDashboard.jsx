@@ -330,7 +330,7 @@ const AdminDashboard = () => {
 
       {/* Sidebar (Адаптивный) */}
       <div className={`fixed lg:static inset-y-0 left-0 z-40 transform ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 transition-transform duration-300 w-72 bg-white border-r border-slate-200 flex flex-col p-6 shadow-2xl lg:shadow-none`}>
-        <div className="mb-10 px-2 mt-12 lg:mt-0"><span className="text-2xl font-black tracking-tighter text-slate-900">CRM<span className="text-primary">.</span></span></div>
+        <div className="mb-10 px-2 mt-12 lg:mt-0"><span className="text-2xl font-black tracking-tighter text-slate-900">ERP<span className="text-primary">.</span></span></div>
         <nav className="flex-1 space-y-2">
           <button onClick={() => switchTab('dashboard')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'dashboard' ? 'bg-primary text-white shadow-lg shadow-primary-light/50 translate-x-2' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-700 hover:translate-x-1'}`}><LayoutDashboard size={20}/>Дашборд</button>
           <button onClick={() => switchTab('calendar')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'calendar' ? 'bg-primary text-white shadow-lg shadow-primary-light/50 translate-x-2' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-700 hover:translate-x-1'}`}><CalendarIcon size={20}/>Календарь</button>
