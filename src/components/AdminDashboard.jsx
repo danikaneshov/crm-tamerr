@@ -376,7 +376,7 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="flex h-screen bg-[#F8FAFC] relative">
+    <div className="flex h-screen bg-[#F8FAFC] relative no-select">
       
       {/* Кнопка Меню для мобилок */}
       <button 
@@ -403,7 +403,7 @@ const AdminDashboard = () => {
       {isMobileMenuOpen && <div onClick={() => setIsMobileMenuOpen(false)} className="fixed inset-0 bg-slate-900/50 z-30 lg:hidden"></div>}
 
       {/* Основной контент */}
-      <div className="flex-1 overflow-auto p-6 pt-20 lg:p-10 lg:pt-10">
+      <div className="flex-1 overflow-auto p-4 pt-20 lg:p-10 lg:pt-10 pb-safe">
         
         {/* ВКЛАДКА 1: ДАШБОРД */}
         {activeTab === 'dashboard' && (
@@ -483,9 +483,9 @@ const AdminDashboard = () => {
         {activeTab === 'shifts' && (
           <div className="space-y-8 animate-in fade-in duration-300">
             {/* Суб-табы */}
-            <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm w-fit">
-              <button onClick={() => setSubTab('calendar')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${subTab === 'calendar' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Календарь</button>
-              <button onClick={() => setSubTab('list')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${subTab === 'list' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Список смен</button>
+            <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm w-fit scrollable-tabs">
+              <button onClick={() => setSubTab('calendar')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'calendar' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Календарь</button>
+              <button onClick={() => setSubTab('list')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'list' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Список смен</button>
             </div>
 
             {subTab === 'calendar' && (<div className="space-y-6">
@@ -558,7 +558,12 @@ const AdminDashboard = () => {
                       {Array.from({ length: startOffset }).map((_, i) => (
                         <div key={`empty-${i}`} className="bg-slate-50/80 min-h-[80px] lg:min-h-[110px]"></div>
                       ))}
-                      {daysArray.map(day => {
+                      {(() => {
+                        const today = new Date();
+                        const todayDay = today.getDate();
+                        const todayMonth = today.getMonth() + 1;
+                        const todayYear = today.getFullYear();
+                        return daysArray.map(day => {
                         const dateStr = `${String(day).padStart(2, '0')}.${targetMonthStr}`;
                         const shiftGroup = groupedShifts.find(g => g.dateStr === dateStr);
                         const dayOfWeek = (startOffset + day - 1) % 7; // 0=Mon ... 6=Sun
@@ -569,8 +574,7 @@ const AdminDashboard = () => {
                         const holidayName = kzHolidays[holidayKey] || null;
                         const isSpecialDay = isFriday || isSaturday || !!holidayName;
 
-                        const today = new Date();
-                        const isToday = day === today.getDate() && Number(month) === today.getMonth() + 1 && Number(year) === today.getFullYear();
+                        const isToday = day === todayDay && Number(month) === todayMonth && Number(year) === todayYear;
                         
                         return (
                           <div 
@@ -647,7 +651,8 @@ const AdminDashboard = () => {
                             )}
                           </div>
                         );
-                      })}
+                      });
+                      })()}
                     </div>
                   </div>
                 );
@@ -701,10 +706,10 @@ const AdminDashboard = () => {
         {/* ВКЛАДКА: ФИНАНСЫ */}
         {activeTab === 'finances' && (
           <div className="space-y-8 animate-in fade-in duration-300">
-            <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm w-fit">
-              <button onClick={() => setSubTab('salaries')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${subTab === 'salaries' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Зарплаты</button>
-              <button onClick={() => setSubTab('profit')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${subTab === 'profit' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Моя прибыль</button>
-              <button onClick={() => setSubTab('purchases')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${subTab === 'purchases' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Закупы</button>
+            <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm scrollable-tabs">
+              <button onClick={() => setSubTab('salaries')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'salaries' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Зарплаты</button>
+              <button onClick={() => setSubTab('profit')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'profit' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Моя прибыль</button>
+              <button onClick={() => setSubTab('purchases')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'purchases' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Закупы</button>
             </div>
 
             {subTab === 'profit' && (
@@ -1010,12 +1015,12 @@ const AdminDashboard = () => {
 
           return (
           <div className="space-y-8 animate-in fade-in duration-300">
-            <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm w-fit flex-wrap">
-              <button onClick={() => setSubTab('stock')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${subTab === 'stock' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Остатки</button>
-              <button onClick={() => setSubTab('incoming')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${subTab === 'incoming' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Приход</button>
-              <button onClick={() => setSubTab('templates')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${subTab === 'templates' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Шаблоны</button>
-              <button onClick={() => setSubTab('writeoff')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${subTab === 'writeoff' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Списание</button>
-              <button onClick={() => setSubTab('standards')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${subTab === 'standards' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Стандарты</button>
+            <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm scrollable-tabs">
+              <button onClick={() => setSubTab('stock')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'stock' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Остатки</button>
+              <button onClick={() => setSubTab('incoming')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'incoming' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Приход</button>
+              <button onClick={() => setSubTab('templates')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'templates' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Шаблоны</button>
+              <button onClick={() => setSubTab('writeoff')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'writeoff' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Списание</button>
+              <button onClick={() => setSubTab('standards')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'standards' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Стандарты</button>
             </div>
 
             {subTab === 'stock' && (
@@ -1208,7 +1213,7 @@ const AdminDashboard = () => {
               <div className="space-y-6">
                 <h1 className="text-2xl font-bold text-slate-800">Списание</h1>
                 <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm max-w-xl">
-                  <form onSubmit={(e) => { setInvForm({...invForm, type: 'writeoff'}); handleInvSubmit(e); }} className="space-y-5">
+                  <form onSubmit={async (e) => { e.preventDefault(); if (!invForm.amount || Number(invForm.amount) <= 0) return alert('Укажите количество'); setIsSavingInv(true); try { const now = new Date(); await addDoc(collection(db, 'inventory_movements'), { type: 'writeoff', item: invForm.item, amount: Number(invForm.amount), cost: 0, note: invForm.note || '', dateStr: `${String(now.getDate()).padStart(2,'0')}.${String(now.getMonth()+1).padStart(2,'0')}.${now.getFullYear()}`, createdAt: serverTimestamp() }); setInvForm({ type: 'in', item: 'coal', amount: '', cost: '', note: '', templateId: '' }); } catch (err) { alert('Ошибка: ' + err.message); } finally { setIsSavingInv(false); } }} className="space-y-5">
                     <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Товар</label><select value={invForm.item} onChange={e => setInvForm({...invForm, item: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800"><option value="coal">🔥 Уголь (шт)</option><option value="tobacco">🍃 Табак (г)</option><option value="mouthpiece">💠 Мундштуки (шт)</option></select></div>
                     <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Количество</label><input type="number" min="1" value={invForm.amount} onChange={e => setInvForm({...invForm, amount: e.target.value})} placeholder="Сколько списать" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" required /></div>
                     <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Причина</label><input type="text" value={invForm.note} onChange={e => setInvForm({...invForm, note: e.target.value})} placeholder="Например: отправил на вторую точку" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-slate-800" /></div>
@@ -1250,7 +1255,7 @@ const AdminDashboard = () => {
         {/* ВКЛАДКА: НАСТРОЙКИ */}
         {activeTab === 'settings' && (
           <div className="space-y-8 animate-in fade-in duration-300">
-            <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm w-full max-w-full overflow-x-auto flex-wrap">
+            <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm scrollable-tabs">
               <button onClick={() => setSubTab('employees')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'employees' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Персонал</button>
               <button onClick={() => setSubTab('margins')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'margins' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Маржинальность</button>
               <button onClick={() => setSubTab('debug')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'debug' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Debug</button>
@@ -1315,8 +1320,8 @@ const AdminDashboard = () => {
       </div>
       {/* Глобальное модальное окно деталей смены */}
       {selectedEmpReport && selectedEmpReport.records && (
-        <div className="fixed inset-0 bg-slate-900/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-lg rounded-[32px] p-8 shadow-2xl animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto relative">
+        <div className="fixed inset-0 bg-slate-900/50 z-50 flex items-end lg:items-center justify-center p-0 lg:p-4" onClick={(e) => { if (e.target === e.currentTarget) setSelectedEmpReport(null); }}>
+          <div className="bg-white w-full lg:max-w-lg rounded-t-[32px] lg:rounded-[32px] p-6 lg:p-8 shadow-2xl animate-in slide-in-bottom lg:zoom-in-95 duration-200 max-h-[85vh] overflow-y-auto relative pb-safe">
             <div className="flex justify-between items-center mb-8">
               <div>
                 <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mb-1">Детали смены</p>

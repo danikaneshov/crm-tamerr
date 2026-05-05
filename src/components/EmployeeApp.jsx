@@ -391,12 +391,12 @@ const EmployeeApp = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col max-w-md mx-auto shadow-xl relative overflow-hidden">
+    <div className="min-h-screen bg-gray-50 flex flex-col max-w-md mx-auto shadow-xl relative overflow-hidden no-select">
       
       {/* МОДАЛЬНЫЕ ОКНА */}
       {selectedHistoryShift && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
+        <div className="absolute inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-t-3xl p-6 w-full max-w-sm shadow-2xl animate-in slide-in-bottom duration-200 max-h-[90vh] overflow-y-auto pb-safe">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-black text-slate-800">Отчет за {selectedHistoryShift.dateStr}</h3>
               <button onClick={() => setSelectedHistoryShift(null)} className="text-slate-400 hover:text-slate-600"><XCircle size={24}/></button>
@@ -432,8 +432,8 @@ const EmployeeApp = () => {
       )}
 
       {modal.isOpen && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl animate-in zoom-in-95 duration-200">
+        <div className="absolute inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-t-3xl p-6 w-full max-w-sm shadow-2xl animate-in slide-in-bottom duration-200 pb-safe">
             
             {modal.type === 'success' && (
               <div className="text-center">
@@ -475,7 +475,7 @@ const EmployeeApp = () => {
       )}
 
       {/* ШАПКА */}
-      <div className="bg-white p-6 border-b flex justify-between items-center z-10 relative">
+      <div className="bg-white p-6 pt-safe border-b flex justify-between items-center z-10 relative">
         <div><p className="text-xs text-gray-400 uppercase font-bold">Сотрудник</p><h1 className="text-xl font-bold text-gray-800">{employee.name}</h1></div>
         <button onClick={() => {setEmployee(null); localStorage.clear();}} className="p-2 text-gray-300 hover:text-red-500"><LogOut/></button>
       </div>
