@@ -315,15 +315,20 @@ const AdminDashboard = () => {
       .filter(m => m.type === 'in' && (isAll || (m.dateStr && m.dateStr.endsWith(`.${selectedMonth}`))))
       .reduce((a, b) => a + (b.cost || 0), 0);
 
+    const hookahProfit = hookahs * ownerProfits.hookah;
+    const replacementProfit = replacements * ownerProfits.replacement;
+
     return {
       earned,
       hookahs,
       replacements,
       ownerProfit,
+      hookahProfit,
+      replacementProfit,
       tamerlanEarned,
       purchases,
-      netProfit: ownerProfit - earned - purchases,
-      profitWithoutTamerlan: ownerProfit - (earned - tamerlanEarned) - purchases
+      netProfit: ownerProfit - earned,
+      profitWithoutTamerlan: ownerProfit - (earned - tamerlanEarned)
     };
   }, [allShifts, selectedMonth, ownerProfits, invMovements]);
 
@@ -486,82 +491,157 @@ const AdminDashboard = () => {
             {subTab === 'calendar' && (<div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
               <h1 className="text-2xl font-bold text-slate-800">Календарь смен</h1>
-              <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
-                <CalendarDays className="text-slate-400 ml-3" size={18}/>
-                <select 
-                  value={selectedMonth === 'all' ? (availableMonths[0] || '05.2026') : selectedMonth} 
-                  onChange={e => setSelectedMonth(e.target.value)} 
-                  className="py-2 pr-4 bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer"
-                >
-                  {availableMonths.map(m => <option key={m} value={m}>{m}</option>)}
-                </select>
+              <div className="flex items-center gap-3">
+                <div className="hidden md:flex items-center gap-4 text-xs font-bold">
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-violet-500"></span>Пт/Сб/Праздник</span>
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-red-400"></span>Выходной (Пн)</span>
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-primary"></span>Смена</span>
+                </div>
+                <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
+                  <CalendarDays className="text-slate-400 ml-3" size={18}/>
+                  <select 
+                    value={selectedMonth === 'all' ? (availableMonths[0] || '05.2026') : selectedMonth} 
+                    onChange={e => setSelectedMonth(e.target.value)} 
+                    className="py-2 pr-4 bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer"
+                  >
+                    {availableMonths.map(m => <option key={m} value={m}>{m}</option>)}
+                  </select>
+                </div>
               </div>
             </div>
 
-            <Card variant="elevated" className="p-4 lg:p-8 border border-slate-100 shadow-sm">
+            <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
               {(() => {
                 const targetMonthStr = selectedMonth === 'all' ? (availableMonths[0] || '05.2026') : selectedMonth;
                 const [month, year] = targetMonthStr.split('.');
                 const daysInMonth = new Date(year, month, 0).getDate();
                 const firstDayOfMonth = new Date(year, month - 1, 1).getDay();
-                // JS getDay(): 0 = Sun, 1 = Mon ... 6 = Sat. We want 1 = Mon, ..., 7 = Sun
                 const startOffset = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1;
-
                 const daysArray = Array.from({ length: daysInMonth }, (_, i) => i + 1);
-                
+
+                // Праздники Казахстана (месяц.день)
+                const kzHolidays = {
+                  '01.01': 'Новый год', '01.02': 'Новый год',
+                  '01.07': 'Рождество',
+                  '03.08': 'Женский день',
+                  '03.21': 'Наурыз', '03.22': 'Наурыз', '03.23': 'Наурыз',
+                  '05.01': 'День единства',
+                  '05.07': 'День защитника',
+                  '05.09': 'День Победы',
+                  '07.06': 'День столицы',
+                  '08.30': 'День Конституции',
+                  '10.25': 'День Республики',
+                  '12.01': 'День Первого Президента',
+                  '12.16': 'День Независимости', '12.17': 'День Независимости'
+                };
+
+                const monthNames = ['', 'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+
                 return (
                   <div>
-                    <div className="grid grid-cols-7 gap-1 lg:gap-2 mb-4 text-center">
-                      {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map(day => (
-                        <div key={day} className="text-[10px] lg:text-xs font-bold text-slate-400 uppercase tracking-widest">{day}</div>
+                    {/* Calendar header */}
+                    <div className="px-6 lg:px-8 pt-6 lg:pt-8 pb-4">
+                      <h2 className="text-xl lg:text-2xl font-black text-slate-800">{monthNames[Number(month)]} {year}</h2>
+                    </div>
+
+                    {/* Day names */}
+                    <div className="grid grid-cols-7 px-4 lg:px-6 pb-3">
+                      {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map((dayName, idx) => (
+                        <div key={dayName} className={`text-center text-[10px] lg:text-xs font-black uppercase tracking-widest py-2 ${
+                          idx >= 4 ? 'text-violet-400' : 'text-slate-400'
+                        }`}>{dayName}</div>
                       ))}
                     </div>
-                    <div className="grid grid-cols-7 gap-1 lg:gap-4">
+
+                    {/* Calendar grid */}
+                    <div className="grid grid-cols-7 gap-[1px] bg-slate-100/80 border-t border-slate-100">
                       {Array.from({ length: startOffset }).map((_, i) => (
-                        <div key={`empty-${i}`} className="p-1 lg:p-4 rounded-xl lg:rounded-2xl bg-slate-50/50 min-h-[80px] lg:min-h-[120px]"></div>
+                        <div key={`empty-${i}`} className="bg-slate-50/80 min-h-[80px] lg:min-h-[110px]"></div>
                       ))}
                       {daysArray.map(day => {
                         const dateStr = `${String(day).padStart(2, '0')}.${targetMonthStr}`;
                         const shiftGroup = groupedShifts.find(g => g.dateStr === dateStr);
-                        const isMonday = (startOffset + day - 1) % 7 === 0;
+                        const dayOfWeek = (startOffset + day - 1) % 7; // 0=Mon ... 6=Sun
+                        const isMonday = dayOfWeek === 0;
+                        const isFriday = dayOfWeek === 4;
+                        const isSaturday = dayOfWeek === 5;
+                        const holidayKey = `${month}.${String(day).padStart(2, '0')}`;
+                        const holidayName = kzHolidays[holidayKey] || null;
+                        const isSpecialDay = isFriday || isSaturday || !!holidayName;
+
+                        const today = new Date();
+                        const isToday = day === today.getDate() && Number(month) === today.getMonth() + 1 && Number(year) === today.getFullYear();
                         
                         return (
                           <div 
                             key={day} 
-                            onClick={() => {
-                              if (shiftGroup) setSelectedEmpReport(shiftGroup);
-                            }}
-                            className={`p-1 lg:p-3 rounded-xl lg:rounded-2xl border min-h-[80px] lg:min-h-[120px] flex flex-col transition-all relative overflow-hidden ${
+                            onClick={() => { if (shiftGroup) setSelectedEmpReport(shiftGroup); }}
+                            className={`relative min-h-[80px] lg:min-h-[110px] p-1.5 lg:p-2.5 flex flex-col transition-all duration-200 ${
                               shiftGroup 
-                                ? 'bg-white border-blue-100 shadow-sm hover:shadow-md cursor-pointer card-hover-effect group' 
-                                : isMonday 
-                                  ? 'bg-red-50/50 border-red-100 text-red-400 opacity-80' 
-                                  : 'bg-slate-50 border-slate-100 text-slate-400 opacity-60'
+                                ? 'bg-white cursor-pointer hover:bg-blue-50/50 group' 
+                                : isMonday && !shiftGroup
+                                  ? 'bg-red-50/30'
+                                  : isSpecialDay
+                                    ? 'bg-violet-50/40'
+                                    : 'bg-white'
                             }`}
                           >
-                            {shiftGroup?.status === 'open' && <div className="absolute top-0 left-0 w-full h-1 bg-primary animate-pulse z-10"></div>}
+                            {/* Live shift indicator */}
+                            {shiftGroup?.status === 'open' && <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-primary to-blue-400 animate-pulse z-10"></div>}
                             
-                            {/* Фоновая надпись для выходного */}
+                            {/* Day number */}
+                            <div className="flex items-center justify-between mb-1">
+                              <div className={`w-6 h-6 lg:w-8 lg:h-8 flex items-center justify-center rounded-full text-xs lg:text-sm font-black transition-all ${
+                                isToday 
+                                  ? 'bg-primary text-white shadow-md shadow-primary/30' 
+                                  : shiftGroup 
+                                    ? 'text-slate-800 group-hover:bg-primary/10 group-hover:text-primary'
+                                    : isMonday
+                                      ? 'text-red-300'
+                                      : isSpecialDay 
+                                        ? 'text-violet-500'
+                                        : 'text-slate-400'
+                              }`}>{day}</div>
+                              {holidayName && (
+                                <span className="hidden lg:inline-block text-[8px] font-bold text-violet-500 bg-violet-100 px-1.5 py-0.5 rounded-full truncate max-w-[60px]" title={holidayName}>🎉</span>
+                              )}
+                            </div>
+
+                            {/* Monday watermark */}
                             {isMonday && !shiftGroup && (
-                              <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20 overflow-hidden">
-                                <span className="text-red-500 font-black text-[10px] lg:text-sm uppercase tracking-widest rotate-[-30deg]">Выходной</span>
+                              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                <span className="text-red-300/30 font-black text-[8px] lg:text-[10px] uppercase tracking-widest">Вых</span>
                               </div>
                             )}
 
-                            <div className={`text-right font-black text-sm lg:text-lg mb-1 lg:mb-2 opacity-50 transition-colors relative z-10 ${shiftGroup ? 'group-hover:text-primary' : ''}`}>{day}</div>
+                            {/* Holiday name on mobile too */}
+                            {holidayName && !shiftGroup && (
+                              <div className="text-[7px] lg:text-[9px] font-bold text-violet-400 truncate leading-tight mb-0.5" title={holidayName}>{holidayName}</div>
+                            )}
+
+                            {/* Special day indicator dot */}
+                            {isSpecialDay && !shiftGroup && !holidayName && (
+                              <div className="flex-1 flex items-end justify-center pb-1">
+                                <div className="w-1 h-1 lg:w-1.5 lg:h-1.5 rounded-full bg-violet-300"></div>
+                              </div>
+                            )}
+
+                            {/* Shift content */}
                             {shiftGroup && (
-                              <div className="flex-1 flex flex-col gap-1">
+                              <div className="flex-1 flex flex-col gap-0.5 lg:gap-1">
                                 {shiftGroup.records.map((rec, i) => (
-                                  <div key={i} className={`text-[9px] lg:text-xs px-1 lg:px-2 py-0.5 lg:py-1 rounded-md font-bold truncate ${
+                                  <div key={i} className={`text-[8px] lg:text-[11px] px-1.5 lg:px-2 py-0.5 lg:py-1 rounded-md lg:rounded-lg font-bold truncate transition-all ${
                                     i === 0 
-                                      ? 'bg-blue-100 text-blue-700' 
+                                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-sm' 
                                       : 'bg-slate-100 text-slate-600'
                                   }`}>
                                     {rec.employeeName}
                                   </div>
                                 ))}
-                                <div className="mt-auto pt-1 lg:pt-2 text-[8px] lg:text-[10px] font-black text-primary text-right">
-                                  {shiftGroup.status === 'open' ? 'ИДЕТ' : `${formatMoney(shiftGroup.totalEarned)} ₸`}
+                                <div className={`mt-auto pt-0.5 lg:pt-1 text-[8px] lg:text-[10px] font-black text-right ${
+                                  shiftGroup.status === 'open' ? 'text-primary animate-pulse' : 'text-green-600'
+                                }`}>
+                                  {shiftGroup.status === 'open' ? '● LIVE' : `${formatMoney(shiftGroup.totalEarned)} ₸`}
                                 </div>
                               </div>
                             )}
@@ -572,7 +652,7 @@ const AdminDashboard = () => {
                   </div>
                 );
               })()}
-            </Card>
+            </div>
             </div>)}
 
             {subTab === 'list' && (
@@ -646,7 +726,7 @@ const AdminDashboard = () => {
                       <div>
                         <p className="font-bold text-sm uppercase tracking-widest mb-2 opacity-80">Общая чистая прибыль</p>
                         <h3 className="text-4xl font-black">{formatMoney(monthlyStats.netProfit)} ₸</h3>
-                        <p className="text-sm opacity-80 mt-2">Вычеты: ЗП ({formatMoney(monthlyStats.earned)} ₸) + Закупы ({formatMoney(monthlyStats.purchases)} ₸)</p>
+                        <p className="text-sm opacity-80 mt-2">Вычеты: ЗП ({formatMoney(monthlyStats.earned)} ₸)</p>
                       </div>
                       <div className="text-right sm:mt-0 mt-4">
                         <p className="font-bold text-xs uppercase tracking-widest mb-1 opacity-80">Грязная прибыль</p>
@@ -658,15 +738,15 @@ const AdminDashboard = () => {
                   </div>
                   
                   <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm flex flex-col justify-center">
-                    <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">Общие расходы (закуп)</p>
-                    <h3 className="text-2xl font-black text-red-500">-{formatMoney(monthlyStats.purchases)} ₸</h3>
-                    <p className="text-slate-400 text-sm mt-1">Всего {invMovements.filter(m => m.type === 'in' && (selectedMonth === 'all' || (m.dateStr && m.dateStr.endsWith(`.${selectedMonth}`)))).length} приходов</p>
+                    <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">Прибыль с кальянов</p>
+                    <h3 className="text-2xl font-black text-blue-600">{formatMoney(monthlyStats.hookahProfit)} ₸</h3>
+                    <p className="text-slate-400 text-sm mt-1">{monthlyStats.hookahs} шт × {formatMoney(ownerProfits.hookah)} ₸</p>
                   </div>
 
                   <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm flex flex-col justify-center">
-                    <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">Прибыль с кальянов/замен</p>
-                    <h3 className="text-2xl font-black text-slate-900">{formatMoney(monthlyStats.ownerProfit)} ₸</h3>
-                    <p className="text-slate-400 text-sm mt-1">{monthlyStats.hookahs} кал. / {monthlyStats.replacements} зам.</p>
+                    <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">Прибыль с замен</p>
+                    <h3 className="text-2xl font-black text-indigo-600">{formatMoney(monthlyStats.replacementProfit)} ₸</h3>
+                    <p className="text-slate-400 text-sm mt-1">{monthlyStats.replacements} шт × {formatMoney(ownerProfits.replacement)} ₸</p>
                   </div>
                 </div>
 
