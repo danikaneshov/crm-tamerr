@@ -704,6 +704,7 @@ const AdminDashboard = () => {
             <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm w-fit">
               <button onClick={() => setSubTab('salaries')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${subTab === 'salaries' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Зарплаты</button>
               <button onClick={() => setSubTab('profit')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${subTab === 'profit' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Моя прибыль</button>
+              <button onClick={() => setSubTab('purchases')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${subTab === 'purchases' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Закупы</button>
             </div>
 
             {subTab === 'profit' && (
@@ -809,6 +810,92 @@ const AdminDashboard = () => {
                 </Card>); })}
             </div>
           </div>
+            )}
+
+            {subTab === 'purchases' && (
+              <div className="space-y-8">
+                <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                  <h1 className="text-2xl font-bold text-slate-800">Закупы</h1>
+                  <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200">
+                    <CalendarDays className="text-slate-400 ml-3" size={18}/>
+                    <select value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} className="py-2 pr-4 bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer">
+                      <option value="all">Все время</option>
+                      {availableMonths.map(m => <option key={m} value={m}>{m}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                {(() => {
+                  const isAll = selectedMonth === 'all';
+                  const filteredPurchases = invMovements.filter(m => m.type === 'in' && (isAll || (m.dateStr && m.dateStr.endsWith(`.${selectedMonth}`))));
+                  const totalPurchases = filteredPurchases.reduce((a, b) => a + (b.cost || 0), 0);
+                  const itemLabels = { coal: 'Уголь', tobacco: 'Табак', mouthpiece: 'Мундштуки' };
+
+                  // Group by item type
+                  const byItem = {};
+                  filteredPurchases.forEach(p => {
+                    const key = p.item || 'other';
+                    if (!byItem[key]) byItem[key] = { total: 0, count: 0 };
+                    byItem[key].total += (p.cost || 0);
+                    byItem[key].count += 1;
+                  });
+
+                  return (
+                    <>
+                      {/* Summary cards */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="bg-gradient-to-br from-red-500 to-red-700 p-8 rounded-[32px] shadow-lg shadow-red-200 text-white relative overflow-hidden">
+                          <ShoppingCart className="absolute right-4 top-4 opacity-20" size={70}/>
+                          <p className="font-bold text-sm uppercase tracking-widest mb-2 opacity-80">Общая сумма закупов</p>
+                          <h3 className="text-4xl font-black">{formatMoney(totalPurchases)} ₸</h3>
+                          <p className="text-sm opacity-80 mt-2">{filteredPurchases.length} приходов</p>
+                        </div>
+                        {Object.entries(byItem).map(([item, data]) => (
+                          <div key={item} className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm flex flex-col justify-center">
+                            <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">{itemLabels[item] || item}</p>
+                            <h3 className="text-2xl font-black text-slate-900">{formatMoney(data.total)} ₸</h3>
+                            <p className="text-slate-400 text-sm mt-1">{data.count} приходов</p>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Purchases list */}
+                      <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
+                        <div className="p-8 border-b border-slate-100">
+                          <h2 className="text-xl font-black text-slate-800">Все закупы</h2>
+                        </div>
+                        <div className="overflow-x-auto">
+                          <table className="w-full min-w-[500px]">
+                            <thead>
+                              <tr className="bg-slate-50">
+                                <th className="p-5 text-left text-xs font-black text-slate-400 uppercase">Дата</th>
+                                <th className="p-5 text-left text-xs font-black text-slate-400 uppercase">Товар</th>
+                                <th className="p-5 text-left text-xs font-black text-slate-400 uppercase">Кол-во</th>
+                                <th className="p-5 text-left text-xs font-black text-slate-400 uppercase">Заметка</th>
+                                <th className="p-5 text-right text-xs font-black text-red-500 uppercase">Сумма</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-50">
+                              {filteredPurchases.length === 0 && (
+                                <tr><td colSpan="5" className="p-10 text-center text-slate-400">Нет закупов за выбранный период</td></tr>
+                              )}
+                              {filteredPurchases.map(p => (
+                                <tr key={p.id} className="hover:bg-slate-50 transition-colors">
+                                  <td className="p-5 font-medium text-slate-600">{p.dateStr || '—'}</td>
+                                  <td className="p-5 font-bold text-slate-800">{itemLabels[p.item] || p.item || '—'}</td>
+                                  <td className="p-5 text-slate-600">{p.amount || 0}</td>
+                                  <td className="p-5 text-slate-400 text-sm">{p.note || '—'}</td>
+                                  <td className="p-5 text-right font-black text-red-500">{formatMoney(p.cost || 0)} ₸</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
             )}
           </div>
         )}
