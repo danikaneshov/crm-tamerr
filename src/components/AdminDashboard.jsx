@@ -381,7 +381,7 @@ const AdminDashboard = () => {
       {/* Кнопка Меню для мобилок */}
       <button 
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="lg:hidden absolute top-4 left-4 z-50 p-3 bg-white rounded-xl shadow-md text-slate-800"
+        className="lg:hidden fixed top-4 left-4 z-50 p-3 bg-white/90 backdrop-blur-sm rounded-xl shadow-md text-slate-800"
       >
         {isMobileMenuOpen ? <X size={24}/> : <Menu size={24}/>}
       </button>
