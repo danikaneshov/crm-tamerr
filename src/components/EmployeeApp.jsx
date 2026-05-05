@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { collection, query, where, getDocs, addDoc, updateDoc, doc, serverTimestamp, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
-import { LogOut, Camera, Loader2, CheckCircle2, UserPlus, PlayCircle, AlertCircle, XCircle, Clock, Banknote, CalendarDays } from 'lucide-react';
+import { LogOut, Camera, Loader2, CheckCircle2, UserPlus, PlayCircle, AlertCircle, XCircle, Clock, Banknote, CalendarDays, Flame, Minus, Plus } from 'lucide-react';
 import heic2any from 'heic2any';
 import imageCompression from 'browser-image-compression';
 import { Button } from './ui/Button';
@@ -540,6 +540,45 @@ const EmployeeApp = () => {
                   </div>
                 </Card>
 
+                {/* Стафф-кальян счётчик */}
+                <Card className="p-4 mb-6 shadow-sm">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-orange-100 text-orange-500 rounded-xl flex items-center justify-center">
+                        <Flame size={20}/>
+                      </div>
+                      <div>
+                        <p className="font-bold text-slate-800 text-sm">Стафф кальян</p>
+                        <p className="text-[10px] text-slate-400 font-medium">Не идёт в продажи</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={async () => {
+                          const cur = currentShift.staffHookahs || 0;
+                          if (cur > 0) {
+                            await updateDoc(doc(db, 'sales', currentShift.id), { staffHookahs: cur - 1 });
+                          }
+                        }}
+                        className="w-9 h-9 flex items-center justify-center bg-slate-100 rounded-xl text-slate-500 active:scale-90 transition-transform"
+                      >
+                        <Minus size={16}/>
+                      </button>
+                      <span className="w-8 text-center font-black text-lg text-slate-800">{currentShift.staffHookahs || 0}</span>
+                      <button 
+                        onClick={async () => {
+                          const cur = currentShift.staffHookahs || 0;
+                          await updateDoc(doc(db, 'sales', currentShift.id), { staffHookahs: cur + 1 });
+                          if (navigator.vibrate) navigator.vibrate(30);
+                        }}
+                        className="w-9 h-9 flex items-center justify-center bg-orange-500 rounded-xl text-white active:scale-90 transition-transform shadow-sm"
+                      >
+                        <Plus size={16}/>
+                      </button>
+                    </div>
+                  </div>
+                </Card>
+
                 <div className="mt-auto pb-4">
                   <input type="file" accept="image/jpeg, image/jpg, image/png, image/heic, image/heif" ref={fileInputRef} onChange={handleFileUpload} className="hidden" />
                   <Button onClick={() => fileInputRef.current.click()} isLoading={isUploading} variant="dark" size="xl" className="w-full" leftIcon={<Camera/>}>
@@ -567,8 +606,11 @@ const EmployeeApp = () => {
                         <div className="flex justify-between"><span className="text-slate-500 font-medium">% с кальянов:</span> <strong className="text-slate-800">{formatMoney(currentShift.hookahPercentage)} ₸</strong></div>
                       </div>
                     )}
-                    <div className="border-t border-slate-200 pt-3">
+                    <div className="border-t border-slate-200 pt-3 flex flex-col gap-1">
                       <p className="text-sm text-slate-500 font-medium">Позиций учтено: <span className="font-bold text-slate-800">{currentShift.totalItems} шт</span></p>
+                      {(currentShift.staffHookahs > 0) && (
+                        <p className="text-sm text-orange-500 font-medium flex items-center gap-1"><Flame size={14}/> Стафф: <span className="font-bold">{currentShift.staffHookahs} шт</span></p>
+                      )}
                     </div>
                   </div>
                 </Card>

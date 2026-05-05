@@ -907,7 +907,7 @@ const AdminDashboard = () => {
 
         {/* ВКЛАДКА: СКЛАД */}
         {activeTab === 'inventory' && (() => {
-          const totalBowls = closedSystemShifts.reduce((a, s) => a + (s.items?.cocktail1 || 0) + (s.items?.cocktail2 || 0), 0);
+          const totalBowls = closedSystemShifts.reduce((a, s) => a + (s.items?.cocktail1 || 0) + (s.items?.cocktail2 || 0) + (s.staffHookahs || 0), 0);
           const autoCoalUsed = totalBowls * invStandards.coalPerBowl;
           const autoTobaccoUsed = totalBowls * (invStandards.tobaccoPerBowl || 0);
           const autoMouthpieceUsed = totalBowls * (invStandards.mouthpiecePerBowl || 0);
@@ -1349,6 +1349,16 @@ const AdminDashboard = () => {
                   </div>
                 </div>
               </div>
+                {(() => {
+                  const totalStaff = selectedEmpReport.records.reduce((sum, r) => sum + (r.staffHookahs || 0), 0);
+                  return totalStaff > 0 ? (
+                    <div className="flex items-center gap-2 bg-orange-50 px-4 py-2.5 rounded-xl border border-orange-100 mt-3">
+                      <span className="text-orange-500 text-lg">🔥</span>
+                      <span className="text-sm font-bold text-orange-600">Стафф: {totalStaff} шт</span>
+                      <span className="text-[10px] text-orange-400 font-medium ml-auto">не в продажах</span>
+                    </div>
+                  ) : null;
+                })()}
 
               {/* Список сотрудников и их ЗП */}
               <div className="space-y-3">
