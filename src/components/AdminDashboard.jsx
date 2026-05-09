@@ -70,7 +70,44 @@ const AdminDashboard = () => {
 
   const groupedShifts = useMemo(() => {
     const groups = {};
-    allShifts.forEach(shift => {
+    const rankShiftStatus = (status) => {
+      if (status === 'closed') return 2;
+      if (status === 'open') return 1;
+      return 0;
+    };
+
+    // На уровне дня оставляем по одной самой релевантной записи на сотрудника:
+    // closed приоритетнее open, чтобы "зависшие" open-дубли не ломали отчеты.
+    const dedupedShifts = Object.values(
+      allShifts
+        .filter((shift) => shift.status !== 'cancelled')
+        .reduce((acc, shift) => {
+          const date = shift.dateStr || 'Неизвестная дата';
+          const employee = shift.employeeId || shift.employeeName || shift.id;
+          const key = `${date}__${employee}`;
+          const prev = acc[key];
+          if (!prev) {
+            acc[key] = shift;
+            return acc;
+          }
+
+          const prevRank = rankShiftStatus(prev.status);
+          const nextRank = rankShiftStatus(shift.status);
+          if (nextRank > prevRank) {
+            acc[key] = shift;
+            return acc;
+          }
+
+          if (nextRank === prevRank) {
+            const prevTs = prev.endTime?.seconds || prev.startTime?.seconds || 0;
+            const nextTs = shift.endTime?.seconds || shift.startTime?.seconds || 0;
+            if (nextTs > prevTs) acc[key] = shift;
+          }
+          return acc;
+        }, {})
+    );
+
+    dedupedShifts.forEach(shift => {
       const date = shift.dateStr || 'Неизвестная дата';
       if (!groups[date]) {
         groups[date] = {

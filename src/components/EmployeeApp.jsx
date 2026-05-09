@@ -57,8 +57,12 @@ const EmployeeApp = () => {
     const q = query(collection(db, 'sales'), where('dateStr', '==', todayStr));
     const unsubSales = onSnapshot(q, (snap) => {
       const todayShifts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      const openShift = todayShifts.find(s => s.status === 'open');
       const closedShifts = todayShifts.filter(s => s.status === 'closed');
+      const closedByEmployee = new Set(closedShifts.map(s => s.employeeId));
+      const activeOpenShifts = todayShifts.filter(
+        (s) => s.status === 'open' && !closedByEmployee.has(s.employeeId)
+      );
+      const openShift = activeOpenShifts[0];
 
       if (openShift) {
         if (openShift.employeeId === employee.id) {
@@ -169,7 +173,23 @@ const EmployeeApp = () => {
       const d = new Date();
       if (d.getHours() < 6) d.setDate(d.getDate() - 1);
       const todayStr = d.toLocaleDateString('ru-RU');
-      
+
+      const existingTodaySnap = await getDocs(query(collection(db, 'sales'), where('dateStr', '==', todayStr)));
+      const existingTodayShifts = existingTodaySnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const closedByEmployee = new Set(existingTodayShifts.filter(s => s.status === 'closed').map(s => s.employeeId));
+      const hasActiveOpenShift = existingTodayShifts.some(
+        (s) => s.status === 'open' && !closedByEmployee.has(s.employeeId)
+      );
+      if (hasActiveOpenShift) {
+        const activeShift = existingTodayShifts.find(
+          (s) => s.status === 'open' && !closedByEmployee.has(s.employeeId)
+        );
+        setCurrentShift(activeShift?.employeeId === employee.id
+          ? activeShift
+          : { status: 'locked', employeeName: activeShift?.employeeName || 'другой мастер' });
+        return;
+      }
+
       await addDoc(collection(db, 'sales'), {
         employeeId: employee.id, employeeName: employee.name,
         dateStr: todayStr, startTime: serverTimestamp(), status: 'open'
@@ -226,6 +246,24 @@ const EmployeeApp = () => {
       baseSalary: myBase, hookahPercentage: (ownerC1 * 1500) + (ownerC2 * 1500),
       shiftFraction: 1
     });
+
+    // Чистим дубли: если у сотрудника остались другие "open" записи за этот же день, архивируем их.
+    const sameDaySnap = await getDocs(query(collection(db, 'sales'), where('dateStr', '==', currentShift.dateStr)));
+    const duplicateOpenShifts = sameDaySnap.docs
+      .map((saleDoc) => ({ id: saleDoc.id, ...saleDoc.data() }))
+      .filter((shift) => (
+        shift.id !== currentShift.id &&
+        shift.employeeId === employee.id &&
+        shift.status === 'open'
+      ));
+
+    await Promise.all(
+      duplicateOpenShifts.map((shift) => updateDoc(doc(db, 'sales', shift.id), {
+        status: 'cancelled',
+        endTime: serverTimestamp(),
+        cancelledReason: 'duplicate_open_shift'
+      }))
+    );
   };
 
   const handleFileUpload = async (e) => {
