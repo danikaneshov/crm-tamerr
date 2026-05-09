@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { LogOut, Users, LayoutDashboard, Key, Trash2, Image, Settings, Menu, X, Percent, Wallet, Database, AlertTriangle, Clock, Banknote, CalendarDays, Calendar as CalendarIcon, Package, ArrowDownToLine, ArrowUpFromLine, Calculator, Ruler, ShoppingCart, CheckCircle2, Plus } from 'lucide-react';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { signOut } from 'firebase/auth';
-import { collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, serverTimestamp, setDoc, getDocs } from 'firebase/firestore';
+import { collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, serverTimestamp, setDoc, getDocs, where, limit } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 import * as XLSX from 'xlsx';
 import { Card } from './ui/Card';
@@ -67,6 +67,14 @@ const AdminDashboard = () => {
     const now = new Date();
     return `${String(now.getMonth() + 1).padStart(2, '0')}.${now.getFullYear()}`;
   })());
+
+  const getMonthDateRange = useCallback((monthStr) => {
+    if (!monthStr || monthStr === 'all') return null;
+    return {
+      start: `01.${monthStr}`,
+      end: `31.${monthStr}`
+    };
+  }, []);
 
   const groupedShifts = useMemo(() => {
     const groups = {};
@@ -156,8 +164,24 @@ const AdminDashboard = () => {
     const unsubEmp = onSnapshot(query(collection(db, 'employees'), orderBy('createdAt', 'desc')), (snap) => {
       setEmployees(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     });
-    
-    const unsubSales = onSnapshot(query(collection(db, 'sales')), (snap) => {
+
+    // Для ускорения загрузки: в "all" берем ограниченный срез,
+    // а в выбранном месяце читаем только диапазон дат этого месяца.
+    let salesQuery;
+    if (selectedMonth === 'all') {
+      salesQuery = query(collection(db, 'sales'), orderBy('dateStr', 'desc'), limit(500));
+    } else {
+      const monthRange = getMonthDateRange(selectedMonth);
+      salesQuery = query(
+        collection(db, 'sales'),
+        where('dateStr', '>=', monthRange.start),
+        where('dateStr', '<=', monthRange.end),
+        orderBy('dateStr', 'desc'),
+        limit(500)
+      );
+    }
+
+    const unsubSales = onSnapshot(salesQuery, (snap) => {
       const shifts = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       shifts.sort((a, b) => {
         if (a.status === 'open' && b.status !== 'open') return -1;
@@ -172,23 +196,30 @@ const AdminDashboard = () => {
       if (docSnap.exists()) setOwnerProfits(docSnap.data());
     });
 
-    // Склад: стандарты
+    return () => { unsubEmp(); unsubSales(); unsubSettings(); };
+  }, [selectedMonth, getMonthDateRange]);
+
+  useEffect(() => {
+    const shouldSubscribeInventory =
+      activeTab === 'inventory' ||
+      (activeTab === 'finances' && (subTab === 'purchases' || subTab === 'profit'));
+
+    if (!shouldSubscribeInventory) return undefined;
+
     const unsubInvStd = onSnapshot(doc(db, 'settings', 'inventory_standards'), (docSnap) => {
       if (docSnap.exists()) setInvStandards(docSnap.data());
     });
 
-    // Склад: движения
     const unsubInvMov = onSnapshot(query(collection(db, 'inventory_movements'), orderBy('createdAt', 'desc')), (snap) => {
       setInvMovements(snap.docs.map(d => ({ id: d.id, ...d.data() })));
     });
 
-    // Склад: шаблоны
     const unsubInvTemplates = onSnapshot(query(collection(db, 'inventory_templates'), orderBy('name', 'asc')), (snap) => {
       setInvTemplates(snap.docs.map(d => ({ id: d.id, ...d.data() })));
     });
 
-    return () => { unsubEmp(); unsubSales(); unsubSettings(); unsubInvStd(); unsubInvMov(); unsubInvTemplates(); };
-  }, []);
+    return () => { unsubInvStd(); unsubInvMov(); unsubInvTemplates(); };
+  }, [activeTab, subTab]);
 
   const handleSaveSettings = async () => {
     setIsSavingSettings(true);
