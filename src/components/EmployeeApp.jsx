@@ -30,8 +30,11 @@ const EmployeeApp = () => {
   
   const [currentShift, setCurrentShift] = useState(undefined);
   const [isUploading, setIsUploading] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(true);
   const fileInputRef = useRef(null);
   const isOpeningRef = useRef(false);
+  const dbReadyRef = useRef(false);
+  const timerReadyRef = useRef(false);
 
   const [activeTab, setActiveTab] = useState('shift'); // 'shift', 'stats'
   const [myShifts, setMyShifts] = useState([]);
@@ -50,12 +53,25 @@ const EmployeeApp = () => {
 
   useEffect(() => {
     if (!employee) return;
+
+    // Сброс состояния синхронизации при смене сотрудника
+    setIsSyncing(true);
+    dbReadyRef.current = false;
+    timerReadyRef.current = false;
+    setCurrentShift(undefined);
+
+    // Минимальный таймер 1.7с
+    const syncTimer = setTimeout(() => {
+      timerReadyRef.current = true;
+      if (dbReadyRef.current) setIsSyncing(false);
+    }, 1700);
     
     const d = new Date();
     if (d.getHours() < 6) d.setDate(d.getDate() - 1);
     const todayStr = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`;
 
     const q = query(collection(db, 'sales'), where('dateStr', '==', todayStr));
+    let firstSnapshot = true;
     const unsubSales = onSnapshot(q, (snap) => {
       const todayShifts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       const closedShifts = todayShifts.filter(s => s.status === 'closed');
@@ -81,13 +97,20 @@ const EmployeeApp = () => {
       } else {
         setCurrentShift(null);
       }
+
+      // Снимаем баннер после первого ответа БД + таймера
+      if (firstSnapshot) {
+        firstSnapshot = false;
+        dbReadyRef.current = true;
+        if (timerReadyRef.current) setIsSyncing(false);
+      }
     });
 
     const unsubMyShifts = onSnapshot(query(collection(db, 'sales'), where('employeeId', '==', employee.id)), (snap) => {
       setMyShifts(snap.docs.map(d => ({ id: d.id, ...d.data() })));
     });
 
-    return () => { unsubSales(); unsubMyShifts(); };
+    return () => { clearTimeout(syncTimer); unsubSales(); unsubMyShifts(); };
   }, [employee]);
 
   const availableMonths = (() => {
@@ -437,7 +460,7 @@ const EmployeeApp = () => {
   }
 
   return (
-    <div className="h-[100dvh] w-full bg-gray-50 flex flex-col max-w-md mx-auto shadow-xl relative overflow-hidden no-select">
+    <div className="h-[100dvh] w-full bg-gray-50 flex flex-col max-w-md mx-auto shadow-xl relative overflow-hidden no-select" style={{ overflow: 'hidden' }}>
       
       {/* МОДАЛЬНЫЕ ОКНА */}
       {selectedHistoryShift && (
@@ -520,22 +543,22 @@ const EmployeeApp = () => {
         </div>
       )}
 
-      {/* БАННЕР СИНХРОНИЗАЦИИ — блокирует всё до подключения БД */}
-      {currentShift === undefined && (
-        <div className="absolute inset-0 z-[100] flex flex-col items-center justify-center bg-white/95 backdrop-blur-md">
+      {/* БАННЕР СИНХРОНИЗАЦИИ — блокирует ВСЁ до подключения БД + 1.7с */}
+      {isSyncing && (
+        <div className="absolute inset-0 z-[100] flex flex-col items-center justify-center bg-white" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
           <Loader2 className="w-12 h-12 text-primary animate-spin mb-5" />
           <h2 className="text-xl font-black text-slate-800 mb-2">Синхронизация</h2>
           <p className="text-slate-400 font-medium text-sm">Подключение к базе данных...</p>
         </div>
       )}
 
-      {/* ШАПКА — фиксированная */}
-      <div className="bg-white p-6 pt-safe border-b flex justify-between items-center z-10 sticky top-0 shrink-0">
+      {/* ШАПКА — не двигается */}
+      <div className="bg-white p-6 pt-safe border-b flex justify-between items-center z-10 shrink-0">
         <div><p className="text-xs text-gray-400 uppercase font-bold">Сотрудник</p><h1 className="text-xl font-bold text-gray-800">{employee.name}</h1></div>
         <button onClick={() => {setEmployee(null); localStorage.clear();}} className="p-2 text-gray-300 hover:text-red-500"><LogOut/></button>
       </div>
 
-      <div className="flex-1 p-6 flex flex-col relative overflow-auto min-h-0">
+      <div className="flex-1 p-6 flex flex-col relative min-h-0" style={{ overflowY: 'auto', overflowX: 'hidden', WebkitOverflowScrolling: 'touch' }}>
         
         {activeTab === 'shift' && (
           <div className="flex-1 flex flex-col w-full h-full animate-in fade-in duration-300">
@@ -748,7 +771,8 @@ const EmployeeApp = () => {
 
       {/* ПАНЕЛЬ НАВИГАЦИИ (НИЖНЯЯ) */}
       {/* ПАНЕЛЬ НАВИГАЦИИ — фиксированная */}
-      <div className="bg-white border-t border-gray-100 flex z-10 sticky bottom-0 shrink-0 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.03)]">
+      {/* ПАНЕЛЬ НАВИГАЦИИ — не двигается */}
+      <div className="bg-white border-t border-gray-100 flex z-10 shrink-0 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.03)]">
         <button 
           onClick={() => setActiveTab('shift')}
           className={`flex-1 py-4 flex flex-col items-center gap-1 font-bold text-xs transition-colors ${activeTab === 'shift' ? 'text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
