@@ -561,7 +561,7 @@ const EmployeeApp = () => {
       <div className="flex-1 p-6 flex flex-col relative min-h-0" style={{ overflowY: 'auto', overflowX: 'hidden', WebkitOverflowScrolling: 'touch' }}>
         
         {activeTab === 'shift' && (
-          <div className="flex-1 flex flex-col w-full h-full animate-in fade-in duration-300">
+          <div className="flex-1 flex flex-col w-full min-h-full animate-in fade-in duration-300">
             {/* СОСТОЯНИЕ: СМЕНА ЗАНЯТА ИЛИ УЖЕ ЗАКРЫТА ДРУГИМ */}
             {(currentShift?.status === 'locked' || currentShift?.status === 'locked_closed') && (
               <div className="flex-1 flex flex-col items-center justify-center animate-in fade-in zoom-in duration-300">
@@ -701,7 +701,7 @@ const EmployeeApp = () => {
 
         {/* ВКЛАДКА: МОЯ ЗП */}
         {activeTab === 'stats' && (
-          <div className="flex-1 flex flex-col h-full animate-scale-in duration-300 pb-4">
+          <div className="flex flex-col animate-scale-in duration-300 pb-4">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-black text-slate-800">Моя ЗП</h2>
               <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
@@ -713,7 +713,7 @@ const EmployeeApp = () => {
               </div>
             </div>
 
-            <Card variant="elevated" className="p-8 flex flex-col h-full border-0">
+            <Card variant="elevated" className="p-8 flex flex-col border-0">
               <div className="flex items-center gap-4 mb-6">
                 <div className="w-14 h-14 bg-gradient-to-br from-primary-light to-primary rounded-full flex items-center justify-center text-white font-black text-2xl shadow-inner">
                   {employee.name.charAt(0).toUpperCase()}
