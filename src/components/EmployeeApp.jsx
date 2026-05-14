@@ -31,6 +31,7 @@ const EmployeeApp = () => {
   const [currentShift, setCurrentShift] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef(null);
+  const isOpeningRef = useRef(false);
 
   const [activeTab, setActiveTab] = useState('shift'); // 'shift', 'stats'
   const [myShifts, setMyShifts] = useState([]);
@@ -52,7 +53,7 @@ const EmployeeApp = () => {
     
     const d = new Date();
     if (d.getHours() < 6) d.setDate(d.getDate() - 1);
-    const todayStr = d.toLocaleDateString('ru-RU');
+    const todayStr = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`;
 
     const q = query(collection(db, 'sales'), where('dateStr', '==', todayStr));
     const unsubSales = onSnapshot(q, (snap) => {
@@ -168,11 +169,13 @@ const EmployeeApp = () => {
   }, [pin]);
 
   const handleOpenShift = async () => {
+    if (isOpeningRef.current) return;
+    isOpeningRef.current = true;
     setIsLoading(true);
     try {
       const d = new Date();
       if (d.getHours() < 6) d.setDate(d.getDate() - 1);
-      const todayStr = d.toLocaleDateString('ru-RU');
+      const todayStr = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`;
 
       const existingTodaySnap = await getDocs(query(collection(db, 'sales'), where('dateStr', '==', todayStr)));
       const existingTodayShifts = existingTodaySnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -196,7 +199,12 @@ const EmployeeApp = () => {
       });
     } catch { 
       setModal({ isOpen: true, type: 'error', title: 'Ошибка', message: 'Не удалось открыть смену' }); 
-    } finally { setIsLoading(false); }
+    } finally { 
+      setIsLoading(false); 
+      setTimeout(() => {
+        isOpeningRef.current = false;
+      }, 5000);
+    }
   };
 
   const closeShiftInDb = async (c1, c2, imageUrl) => {
