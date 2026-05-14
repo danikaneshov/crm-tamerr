@@ -28,7 +28,7 @@ const EmployeeApp = () => {
   const [employeesList, setEmployeesList] = useState([]);
   const [partnerId, setPartnerId] = useState('');
   
-  const [currentShift, setCurrentShift] = useState(null);
+  const [currentShift, setCurrentShift] = useState(undefined);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef(null);
   const isOpeningRef = useRef(false);
@@ -381,7 +381,7 @@ const EmployeeApp = () => {
     };
     
     return (
-      <div className="min-h-screen bg-gradient-to-b from-neutral-50 to-primary-light/30 dark:from-dark-bg dark:to-dark-surface flex flex-col items-center justify-center p-4 transition-colors">
+      <div className="h-[100dvh] w-full bg-gradient-to-b from-neutral-50 to-primary-light/30 dark:from-dark-bg dark:to-dark-surface flex flex-col items-center justify-center p-4 transition-colors">
         <Card variant="elevated" className="w-full max-w-sm p-8 flex flex-col items-center border-0 shadow-2xl dark:bg-dark-surface">
           <div className="mb-10 text-center">
             <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">ERP<span className="text-primary">.</span></h1>
@@ -437,7 +437,7 @@ const EmployeeApp = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col max-w-md mx-auto shadow-xl relative overflow-hidden no-select">
+    <div className="h-[100dvh] w-full bg-gray-50 flex flex-col max-w-md mx-auto shadow-xl relative overflow-hidden no-select">
       
       {/* МОДАЛЬНЫЕ ОКНА */}
       {selectedHistoryShift && (
@@ -547,8 +547,16 @@ const EmployeeApp = () => {
               </div>
             )}
 
+            {/* СОСТОЯНИЕ 0: ЗАГРУЗКА ИЗ БД */}
+            {currentShift === undefined && (
+              <div className="flex-1 flex flex-col items-center justify-center animate-in fade-in duration-300">
+                <Loader2 className="w-10 h-10 text-primary animate-spin mb-4" />
+                <p className="text-slate-400 font-medium text-sm">Синхронизация...</p>
+              </div>
+            )}
+
             {/* СОСТОЯНИЕ 1: СМЕНА НЕ ОТКРЫТА */}
-            {!currentShift && (
+            {currentShift === null && (
               <div className="flex-1 flex flex-col items-center justify-center animate-scale-in duration-300">
                 <Card variant="elevated" className="w-full p-8 text-center border-0 shadow-xl">
                   <div className="w-20 h-20 bg-primary-light/50 text-primary rounded-full flex items-center justify-center mx-auto mb-6 relative">
