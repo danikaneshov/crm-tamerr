@@ -520,13 +520,22 @@ const EmployeeApp = () => {
         </div>
       )}
 
-      {/* ШАПКА */}
-      <div className="bg-white p-6 pt-safe border-b flex justify-between items-center z-10 relative">
+      {/* БАННЕР СИНХРОНИЗАЦИИ — блокирует всё до подключения БД */}
+      {currentShift === undefined && (
+        <div className="absolute inset-0 z-[100] flex flex-col items-center justify-center bg-white/95 backdrop-blur-md">
+          <Loader2 className="w-12 h-12 text-primary animate-spin mb-5" />
+          <h2 className="text-xl font-black text-slate-800 mb-2">Синхронизация</h2>
+          <p className="text-slate-400 font-medium text-sm">Подключение к базе данных...</p>
+        </div>
+      )}
+
+      {/* ШАПКА — фиксированная */}
+      <div className="bg-white p-6 pt-safe border-b flex justify-between items-center z-10 sticky top-0 shrink-0">
         <div><p className="text-xs text-gray-400 uppercase font-bold">Сотрудник</p><h1 className="text-xl font-bold text-gray-800">{employee.name}</h1></div>
         <button onClick={() => {setEmployee(null); localStorage.clear();}} className="p-2 text-gray-300 hover:text-red-500"><LogOut/></button>
       </div>
 
-      <div className="flex-1 p-6 flex flex-col relative overflow-auto">
+      <div className="flex-1 p-6 flex flex-col relative overflow-auto min-h-0">
         
         {activeTab === 'shift' && (
           <div className="flex-1 flex flex-col w-full h-full animate-in fade-in duration-300">
@@ -547,13 +556,7 @@ const EmployeeApp = () => {
               </div>
             )}
 
-            {/* СОСТОЯНИЕ 0: ЗАГРУЗКА ИЗ БД */}
-            {currentShift === undefined && (
-              <div className="flex-1 flex flex-col items-center justify-center animate-in fade-in duration-300">
-                <Loader2 className="w-10 h-10 text-primary animate-spin mb-4" />
-                <p className="text-slate-400 font-medium text-sm">Синхронизация...</p>
-              </div>
-            )}
+            {/* СОСТОЯНИЕ 0: Загрузка — обрабатывается баннером поверх */}
 
             {/* СОСТОЯНИЕ 1: СМЕНА НЕ ОТКРЫТА */}
             {currentShift === null && (
@@ -744,7 +747,8 @@ const EmployeeApp = () => {
       </div>
 
       {/* ПАНЕЛЬ НАВИГАЦИИ (НИЖНЯЯ) */}
-      <div className="bg-white border-t border-gray-100 flex z-10 relative mt-auto pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.03)]">
+      {/* ПАНЕЛЬ НАВИГАЦИИ — фиксированная */}
+      <div className="bg-white border-t border-gray-100 flex z-10 sticky bottom-0 shrink-0 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.03)]">
         <button 
           onClick={() => setActiveTab('shift')}
           className={`flex-1 py-4 flex flex-col items-center gap-1 font-bold text-xs transition-colors ${activeTab === 'shift' ? 'text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
