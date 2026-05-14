@@ -39,7 +39,7 @@ const EmployeeApp = () => {
   const [activeTab, setActiveTab] = useState('shift'); // 'shift', 'stats'
   const [myShifts, setMyShifts] = useState([]);
 
-  // Стейт для кастомных модальных окон
+  // Стейт для кастомных модальных око
   // type: 'success', 'error', 'zeroConfirm'
   const [modal, setModal] = useState({ isOpen: false, type: '', title: '', message: '', data: null });
   const [selectedHistoryShift, setSelectedHistoryShift] = useState(null);
