@@ -1294,7 +1294,7 @@ const AdminDashboard = () => {
                     {invMovements.filter(m => m.type === 'writeoff').length === 0 && <div className="p-6 text-center text-slate-400">Нет записей</div>}
                     {invMovements.filter(m => m.type === 'writeoff').map(m => (
                       <div key={m.id} className="p-4 flex justify-between items-center hover:bg-slate-50 transition-colors">
-                        <div><p className="font-bold text-slate-800">{m.item === 'coal' ? '🔥 Уголь' : '🍃 Табак'} <span className="text-orange-500">-{formatMoney(m.amount)} {m.item === 'coal' ? 'шт' : 'г'}</span></p>{m.note && <p className="text-xs text-slate-400 mt-0.5">{m.note}</p>}</div>
+                        <div><p className="font-bold text-slate-800">{m.item === 'coal' ? '🔥 Уголь' : m.item === 'tobacco' ? '🍃 Табак' : '💠 Мундштуки'} <span className="text-orange-500">-{formatMoney(m.amount)} {m.item === 'coal' || m.item === 'mouthpiece' ? 'шт' : 'г'}</span></p>{m.note && <p className="text-xs text-slate-400 mt-0.5">{m.note}</p>}</div>
                         <div className="flex items-center gap-3"><span className="text-xs text-slate-400">{m.dateStr}</span><button onClick={() => deleteDoc(doc(db, 'inventory_movements', m.id))} className="text-slate-300 hover:text-red-500"><Trash2 size={16}/></button></div>
                       </div>
                     ))}
