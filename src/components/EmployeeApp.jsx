@@ -362,11 +362,26 @@ const EmployeeApp = () => {
       const aiData = await aiRes.json();
       
       if (aiData.cocktail1 === undefined && aiData.cocktail2 === undefined) {
-         throw new Error('Не смог найти кальны на фото');
+         throw new Error('Не смог найти кальяны на фото');
       }
 
-      await closeShiftInDb(Number(aiData.cocktail1) || 0, Number(aiData.cocktail2) || 0, uploadedImageUrl);
-      setModal({ isOpen: true, type: 'success', title: 'Успех!', message: 'Смена закрыта. Отчет отправлен.' });
+      const c1 = Number(aiData.cocktail1) || 0;
+      const c2 = Number(aiData.cocktail2) || 0;
+
+      // Если ИИ вернул 0 кальянов — спрашиваем подтверждение
+      if (c1 === 0 && c2 === 0) {
+        setModal({
+          isOpen: true,
+          type: 'zeroConfirm',
+          title: 'ИИ не нашёл кальянов',
+          message: 'Система распознала 0 кальянов и 0 замен на чеке. Если это ошибка — перефоткайте чек. Если кальянов действительно не было — закройте как нулевую смену.',
+          data: { imageUrl: uploadedImageUrl }
+        });
+        return;
+      }
+
+      await closeShiftInDb(c1, c2, uploadedImageUrl);
+      setModal({ isOpen: true, type: 'success', title: 'Успех!', message: `Смена закрыта! Кальянов: ${c1}, Замен: ${c2}` });
       
     } catch (error) { 
       console.error("ГЛОБАЛЬНАЯ ОШИБКА ЗАГРУЗКИ ФОТО:", error);
