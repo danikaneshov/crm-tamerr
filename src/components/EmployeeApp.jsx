@@ -24,10 +24,10 @@ const EmployeeApp = () => {
     const savedEmployee = localStorage.getItem('currentEmployee');
     return savedEmployee ? JSON.parse(savedEmployee) : null;
   });
-
+  
   const [employeesList, setEmployeesList] = useState([]);
   const [partnerId, setPartnerId] = useState('');
-
+  
   const [currentShift, setCurrentShift] = useState(undefined);
   const [isUploading, setIsUploading] = useState(false);
   const [isSyncing, setIsSyncing] = useState(true);
@@ -65,7 +65,7 @@ const EmployeeApp = () => {
       timerReadyRef.current = true;
       if (dbReadyRef.current) setIsSyncing(false);
     }, 1700);
-
+    
     const d = new Date();
     if (d.getHours() < 6) d.setDate(d.getDate() - 1);
     const todayStr = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`;
@@ -146,16 +146,16 @@ const EmployeeApp = () => {
     const baseSalaryTotal = closedShifts.reduce((sum, s) => sum + (s.baseSalary || 0), 0);
     const hookahPercentageTotal = closedShifts.reduce((sum, s) => sum + (s.hookahPercentage || 0), 0);
     const shiftsCount = closedShifts.reduce((sum, s) => sum + (s.shiftFraction || 1), 0);
-
+    
     const sortedClosedShifts = closedShifts.sort((a, b) => {
       const parseDate = (dStr) => {
-        if (!dStr) return 0;
-        const [d, m, y] = dStr.split('.');
-        return new Date(y, m - 1, d).getTime();
+         if (!dStr) return 0;
+         const [d, m, y] = dStr.split('.');
+         return new Date(y, m - 1, d).getTime();
       };
       return parseDate(b.dateStr) - parseDate(a.dateStr);
     });
-
+    
     return { hookahs, replacements, totalEarned, baseSalaryTotal, hookahPercentageTotal, shiftsCount, closedShifts: sortedClosedShifts };
   })();
 
@@ -171,15 +171,15 @@ const EmployeeApp = () => {
         setEmployee(empData);
         localStorage.setItem('currentEmployee', JSON.stringify(empData));
         setPin(''); // Очищаем пин после успешного входа
-      } else {
-        setError('Неверный PIN');
+      } else { 
+        setError('Неверный PIN'); 
         setPin(''); // Сбрасываем пин при неверном вводе
       }
-    } catch {
-      setError('Ошибка БД');
+    } catch { 
+      setError('Ошибка БД'); 
       setPin('');
-    } finally {
-      setIsLoading(false);
+    } finally { 
+      setIsLoading(false); 
     }
   };
 
@@ -220,10 +220,10 @@ const EmployeeApp = () => {
         employeeId: employee.id, employeeName: employee.name,
         dateStr: todayStr, startTime: serverTimestamp(), status: 'open'
       });
-    } catch {
-      setModal({ isOpen: true, type: 'error', title: 'Ошибка', message: 'Не удалось открыть смену' });
-    } finally {
-      setIsLoading(false);
+    } catch { 
+      setModal({ isOpen: true, type: 'error', title: 'Ошибка', message: 'Не удалось открыть смену' }); 
+    } finally { 
+      setIsLoading(false); 
       setTimeout(() => {
         isOpeningRef.current = false;
       }, 5000);
@@ -240,21 +240,21 @@ const EmployeeApp = () => {
 
     if (partnerId) {
       const partner = employeesList.find(emp => emp.id === partnerId);
-
+      
       // Рассчитываем так, чтобы общее количество позиций делилось поровну,
       // а если нечетно — владельцу (кто открыл) досталась 1 лишняя позиция.
       const targetOwnerTotal = Math.ceil((c1 + c2) / 2);
       ownerC1 = Math.ceil(c1 / 2); // Владелец всегда получает приоритет по кальянам
       ownerC2 = targetOwnerTotal - ownerC1; // Остаток добираем заменами
-
+      
       partnerC1 = c1 - ownerC1;
       partnerC2 = c2 - ownerC2;
 
       myTotalItems = ownerC1 + ownerC2;
       myEarned = myBase + (ownerC1 * 1500) + (ownerC2 * 1500);
-
+      
       const partnerTotalItems = partnerC1 + partnerC2;
-
+      
       await addDoc(collection(db, 'sales'), {
         employeeId: partner.id, employeeName: partner.name,
         dateStr: currentShift.dateStr,
@@ -303,7 +303,7 @@ const EmployeeApp = () => {
 
     setIsUploading(true);
     let uploadedImageUrl = 'no-photo';
-
+    
     try {
       // 1. Конвертация HEIC в JPG (если iOS не сделал это сам)
       if (file.type === 'image/heic' || file.type === 'image/heif' || file.name.toLowerCase().endsWith('.heic')) {
@@ -353,34 +353,49 @@ const EmployeeApp = () => {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ imageUrl: uploadedImageUrl }),
       });
-
+      
       if (!aiRes.ok) {
         const errorText = await aiRes.text();
         console.error("ОШИБКА AI СЕРВЕРА:", errorText);
         throw new Error(`Сервер временно недоступен: ${errorText}`);
       }
       const aiData = await aiRes.json();
-
+      
       if (aiData.cocktail1 === undefined && aiData.cocktail2 === undefined) {
-        throw new Error('Не смог найти кальны на фото');
+         throw new Error('Не смог найти кальяны на фото');
       }
 
-      await closeShiftInDb(Number(aiData.cocktail1) || 0, Number(aiData.cocktail2) || 0, uploadedImageUrl);
-      setModal({ isOpen: true, type: 'success', title: 'Успех!', message: 'Смена закрыта. Отчет отправлен.' });
+      const c1 = Number(aiData.cocktail1) || 0;
+      const c2 = Number(aiData.cocktail2) || 0;
 
-    } catch (error) {
+      // Если ИИ вернул 0 кальянов — спрашиваем подтверждение
+      if (c1 === 0 && c2 === 0) {
+        setModal({
+          isOpen: true,
+          type: 'zeroConfirm',
+          title: 'ИИ не нашёл кальянов',
+          message: 'Система распознала 0 кальянов и 0 замен на чеке. Если это ошибка — перефоткайте чек. Если кальянов действительно не было — закройте как нулевую смену.',
+          data: { imageUrl: uploadedImageUrl }
+        });
+        return;
+      }
+
+      await closeShiftInDb(c1, c2, uploadedImageUrl);
+      setModal({ isOpen: true, type: 'success', title: 'Успех!', message: `Смена закрыта! Кальянов: ${c1}, Замен: ${c2}` });
+      
+    } catch (error) { 
       console.error("ГЛОБАЛЬНАЯ ОШИБКА ЗАГРУЗКИ ФОТО:", error);
       // Вместо браузерного Alert открываем нашу кастомную модалку
-      setModal({
-        isOpen: true,
-        type: 'zeroConfirm',
-        title: 'Возникла проблема',
+      setModal({ 
+        isOpen: true, 
+        type: 'zeroConfirm', 
+        title: 'Возникла проблема', 
         message: error.message,
         data: { imageUrl: uploadedImageUrl } // передаем ссылку на фото для нулевой смены
       });
-    } finally {
-      setIsUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
+    } finally { 
+      setIsUploading(false); 
+      if (fileInputRef.current) fileInputRef.current.value = ''; 
     }
   };
 
@@ -400,9 +415,9 @@ const EmployeeApp = () => {
   if (!employee) {
     const handlePinClick = (n) => {
       if (navigator.vibrate) navigator.vibrate(50);
-      if (pin.length < 4) { setPin(pin + n); setError(''); }
+      if(pin.length<4) {setPin(pin+n); setError('');}
     };
-
+    
     return (
       <div className="h-[100dvh] w-full bg-gradient-to-b from-neutral-50 to-primary-light/30 dark:from-dark-bg dark:to-dark-surface flex flex-col items-center justify-center p-4 transition-colors">
         <Card variant="elevated" className="w-full max-w-sm p-8 flex flex-col items-center border-0 shadow-2xl dark:bg-dark-surface">
@@ -410,44 +425,45 @@ const EmployeeApp = () => {
             <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">ERP<span className="text-primary">.</span></h1>
             <p className="text-slate-400 dark:text-slate-500 text-sm mt-2 font-medium">Введите ваш PIN-код</p>
           </div>
-
+          
           <div className="flex gap-4 mb-10">
             {[...Array(4)].map((_, i) => (
-              <div
-                key={i}
-                className={`w-4 h-4 rounded-full transition-all duration-300 ${i < pin.length
-                    ? 'bg-primary scale-110 shadow-[0_0_12px_rgba(37,99,235,0.5)]'
+              <div 
+                key={i} 
+                className={`w-4 h-4 rounded-full transition-all duration-300 ${
+                  i < pin.length 
+                    ? 'bg-primary scale-110 shadow-[0_0_12px_rgba(37,99,235,0.5)]' 
                     : 'bg-slate-200 dark:bg-slate-700'
-                  }`}
+                }`} 
               />
             ))}
           </div>
-
+          
           {error && <div className="mb-6 px-4 py-2 bg-red-50 text-error rounded-xl font-bold animate-slide-in-top text-sm">{error}</div>}
-          {isLoading && <div className="mb-6 flex items-center text-primary"><Loader2 className="animate-spin mr-2" /> Вход...</div>}
-
+          {isLoading && <div className="mb-6 flex items-center text-primary"><Loader2 className="animate-spin mr-2"/> Вход...</div>}
+          
           <div className="grid grid-cols-3 gap-4 w-full max-w-[280px]">
             {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => (
-              <button
-                key={n}
-                onClick={() => handlePinClick(n)}
+              <button 
+                key={n} 
+                onClick={() => handlePinClick(n)} 
                 className="h-16 bg-white dark:bg-slate-800 text-2xl font-bold rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 text-slate-800 dark:text-white btn-hover-effect"
               >
                 {n}
               </button>
             ))}
             <div className="h-16"></div>
-            <button
-              onClick={() => handlePinClick('0')}
+            <button 
+              onClick={() => handlePinClick('0')} 
               className="h-16 bg-white dark:bg-slate-800 text-2xl font-bold rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 text-slate-800 dark:text-white btn-hover-effect"
             >
               0
             </button>
-            <button
+            <button 
               onClick={() => {
                 if (navigator.vibrate) navigator.vibrate(30);
-                setPin(pin.slice(0, -1)); setError('');
-              }}
+                setPin(pin.slice(0,-1)); setError('');
+              }} 
               className="h-16 bg-slate-50 dark:bg-slate-800/50 text-slate-400 dark:text-slate-500 font-bold rounded-2xl border border-slate-100 dark:border-slate-700 btn-hover-effect text-sm"
             >
               DEL
@@ -460,16 +476,16 @@ const EmployeeApp = () => {
 
   return (
     <div className="h-[100dvh] w-full bg-gray-50 flex flex-col max-w-md mx-auto shadow-xl relative overflow-hidden no-select" style={{ overflow: 'hidden' }}>
-
+      
       {/* МОДАЛЬНЫЕ ОКНА */}
       {selectedHistoryShift && (
         <div className="absolute inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-white rounded-t-3xl p-6 w-full max-w-sm shadow-2xl animate-in slide-in-bottom duration-200 max-h-[90vh] overflow-y-auto pb-safe">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-black text-slate-800">Отчет за {selectedHistoryShift.dateStr}</h3>
-              <button onClick={() => setSelectedHistoryShift(null)} className="text-slate-400 hover:text-slate-600"><XCircle size={24} /></button>
+              <button onClick={() => setSelectedHistoryShift(null)} className="text-slate-400 hover:text-slate-600"><XCircle size={24}/></button>
             </div>
-
+            
             <div className="bg-slate-50 rounded-2xl p-4 text-left mb-6 border border-slate-100">
               <p className="text-xs text-gray-400 uppercase font-bold mb-1">Заработано</p>
               <p className="text-3xl font-black text-slate-800 mb-4">{formatMoney(selectedHistoryShift.earned)} ₸</p>
@@ -493,7 +509,7 @@ const EmployeeApp = () => {
                 <img src={selectedHistoryShift.photoUrl} alt="Чек" className="w-full h-32 object-cover rounded-xl border border-slate-200 cursor-pointer" onClick={() => window.open(selectedHistoryShift.photoUrl, '_blank')} />
               </div>
             )}
-
+            
             <button onClick={() => setSelectedHistoryShift(null)} className="w-full py-4 bg-gray-900 text-white rounded-2xl font-bold active:scale-95 transition-transform">Закрыть</button>
           </div>
         </div>
@@ -502,7 +518,7 @@ const EmployeeApp = () => {
       {modal.isOpen && (
         <div className="absolute inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-white rounded-t-3xl p-6 w-full max-w-sm shadow-2xl animate-in slide-in-bottom duration-200 pb-safe">
-
+            
             {modal.type === 'success' && (
               <div className="text-center">
                 <div className="w-16 h-16 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4"><CheckCircle2 size={32} /></div>
@@ -537,7 +553,7 @@ const EmployeeApp = () => {
                 </div>
               </div>
             )}
-
+            
           </div>
         </div>
       )}
@@ -554,11 +570,11 @@ const EmployeeApp = () => {
       {/* ШАПКА — не двигается */}
       <div className="bg-white p-6 pt-safe border-b flex justify-between items-center z-10 shrink-0">
         <div><p className="text-xs text-gray-400 uppercase font-bold">Сотрудник</p><h1 className="text-xl font-bold text-gray-800">{employee.name}</h1></div>
-        <button onClick={() => { setEmployee(null); localStorage.clear(); }} className="p-2 text-gray-300 hover:text-red-500"><LogOut /></button>
+        <button onClick={() => {setEmployee(null); localStorage.clear();}} className="p-2 text-gray-300 hover:text-red-500"><LogOut/></button>
       </div>
 
       <div className="flex-1 p-6 flex flex-col relative min-h-0" style={{ overflowY: 'auto', overflowX: 'hidden', WebkitOverflowScrolling: 'touch' }}>
-
+        
         {activeTab === 'shift' && (
           <div className="flex-1 flex flex-col w-full min-h-full animate-in fade-in duration-300">
             {/* СОСТОЯНИЕ: СМЕНА ЗАНЯТА ИЛИ УЖЕ ЗАКРЫТА ДРУГИМ */}
@@ -570,8 +586,8 @@ const EmployeeApp = () => {
                     {currentShift.status === 'locked' ? 'Смена уже идет' : 'Смена закрыта'}
                   </h2>
                   <p className="text-gray-500 mb-4 font-medium text-sm">
-                    {currentShift.status === 'locked'
-                      ? `Сегодня смену открыл мастер: ${currentShift.employeeName}.`
+                    {currentShift.status === 'locked' 
+                      ? `Сегодня смену открыл мастер: ${currentShift.employeeName}.` 
                       : 'Сегодня смена уже была закрыта. Больше смен открыть нельзя.'}
                   </p>
                 </div>
@@ -615,7 +631,7 @@ const EmployeeApp = () => {
                       <option value="">Один (Вся ЗП моя)</option>
                       {employeesList.filter(e => e.id !== employee.id).map(emp => <option key={emp.id} value={emp.id}>{emp.name}</option>)}
                     </select>
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400"><UserPlus size={20} /></div>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400"><UserPlus size={20}/></div>
                   </div>
                 </Card>
 
@@ -624,7 +640,7 @@ const EmployeeApp = () => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-orange-100 text-orange-500 rounded-xl flex items-center justify-center">
-                        <Flame size={20} />
+                        <Flame size={20}/>
                       </div>
                       <div>
                         <p className="font-bold text-slate-800 text-sm">Стафф кальян</p>
@@ -632,7 +648,7 @@ const EmployeeApp = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <button
+                      <button 
                         onClick={async () => {
                           const cur = currentShift.staffHookahs || 0;
                           if (cur > 0) {
@@ -641,10 +657,10 @@ const EmployeeApp = () => {
                         }}
                         className="w-9 h-9 flex items-center justify-center bg-slate-100 rounded-xl text-slate-500 active:scale-90 transition-transform"
                       >
-                        <Minus size={16} />
+                        <Minus size={16}/>
                       </button>
                       <span className="w-8 text-center font-black text-lg text-slate-800">{currentShift.staffHookahs || 0}</span>
-                      <button
+                      <button 
                         onClick={async () => {
                           const cur = currentShift.staffHookahs || 0;
                           await updateDoc(doc(db, 'sales', currentShift.id), { staffHookahs: cur + 1 });
@@ -652,7 +668,7 @@ const EmployeeApp = () => {
                         }}
                         className="w-9 h-9 flex items-center justify-center bg-orange-500 rounded-xl text-white active:scale-90 transition-transform shadow-sm"
                       >
-                        <Plus size={16} />
+                        <Plus size={16}/>
                       </button>
                     </div>
                   </div>
@@ -660,7 +676,7 @@ const EmployeeApp = () => {
 
                 <div className="mt-auto pb-4">
                   <input type="file" accept="image/jpeg, image/jpg, image/png, image/heic, image/heif" ref={fileInputRef} onChange={handleFileUpload} className="hidden" />
-                  <Button onClick={() => fileInputRef.current.click()} isLoading={isUploading} variant="dark" size="xl" className="w-full" leftIcon={<Camera />}>
+                  <Button onClick={() => fileInputRef.current.click()} isLoading={isUploading} variant="dark" size="xl" className="w-full" leftIcon={<Camera/>}>
                     ЗАКРЫТЬ СМЕНУ И ОТПРАВИТЬ ЧЕК
                   </Button>
                 </div>
@@ -675,7 +691,7 @@ const EmployeeApp = () => {
                   <div className="w-20 h-20 bg-green-50 text-success rounded-full flex items-center justify-center mx-auto mb-6"><CheckCircle2 size={40} /></div>
                   <h2 className="text-2xl font-black text-slate-800 mb-1">Смена закрыта</h2>
                   <p className="text-slate-400 mb-8 font-mono text-sm">{currentShift.dateStr}</p>
-
+                  
                   <div className="bg-slate-50 rounded-2xl p-4 text-left border border-slate-100">
                     <p className="text-xs text-slate-400 uppercase font-bold mb-1">Начислено</p>
                     <p className="text-3xl font-black text-slate-800 mb-4">{formatMoney(currentShift.earned)} ₸</p>
@@ -688,7 +704,7 @@ const EmployeeApp = () => {
                     <div className="border-t border-slate-200 pt-3 flex flex-col gap-1">
                       <p className="text-sm text-slate-500 font-medium">Позиций учтено: <span className="font-bold text-slate-800">{currentShift.totalItems} шт</span></p>
                       {(currentShift.staffHookahs > 0) && (
-                        <p className="text-sm text-orange-500 font-medium flex items-center gap-1"><Flame size={14} /> Стафф: <span className="font-bold">{currentShift.staffHookahs} шт</span></p>
+                        <p className="text-sm text-orange-500 font-medium flex items-center gap-1"><Flame size={14}/> Стафф: <span className="font-bold">{currentShift.staffHookahs} шт</span></p>
                       )}
                     </div>
                   </div>
@@ -704,7 +720,7 @@ const EmployeeApp = () => {
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-black text-slate-800">Моя ЗП</h2>
               <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
-                <CalendarDays className="text-slate-400 ml-3" size={18} />
+                <CalendarDays className="text-slate-400 ml-3" size={18}/>
                 <select value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} className="py-2 pr-4 bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer">
                   <option value="all">Все время</option>
                   {availableMonths.map(m => <option key={m} value={m}>{m}</option>)}
@@ -722,7 +738,7 @@ const EmployeeApp = () => {
                   <p className="text-sm text-slate-400 font-medium">{myStats.shiftsCount} смен отработано</p>
                 </div>
               </div>
-
+              
               <div className="bg-slate-50 p-5 rounded-2xl mb-6 flex-1 flex flex-col justify-center border border-slate-100">
                 <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mb-1">Заработано</p>
                 <h4 className="text-4xl font-black text-primary">{formatMoney(myStats.totalEarned)} ₸</h4>
@@ -731,7 +747,7 @@ const EmployeeApp = () => {
                   <div className="flex justify-between"><span className="text-slate-500 font-medium">% с кальянов:</span> <strong className="text-slate-800">{formatMoney(myStats.hookahPercentageTotal)} ₸</strong></div>
                 </div>
               </div>
-
+              
               <div className="grid grid-cols-2 gap-4 text-center">
                 <div className="bg-white border border-slate-100 p-3 rounded-2xl shadow-sm card-hover-effect">
                   <p className="text-xs text-slate-400 uppercase font-bold mb-1">Кальянов</p>
@@ -772,18 +788,18 @@ const EmployeeApp = () => {
       {/* ПАНЕЛЬ НАВИГАЦИИ — фиксированная */}
       {/* ПАНЕЛЬ НАВИГАЦИИ — не двигается */}
       <div className="bg-white border-t border-gray-100 flex z-10 shrink-0 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.03)]">
-        <button
+        <button 
           onClick={() => setActiveTab('shift')}
           className={`flex-1 py-4 flex flex-col items-center gap-1 font-bold text-xs transition-colors ${activeTab === 'shift' ? 'text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
         >
-          <Clock size={24} />
+          <Clock size={24}/>
           Смена
         </button>
-        <button
+        <button 
           onClick={() => setActiveTab('stats')}
           className={`flex-1 py-4 flex flex-col items-center gap-1 font-bold text-xs transition-colors ${activeTab === 'stats' ? 'text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
         >
-          <Banknote size={24} />
+          <Banknote size={24}/>
           Моя ЗП
         </button>
       </div>
