@@ -46,7 +46,7 @@ const EmployeeApp = () => {
 
   useEffect(() => {
     const unsubEmp = onSnapshot(collection(db, 'employees'), (snap) => {
-      setEmployeesList(snap.docs.map(doc => ({ id: doc.id, name: doc.data().name })));
+      setEmployeesList(snap.docs.map(doc => ({ id: doc.id, name: doc.data().name, isArchived: doc.data().isArchived || false })));
     });
     return () => unsubEmp();
   }, []);
@@ -168,6 +168,11 @@ const EmployeeApp = () => {
       const snap = await getDocs(q);
       if (!snap.empty) {
         const empData = { id: snap.docs[0].id, ...snap.docs[0].data() };
+        if (empData.isArchived) {
+          setError('Аккаунт деактивирован');
+          setPin('');
+          return;
+        }
         setEmployee(empData);
         localStorage.setItem('currentEmployee', JSON.stringify(empData));
         setPin(''); // Очищаем пин после успешного входа
@@ -646,7 +651,7 @@ const EmployeeApp = () => {
                   <div className="relative">
                     <select value={partnerId} onChange={(e) => setPartnerId(e.target.value)} className="w-full bg-slate-50 border border-transparent p-4 rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-primary text-slate-800 font-bold transition-all">
                       <option value="">Один (Вся ЗП моя)</option>
-                      {employeesList.filter(e => e.id !== employee.id).map(emp => <option key={emp.id} value={emp.id}>{emp.name}</option>)}
+                      {employeesList.filter(e => e.id !== employee.id && !e.isArchived).map(emp => <option key={emp.id} value={emp.id}>{emp.name}</option>)}
                     </select>
                     <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400"><UserPlus size={20}/></div>
                   </div>
