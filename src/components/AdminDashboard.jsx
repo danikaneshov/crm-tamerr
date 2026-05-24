@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { LogOut, Users, LayoutDashboard, Key, Trash2, Image, Settings, Menu, X, Percent, Wallet, Database, AlertTriangle, Clock, Banknote, CalendarDays, Calendar as CalendarIcon, Package, ArrowDownToLine, ArrowUpFromLine, Calculator, Ruler, ShoppingCart, CheckCircle2, Plus } from 'lucide-react';
+import { LogOut, Users, LayoutDashboard, Key, Trash2, Image, Settings, Menu, X, Percent, Wallet, Database, AlertTriangle, Clock, Banknote, CalendarDays, Calendar as CalendarIcon, Package, ArrowDownToLine, ArrowUpFromLine, Calculator, Ruler, ShoppingCart, CheckCircle2, Plus, Flame } from 'lucide-react';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { signOut } from 'firebase/auth';
 import { collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, serverTimestamp, setDoc, getDocs, where, limit } from 'firebase/firestore';
@@ -123,12 +123,14 @@ const AdminDashboard = () => {
           records: [],
           totalItems: 0,
           totalEarned: 0,
+          totalStaffHookahs: 0,
           status: 'closed'
         };
       }
       groups[date].records.push(shift);
       groups[date].totalItems += (shift.totalItems || 0);
       groups[date].totalEarned += (shift.earned || 0);
+      groups[date].totalStaffHookahs += (shift.staffHookahs || 0);
       if (shift.status === 'open') {
         groups[date].status = 'open';
       }
@@ -406,6 +408,7 @@ const AdminDashboard = () => {
   const globalHookahs = closedSystemShifts.reduce((a,b) => a + (b.items?.cocktail1 || 0), 0);
   const globalReplacements = closedSystemShifts.reduce((a,b) => a + (b.items?.cocktail2 || 0), 0);
   const globalOwnerProfit = (globalHookahs * ownerProfits.hookah) + (globalReplacements * ownerProfits.replacement);
+  const globalStaffHookahs = closedSystemShifts.reduce((a,b) => a + (b.staffHookahs || 0), 0);
   
   const replacementRate = globalHookahs > 0 ? ((globalReplacements / globalHookahs) * 100).toFixed(1) : 0;
 
@@ -496,6 +499,12 @@ const AdminDashboard = () => {
                 <p className="font-bold text-xs uppercase tracking-widest mb-2 opacity-80">Процент замен</p>
                 <h3 className="text-3xl font-black text-white">{replacementRate}%</h3>
                 <p className="text-xs opacity-70 mt-1 text-white">От общего числа кальянов</p>
+              </Card>
+              <Card variant="elevated" className="p-6 card-hover-effect relative overflow-hidden">
+                <Flame className="absolute right-4 top-4 text-orange-200" size={50}/>
+                <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">Стафф кальяны</p>
+                <h3 className="text-2xl font-black text-orange-500">{globalStaffHookahs} шт</h3>
+                <p className="text-xs text-slate-400 mt-1">Не входят в продажи</p>
               </Card>
             </div>
 
@@ -715,6 +724,9 @@ const AdminDashboard = () => {
                                 }`}>
                                   {shiftGroup.status === 'open' ? '● LIVE' : `${formatMoney(shiftGroup.totalEarned)} ₸`}
                                 </div>
+                                {shiftGroup.totalStaffHookahs > 0 && (
+                                  <div className="text-[7px] lg:text-[9px] text-orange-400 font-bold text-right">🔥 {shiftGroup.totalStaffHookahs}</div>
+                                )}
                               </div>
                             )}
                           </div>
@@ -758,6 +770,7 @@ const AdminDashboard = () => {
                       <div className="space-y-3">
                         <p className="text-sm text-slate-600 font-medium border-b border-slate-50 pb-3">Мастера: <span className="font-bold text-slate-800">{group.records.map(r => r.employeeName).join(', ')}</span></p>
                         <div className="flex justify-between items-center text-sm pt-1"><span className="text-slate-400">Кальяны/Замены:</span><span className="font-bold text-slate-700">{group.totalItems} шт</span></div>
+                        {group.totalStaffHookahs > 0 && <div className="flex justify-between items-center text-sm"><span className="text-slate-400 flex items-center gap-1">🔥 Стафф:</span><span className="font-bold text-orange-500">{group.totalStaffHookahs} шт</span></div>}
                         <div className="flex justify-between items-center text-sm"><span className="text-slate-400">Общая ЗП за смену:</span><span className="font-bold text-primary">{formatMoney(group.totalEarned)} ₸</span></div>
                       </div>
                     </Card>

@@ -305,17 +305,34 @@ const EmployeeApp = () => {
     let uploadedImageUrl = 'no-photo';
     
     try {
-      // 1. Конвертация HEIC в JPG (если iOS не сделал это сам)
-      if (file.type === 'image/heic' || file.type === 'image/heif' || file.name.toLowerCase().endsWith('.heic')) {
+      // 1. Конвертация HEIC/HEIF в JPG (если iOS не сделал это сам)
+      const isHeic = file.type === 'image/heic' || file.type === 'image/heif' ||
+                     file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif');
+      if (isHeic) {
+        const safeName = file.name.replace(/\.(heic|heif)$/i, '.jpg');
         try {
-          let convertedBlob = await heic2any({ blob: file, toType: 'image/jpeg' });
+          let convertedBlob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.85 });
           if (Array.isArray(convertedBlob)) {
             convertedBlob = convertedBlob[0];
           }
-          file = new File([convertedBlob], file.name.replace(/\.heic$/i, '.jpg'), { type: 'image/jpeg' });
+          file = new File([convertedBlob], safeName, { type: 'image/jpeg' });
         } catch (heicError) {
-          console.error("Ошибка heic2any:", heicError);
-          throw new Error('Ваш телефон передал фото в формате HEIC, и его не удалось переконвертировать. Пожалуйста, сделайте СКРИНШОТ этого фото в галерее и загрузите скриншот.', { cause: heicError });
+          console.error("heic2any не сработал, пробуем canvas fallback:", heicError);
+          // Фоллбэк: createImageBitmap + canvas (работает на современных iOS 16+ / Android)
+          try {
+            const bitmap = await createImageBitmap(file);
+            const canvas = document.createElement('canvas');
+            canvas.width = bitmap.width;
+            canvas.height = bitmap.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(bitmap, 0, 0);
+            const jpegBlob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.85));
+            file = new File([jpegBlob], safeName, { type: 'image/jpeg' });
+            bitmap.close();
+          } catch (canvasError) {
+            console.error("Canvas fallback тоже не сработал:", canvasError);
+            throw new Error('Не удалось конвертировать HEIC-фото. Сделайте скриншот чека в галерее и загрузите его.', { cause: heicError });
+          }
         }
       }
 
