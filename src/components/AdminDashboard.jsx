@@ -430,10 +430,11 @@ const AdminDashboard = () => {
     closedSystemShifts.forEach(s => {
       if (s.dateStr) {
         const shortDate = s.dateStr.split('.').slice(0, 2).join('.');
-        if (!map[shortDate]) map[shortDate] = { name: shortDate, revenue: 0, hookahs: 0, replacements: 0 };
+        if (!map[shortDate]) map[shortDate] = { name: shortDate, revenue: 0, hookahs: 0, replacements: 0, totalSales: 0 };
         map[shortDate].revenue += s.earned;
         map[shortDate].hookahs += (s.items?.cocktail1 || 0);
         map[shortDate].replacements += (s.items?.cocktail2 || 0);
+        map[shortDate].totalSales += (s.items?.cocktail1 || 0) + (s.items?.cocktail2 || 0);
       }
     });
     return Object.values(map).reverse();
@@ -551,6 +552,41 @@ const AdminDashboard = () => {
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
+              </div>
+            </div>
+
+            {/* График количества продаж */}
+            <div className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm">
+              <div className="flex justify-between items-center mb-8">
+                <div>
+                  <h2 className="text-lg font-black text-slate-900">Количество продаж</h2>
+                  <p className="text-xs text-slate-400 mt-1">Кальяны + замены по дням</p>
+                </div>
+                <div className="flex items-center gap-2 bg-emerald-50 px-4 py-2 rounded-2xl">
+                  <ShoppingCart size={16} className="text-emerald-500" />
+                  <span className="text-sm font-black text-emerald-600">{globalHookahs + globalReplacements} всего</span>
+                </div>
+              </div>
+              <div className="h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={chartData}>
+                    <defs>
+                      <linearGradient id="salesCountGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#10B981" stopOpacity={0.25}/>
+                        <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#CBD5E1', fontSize: 12}} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} tick={{fill: '#CBD5E1', fontSize: 12}} dx={-5} allowDecimals={false} />
+                    <Tooltip
+                      contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)', padding: '12px 16px'}}
+                      formatter={(value) => [`${value} шт`, 'Продажи']}
+                      labelFormatter={(label) => `Дата: ${label}`}
+                    />
+                    <Area type="monotone" dataKey="totalSales" name="Продажи" stroke="#10B981" strokeWidth={3} fill="url(#salesCountGradient)" dot={{r: 4, fill: '#10B981', strokeWidth: 2, stroke: '#fff'}} activeDot={{r: 6, fill: '#059669', strokeWidth: 2, stroke: '#fff'}} />
+                  </AreaChart>
+                </ResponsiveContainer>
               </div>
             </div>
           </div>
