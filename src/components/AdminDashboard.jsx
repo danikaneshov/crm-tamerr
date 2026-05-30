@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { LogOut, Users, LayoutDashboard, Key, Trash2, Image, Settings, Menu, X, Percent, Wallet, Database, AlertTriangle, Clock, Banknote, CalendarDays, Calendar as CalendarIcon, Package, ArrowDownToLine, ArrowUpFromLine, Calculator, Ruler, ShoppingCart, CheckCircle2, Plus, Flame } from 'lucide-react';
+import { LogOut, Users, LayoutDashboard, Key, Trash2, Image, Settings, Menu, X, Percent, Wallet, Database, AlertTriangle, Clock, Banknote, CalendarDays, Calendar as CalendarIcon, Package, ArrowDownToLine, ArrowUpFromLine, Calculator, Ruler, ShoppingCart, CheckCircle2, Plus, Flame, Edit3, Save, RotateCcw } from 'lucide-react';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { signOut } from 'firebase/auth';
 import { collection, addDoc, onSnapshot, query, orderBy, deleteDoc, updateDoc, doc, serverTimestamp, setDoc, getDocs, where, limit } from 'firebase/firestore';
@@ -33,6 +33,11 @@ const AdminDashboard = () => {
   const [isSavingSettings, setIsSavingSettings] = useState(false);
   const [debugShiftPhoto, setDebugShiftPhoto] = useState(null);
   const [isUploadingPastShift, setIsUploadingPastShift] = useState(false);
+
+  // Редактирование смены
+  const [editingShift, setEditingShift] = useState(false);
+  const [editForm, setEditForm] = useState({ hookahs: 0, replacements: 0, partnerId: '', removePartner: false });
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
 
   // Склад
   const [invMovements, setInvMovements] = useState([]);
@@ -444,7 +449,131 @@ const AdminDashboard = () => {
     setActiveTab(tabName);
     setSubTab(defaultSubTab);
     setSelectedEmpReport(null);
+    setEditingShift(false);
     setIsMobileMenuOpen(false);
+  };
+
+  const startEditingShift = (shiftGroup) => {
+    // Берём общее количество кальянов/замен за всю смену (суммарно по всем записям)
+    const totalHookahs = shiftGroup.records.reduce((sum, r) => sum + (r.items?.cocktail1 || 0), 0);
+    const totalReplacements = shiftGroup.records.reduce((sum, r) => sum + (r.items?.cocktail2 || 0), 0);
+    // Находим напарника (запись без startTime — это напарник)
+    const partnerRecord = shiftGroup.records.find(r => !r.startTime);
+    setEditForm({
+      hookahs: totalHookahs,
+      replacements: totalReplacements,
+      partnerId: partnerRecord ? partnerRecord.employeeId : '',
+      removePartner: false
+    });
+    setEditingShift(true);
+  };
+
+  const handleSaveShiftEdit = async () => {
+    if (!selectedEmpReport) return;
+    setIsSavingEdit(true);
+    try {
+      const records = selectedEmpReport.records;
+      // Основная запись — та, у которой есть startTime (кто открыл смену)
+      const ownerRecord = records.find(r => r.startTime) || records[0];
+      const partnerRecord = records.find(r => !r.startTime && r.id !== ownerRecord.id);
+
+      const c1 = Number(editForm.hookahs) || 0;
+      const c2 = Number(editForm.replacements) || 0;
+      const ownerEmp = employees.find(e => e.id === ownerRecord.employeeId);
+      const ownerBase = ownerEmp?.name?.trim().toLowerCase() === 'tamerlan' ? 1500 : 3000;
+
+      // Определяем нового напарника
+      const newPartnerId = editForm.partnerId;
+      const hadPartner = !!partnerRecord;
+      const hasNewPartner = !!newPartnerId;
+
+      if (hasNewPartner) {
+        // С напарником: делим позиции
+        const partner = employees.find(e => e.id === newPartnerId);
+        if (!partner) throw new Error('Напарник не найден');
+        const partnerBase = 1500;
+
+        const ownerC1 = Math.ceil(c1 / 2);
+        const targetOwnerTotal = Math.ceil((c1 + c2) / 2);
+        const ownerC2 = targetOwnerTotal - ownerC1;
+        const partnerC1 = c1 - ownerC1;
+        const partnerC2 = c2 - ownerC2;
+
+        const ownerTotalItems = ownerC1 + ownerC2;
+        const ownerEarned = ownerBase + (ownerC1 * 1500) + (ownerC2 * 1500);
+        const partnerTotalItems = partnerC1 + partnerC2;
+        const partnerEarned = partnerBase + (partnerC1 * 1500) + (partnerC2 * 1500);
+
+        // Обновляем запись владельца
+        await updateDoc(doc(db, 'sales', ownerRecord.id), {
+          items: { cocktail1: ownerC1, cocktail2: ownerC2 },
+          totalItems: ownerTotalItems,
+          earned: ownerEarned,
+          baseSalary: ownerBase,
+          hookahPercentage: (ownerC1 * 1500) + (ownerC2 * 1500),
+          shiftFraction: 1,
+          partnerId: newPartnerId
+        });
+
+        if (hadPartner && partnerRecord.employeeId === newPartnerId) {
+          // Тот же напарник — обновляем
+          await updateDoc(doc(db, 'sales', partnerRecord.id), {
+            items: { cocktail1: partnerC1, cocktail2: partnerC2 },
+            totalItems: partnerTotalItems,
+            earned: partnerEarned,
+            baseSalary: partnerBase,
+            hookahPercentage: (partnerC1 * 1500) + (partnerC2 * 1500),
+            shiftFraction: 0.5
+          });
+        } else {
+          // Другой напарник или новый — удаляем старого, создаём нового
+          if (hadPartner) {
+            await deleteDoc(doc(db, 'sales', partnerRecord.id));
+          }
+          await addDoc(collection(db, 'sales'), {
+            employeeId: partner.id,
+            employeeName: partner.name,
+            dateStr: ownerRecord.dateStr,
+            endTime: serverTimestamp(),
+            photoUrl: ownerRecord.photoUrl || 'no-photo',
+            items: { cocktail1: partnerC1, cocktail2: partnerC2 },
+            totalItems: partnerTotalItems,
+            earned: partnerEarned,
+            baseSalary: partnerBase,
+            hookahPercentage: (partnerC1 * 1500) + (partnerC2 * 1500),
+            shiftFraction: 0.5,
+            status: 'closed'
+          });
+        }
+      } else {
+        // Без напарника: все позиции владельцу
+        const myTotalItems = c1 + c2;
+        const myEarned = ownerBase + (c1 * 1500) + (c2 * 1500);
+
+        await updateDoc(doc(db, 'sales', ownerRecord.id), {
+          items: { cocktail1: c1, cocktail2: c2 },
+          totalItems: myTotalItems,
+          earned: myEarned,
+          baseSalary: ownerBase,
+          hookahPercentage: (c1 * 1500) + (c2 * 1500),
+          shiftFraction: 1,
+          partnerId: ''
+        });
+
+        // Удаляем запись напарника если был
+        if (hadPartner) {
+          await deleteDoc(doc(db, 'sales', partnerRecord.id));
+        }
+      }
+
+      setEditingShift(false);
+      setSelectedEmpReport(null);
+      alert('Смена успешно обновлена!');
+    } catch (err) {
+      alert('Ошибка сохранения: ' + err.message);
+    } finally {
+      setIsSavingEdit(false);
+    }
   };
 
   return (
@@ -1437,16 +1566,107 @@ const AdminDashboard = () => {
       </div>
       {/* Глобальное модальное окно деталей смены */}
       {selectedEmpReport && selectedEmpReport.records && (
-        <div className="fixed inset-0 bg-slate-900/50 z-50 flex items-end lg:items-center justify-center p-0 lg:p-4" onClick={(e) => { if (e.target === e.currentTarget) setSelectedEmpReport(null); }}>
+        <div className="fixed inset-0 bg-slate-900/50 z-50 flex items-end lg:items-center justify-center p-0 lg:p-4" onClick={(e) => { if (e.target === e.currentTarget) { setSelectedEmpReport(null); setEditingShift(false); } }}>
           <div className="bg-white w-full lg:max-w-lg rounded-t-[32px] lg:rounded-[32px] p-6 lg:p-8 shadow-2xl animate-in slide-in-bottom lg:zoom-in-95 duration-200 max-h-[85vh] overflow-y-auto relative pb-safe">
             <div className="flex justify-between items-center mb-8">
               <div>
                 <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mb-1">Детали смены</p>
                 <h2 className="text-2xl font-black text-slate-800">{selectedEmpReport.dateStr}</h2>
               </div>
-              <button onClick={() => setSelectedEmpReport(null)} className="p-3 bg-slate-100 text-slate-500 rounded-full hover:bg-slate-200 transition-colors"><X size={20}/></button>
+              <div className="flex items-center gap-2">
+                {selectedEmpReport.status === 'closed' && !editingShift && (
+                  <button onClick={() => startEditingShift(selectedEmpReport)} className="p-3 bg-blue-50 text-blue-500 rounded-full hover:bg-blue-100 transition-colors" title="Редактировать">
+                    <Edit3 size={18}/>
+                  </button>
+                )}
+                <button onClick={() => { setSelectedEmpReport(null); setEditingShift(false); }} className="p-3 bg-slate-100 text-slate-500 rounded-full hover:bg-slate-200 transition-colors"><X size={20}/></button>
+              </div>
             </div>
             
+            {/* === РЕЖИМ РЕДАКТИРОВАНИЯ === */}
+            {editingShift ? (
+              <div className="space-y-6 animate-in fade-in duration-200">
+                <div className="bg-amber-50 border border-amber-200 p-4 rounded-2xl flex items-center gap-3">
+                  <Edit3 size={18} className="text-amber-500 shrink-0" />
+                  <p className="text-sm font-bold text-amber-700">Режим редактирования. Изменения пересчитают ЗП.</p>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-400 uppercase mb-2 ml-1">Общее кол-во кальянов</label>
+                    <input type="number" min="0" value={editForm.hookahs} onChange={e => setEditForm({...editForm, hookahs: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800 focus:ring-2 focus:ring-blue-500" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-400 uppercase mb-2 ml-1">Общее кол-во замен</label>
+                    <input type="number" min="0" value={editForm.replacements} onChange={e => setEditForm({...editForm, replacements: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800 focus:ring-2 focus:ring-blue-500" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-400 uppercase mb-2 ml-1">Напарник</label>
+                    <select 
+                      value={editForm.partnerId} 
+                      onChange={e => setEditForm({...editForm, partnerId: e.target.value})}
+                      className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800 focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Без напарника (вся ЗП мастеру)</option>
+                      {employees.filter(e => !e.isArchived && e.id !== (selectedEmpReport.records.find(r => r.startTime) || selectedEmpReport.records[0])?.employeeId).map(emp => (
+                        <option key={emp.id} value={emp.id}>{emp.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Превью пересчёта */}
+                {(() => {
+                  const c1 = Number(editForm.hookahs) || 0;
+                  const c2 = Number(editForm.replacements) || 0;
+                  const ownerRecord = selectedEmpReport.records.find(r => r.startTime) || selectedEmpReport.records[0];
+                  const ownerEmp = employees.find(e => e.id === ownerRecord.employeeId);
+                  const ownerBase = ownerEmp?.name?.trim().toLowerCase() === 'tamerlan' ? 1500 : 3000;
+
+                  if (editForm.partnerId) {
+                    const partner = employees.find(e => e.id === editForm.partnerId);
+                    const ownerC1 = Math.ceil(c1 / 2);
+                    const targetOwnerTotal = Math.ceil((c1 + c2) / 2);
+                    const ownerC2 = targetOwnerTotal - ownerC1;
+                    const partnerC1 = c1 - ownerC1;
+                    const partnerC2 = c2 - ownerC2;
+                    const ownerEarned = ownerBase + (ownerC1 * 1500) + (ownerC2 * 1500);
+                    const partnerEarned = 1500 + (partnerC1 * 1500) + (partnerC2 * 1500);
+                    return (
+                      <div className="bg-blue-50 border border-blue-100 p-4 rounded-2xl space-y-2">
+                        <h4 className="text-xs font-bold text-blue-400 uppercase tracking-widest">Превью пересчёта</h4>
+                        <div className="flex justify-between text-sm"><span className="text-slate-600 font-medium">{ownerEmp?.name} ({ownerC1}к + {ownerC2}з):</span><strong className="text-blue-600">{formatMoney(ownerEarned)} ₸</strong></div>
+                        <div className="flex justify-between text-sm"><span className="text-slate-600 font-medium">{partner?.name} ({partnerC1}к + {partnerC2}з):</span><strong className="text-blue-600">{formatMoney(partnerEarned)} ₸</strong></div>
+                      </div>
+                    );
+                  } else {
+                    const myEarned = ownerBase + (c1 * 1500) + (c2 * 1500);
+                    return (
+                      <div className="bg-blue-50 border border-blue-100 p-4 rounded-2xl space-y-2">
+                        <h4 className="text-xs font-bold text-blue-400 uppercase tracking-widest">Превью пересчёта</h4>
+                        <div className="flex justify-between text-sm"><span className="text-slate-600 font-medium">{ownerEmp?.name} ({c1}к + {c2}з):</span><strong className="text-blue-600">{formatMoney(myEarned)} ₸</strong></div>
+                      </div>
+                    );
+                  }
+                })()}
+
+                <div className="flex gap-3 pt-2">
+                  <button 
+                    onClick={() => setEditingShift(false)} 
+                    className="flex-1 p-4 bg-slate-100 text-slate-600 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-slate-200 transition-colors"
+                  >
+                    <RotateCcw size={18}/> Отмена
+                  </button>
+                  <button 
+                    onClick={handleSaveShiftEdit} 
+                    disabled={isSavingEdit}
+                    className="flex-1 p-4 bg-blue-600 text-white rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-blue-100 hover:bg-blue-700 transition-colors disabled:opacity-50"
+                  >
+                    <Save size={18}/> {isSavingEdit ? 'Сохранение...' : 'Сохранить'}
+                  </button>
+                </div>
+              </div>
+            ) : (
             <div className="space-y-6">
               {/* Общая статистика за день */}
               <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-5 rounded-2xl border border-blue-100">
@@ -1531,6 +1751,7 @@ const AdminDashboard = () => {
               </div>
 
             </div>
+            )}
           </div>
         </div>
       )}
