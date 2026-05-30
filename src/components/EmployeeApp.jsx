@@ -84,6 +84,7 @@ const EmployeeApp = () => {
       if (openShift) {
         if (openShift.employeeId === employee.id) {
           setCurrentShift(openShift);
+          setPartnerId(openShift.partnerId || '');
         } else {
           setCurrentShift({ status: 'locked', employeeName: openShift.employeeName });
         }
@@ -649,7 +650,15 @@ const EmployeeApp = () => {
                 <Card className="p-4 mb-6 shadow-sm">
                   <label className="block text-xs font-bold text-slate-400 uppercase mb-3 ml-1">С кем работал?</label>
                   <div className="relative">
-                    <select value={partnerId} onChange={(e) => setPartnerId(e.target.value)} className="w-full bg-slate-50 border border-transparent p-4 rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-primary text-slate-800 font-bold transition-all">
+                    <select value={partnerId} onChange={async (e) => {
+                      const newPartnerId = e.target.value;
+                      setPartnerId(newPartnerId);
+                      try {
+                        await updateDoc(doc(db, 'sales', currentShift.id), { partnerId: newPartnerId });
+                      } catch (err) {
+                        console.error('Не удалось сохранить напарника:', err);
+                      }
+                    }} className="w-full bg-slate-50 border border-transparent p-4 rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-primary text-slate-800 font-bold transition-all">
                       <option value="">Один (Вся ЗП моя)</option>
                       {employeesList.filter(e => e.id !== employee.id && !e.isArchived).map(emp => <option key={emp.id} value={emp.id}>{emp.name}</option>)}
                     </select>
