@@ -56,6 +56,7 @@ const EmployeeApp = () => {
 
     // Сброс состояния синхронизации при смене сотрудника
     setIsSyncing(true);
+    setError('');
     dbReadyRef.current = false;
     timerReadyRef.current = false;
     setCurrentShift(undefined);
@@ -65,6 +66,16 @@ const EmployeeApp = () => {
       timerReadyRef.current = true;
       if (dbReadyRef.current) setIsSyncing(false);
     }, 1700);
+
+    // Аварийный таймер — если за 10 секунд БД не ответила, снимаем баннер и показываем ошибку
+    const safetyTimer = setTimeout(() => {
+      if (!dbReadyRef.current) {
+        console.error('Firestore sync timeout after 10s');
+        setIsSyncing(false);
+        setCurrentShift(null);
+        setError('Не удалось подключиться к базе данных. Проверьте интернет и перезагрузите страницу.');
+      }
+    }, 10000);
     
     const d = new Date();
     if (d.getHours() < 6) d.setDate(d.getDate() - 1);
@@ -103,15 +114,30 @@ const EmployeeApp = () => {
       if (firstSnapshot) {
         firstSnapshot = false;
         dbReadyRef.current = true;
+        clearTimeout(safetyTimer); // БД ответила — отменяем аварийный таймер
         if (timerReadyRef.current) setIsSyncing(false);
       }
+    }, (err) => {
+      // onSnapshot error handler — Firestore не смог подписаться
+      console.error('Firestore onSnapshot error (sales):', err);
+      dbReadyRef.current = true;
+      clearTimeout(safetyTimer);
+      setIsSyncing(false);
+      setCurrentShift(null);
+      setError('Ошибка подключения к БД. Перезагрузите страницу.');
     });
 
-    const unsubMyShifts = onSnapshot(query(collection(db, 'sales'), where('employeeId', '==', employee.id)), (snap) => {
-      setMyShifts(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-    });
+    const unsubMyShifts = onSnapshot(
+      query(collection(db, 'sales'), where('employeeId', '==', employee.id)),
+      (snap) => {
+        setMyShifts(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      },
+      (err) => {
+        console.error('Firestore onSnapshot error (myShifts):', err);
+      }
+    );
 
-    return () => { clearTimeout(syncTimer); unsubSales(); unsubMyShifts(); };
+    return () => { clearTimeout(syncTimer); clearTimeout(safetyTimer); unsubSales(); unsubMyShifts(); };
   }, [employee]);
 
   const availableMonths = (() => {
@@ -181,8 +207,14 @@ const EmployeeApp = () => {
         setError('Неверный PIN'); 
         setPin(''); // Сбрасываем пин при неверном вводе
       }
-    } catch { 
-      setError('Ошибка БД'); 
+    } catch (err) { 
+      console.error('Login error:', err);
+      const msg = err?.code === 'unavailable' || err?.message?.includes('offline')
+        ? 'Нет подключения к интернету'
+        : err?.code === 'permission-denied'
+        ? 'Нет доступа к базе данных'
+        : 'Ошибка БД. Перезагрузите страницу';
+      setError(msg); 
       setPin('');
     } finally { 
       setIsLoading(false); 

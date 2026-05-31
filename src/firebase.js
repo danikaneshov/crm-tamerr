@@ -1,7 +1,7 @@
 // src/firebase.js
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from "firebase/firestore";
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, memoryLocalCache } from "firebase/firestore";
 
 // Твой конфиг из Firebase Console
 const firebaseConfig = {
@@ -18,8 +18,17 @@ const app = initializeApp(firebaseConfig);
 
 // Экспортируем нужные сервисы, чтобы использовать их в других файлах
 export const auth = getAuth(app);
-export const db = initializeFirestore(app, {
-  localCache: persistentLocalCache({
-    tabManager: persistentMultipleTabManager()
-  })
-});
+let db;
+try {
+  db = initializeFirestore(app, {
+    localCache: persistentLocalCache({
+      tabManager: persistentMultipleTabManager()
+    })
+  });
+} catch (e) {
+  console.warn('Persistent cache failed, falling back to memory cache:', e);
+  db = initializeFirestore(app, {
+    localCache: memoryLocalCache()
+  });
+}
+export { db };
