@@ -47,6 +47,8 @@ const EmployeeApp = () => {
   useEffect(() => {
     const unsubEmp = onSnapshot(collection(db, 'employees'), (snap) => {
       setEmployeesList(snap.docs.map(doc => ({ id: doc.id, name: doc.data().name, isArchived: doc.data().isArchived || false })));
+    }, (err) => {
+      console.error('Firestore employees listener error:', err);
     });
     return () => unsubEmp();
   }, []);
@@ -650,6 +652,17 @@ const EmployeeApp = () => {
             )}
 
             {/* СОСТОЯНИЕ 0: Загрузка — обрабатывается баннером поверх */}
+
+            {/* ОШИБКА ПОДКЛЮЧЕНИЯ К БД */}
+            {error && !isSyncing && currentShift === null && (
+              <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3 animate-in fade-in duration-300">
+                <AlertCircle className="text-red-500 shrink-0 mt-0.5" size={20}/>
+                <div>
+                  <p className="text-red-700 font-bold text-sm">{error}</p>
+                  <button onClick={() => window.location.reload()} className="text-red-500 underline text-xs mt-1 font-medium">Перезагрузить</button>
+                </div>
+              </div>
+            )}
 
             {/* СОСТОЯНИЕ 1: СМЕНА НЕ ОТКРЫТА */}
             {currentShift === null && (
