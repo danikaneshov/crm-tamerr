@@ -609,7 +609,16 @@ const AdminDashboard = () => {
         {/* ВКЛАДКА 1: ДАШБОРД */}
         {activeTab === 'dashboard' && (
           <div className="space-y-10 animate-in fade-in duration-300">
-            <h1 className="text-2xl font-bold text-slate-800">Общая статистика</h1>
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <h1 className="text-2xl font-bold text-slate-800">Общая статистика</h1>
+              <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
+                <CalendarDays className="text-slate-400 ml-3" size={18}/>
+                <select value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} className="py-2 pr-4 bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer">
+                  <option value="all">Все время</option>
+                  {availableMonths.map(m => <option key={m} value={m}>{m}</option>)}
+                </select>
+              </div>
+            </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card variant="elevated" className="p-6 card-hover-effect">
