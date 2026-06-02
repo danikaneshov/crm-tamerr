@@ -172,21 +172,9 @@ const AdminDashboard = () => {
       setEmployees(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     });
 
-    // Для ускорения загрузки: в "all" берем ограниченный срез,
-    // а в выбранном месяце читаем только диапазон дат этого месяца.
-    let salesQuery;
-    if (selectedMonth === 'all') {
-      salesQuery = query(collection(db, 'sales'), orderBy('dateStr', 'desc'), limit(500));
-    } else {
-      const monthRange = getMonthDateRange(selectedMonth);
-      salesQuery = query(
-        collection(db, 'sales'),
-        where('dateStr', '>=', monthRange.start),
-        where('dateStr', '<=', monthRange.end),
-        orderBy('dateStr', 'desc'),
-        limit(500)
-      );
-    }
+    // Загружаем все продажи, фильтрация по месяцу — на клиенте (через endsWith),
+    // т.к. формат DD.MM.YYYY некорректно работает с Firestore where() сравнением строк.
+    const salesQuery = query(collection(db, 'sales'), orderBy('dateStr', 'desc'), limit(1000));
 
     const unsubSales = onSnapshot(salesQuery, (snap) => {
       const shifts = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -204,7 +192,7 @@ const AdminDashboard = () => {
     });
 
     return () => { unsubEmp(); unsubSales(); unsubSettings(); };
-  }, [selectedMonth, getMonthDateRange]);
+  }, []);
 
   useEffect(() => {
     const shouldSubscribeInventory =
@@ -407,8 +395,8 @@ const AdminDashboard = () => {
     };
   }, [allShifts, selectedMonth, ownerProfits, invMovements]);
 
-  // Старые переменные для совместимости с дашбордом (глобальные)
-  const closedSystemShifts = allShifts.filter(s => s.status === 'closed');
+  // Статистика для дашборда (с учетом выбранного месяца)
+  const closedSystemShifts = allShifts.filter(s => s.status === 'closed' && (selectedMonth === 'all' || (s.dateStr && s.dateStr.endsWith(`.${selectedMonth}`))));
   const totalSystemEarned = closedSystemShifts.reduce((a,b) => a + (b.earned || 0), 0);
   const globalHookahs = closedSystemShifts.reduce((a,b) => a + (b.items?.cocktail1 || 0), 0);
   const globalReplacements = closedSystemShifts.reduce((a,b) => a + (b.items?.cocktail2 || 0), 0);
