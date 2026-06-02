@@ -208,8 +208,15 @@ const AdminDashboard = () => {
       if (docSnap.exists()) setInvStandards(docSnap.data());
     });
 
-    const unsubInvMov = onSnapshot(query(collection(db, 'inventory_movements'), orderBy('createdAt', 'desc')), (snap) => {
-      setInvMovements(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    const unsubInvMov = onSnapshot(collection(db, 'inventory_movements'), (snap) => {
+      const movs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      // Сортируем на клиенте, чтобы не терять старые записи без поля createdAt (Firestore их исключает при orderBy)
+      movs.sort((a, b) => {
+        const timeA = a.createdAt?.seconds || 0;
+        const timeB = b.createdAt?.seconds || 0;
+        return timeB - timeA;
+      });
+      setInvMovements(movs);
     });
 
     const unsubInvTemplates = onSnapshot(query(collection(db, 'inventory_templates'), orderBy('name', 'asc')), (snap) => {
