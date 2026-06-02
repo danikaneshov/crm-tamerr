@@ -214,7 +214,14 @@ const AdminDashboard = () => {
       movs.sort((a, b) => {
         const timeA = a.createdAt?.seconds || 0;
         const timeB = b.createdAt?.seconds || 0;
-        return timeB - timeA;
+        if (timeA !== timeB) return timeB - timeA;
+        
+        if (!a.dateStr || !b.dateStr) return 0;
+        const [d1, m1, y1] = a.dateStr.split('.');
+        const [d2, m2, y2] = b.dateStr.split('.');
+        const dateA = new Date(`${y1}-${m1}-${d1}`).getTime() || 0;
+        const dateB = new Date(`${y2}-${m2}-${d2}`).getTime() || 0;
+        return dateB - dateA;
       });
       setInvMovements(movs);
     });
