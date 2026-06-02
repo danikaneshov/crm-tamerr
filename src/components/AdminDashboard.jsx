@@ -68,10 +68,13 @@ const AdminDashboard = () => {
     });
   }, [allShifts]);
 
-  const [selectedMonth, setSelectedMonth] = useState(availableMonths[0] || (() => {
+  const defaultMonth = availableMonths[0] || (() => {
     const now = new Date();
     return `${String(now.getMonth() + 1).padStart(2, '0')}.${now.getFullYear()}`;
-  })());
+  })();
+
+  const [selectedMonth, setSelectedMonth] = useState(defaultMonth);
+  const [dashboardMonth, setDashboardMonth] = useState(defaultMonth);
 
   const getMonthDateRange = useCallback((monthStr) => {
     if (!monthStr || monthStr === 'all') return null;
@@ -395,8 +398,8 @@ const AdminDashboard = () => {
     };
   }, [allShifts, selectedMonth, ownerProfits, invMovements]);
 
-  // Статистика для дашборда (с учетом выбранного месяца)
-  const closedSystemShifts = allShifts.filter(s => s.status === 'closed' && (selectedMonth === 'all' || (s.dateStr && s.dateStr.endsWith(`.${selectedMonth}`))));
+  // Статистика для дашборда (отдельный месяц от других вкладок)
+  const closedSystemShifts = allShifts.filter(s => s.status === 'closed' && (dashboardMonth === 'all' || (s.dateStr && s.dateStr.endsWith(`.${dashboardMonth}`))));
   const totalSystemEarned = closedSystemShifts.reduce((a,b) => a + (b.earned || 0), 0);
   const globalHookahs = closedSystemShifts.reduce((a,b) => a + (b.items?.cocktail1 || 0), 0);
   const globalReplacements = closedSystemShifts.reduce((a,b) => a + (b.items?.cocktail2 || 0), 0);
@@ -601,7 +604,7 @@ const AdminDashboard = () => {
               <h1 className="text-2xl font-bold text-slate-800">Общая статистика</h1>
               <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
                 <CalendarDays className="text-slate-400 ml-3" size={18}/>
-                <select value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} className="py-2 pr-4 bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer">
+                <select value={dashboardMonth} onChange={e => setDashboardMonth(e.target.value)} className="py-2 pr-4 bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer">
                   <option value="all">Все время</option>
                   {availableMonths.map(m => <option key={m} value={m}>{m}</option>)}
                 </select>
@@ -1150,7 +1153,9 @@ const AdminDashboard = () => {
 
         {/* ВКЛАДКА: СКЛАД */}
         {activeTab === 'inventory' && (() => {
-          const totalBowls = closedSystemShifts.reduce((a, s) => a + (s.items?.cocktail1 || 0) + (s.items?.cocktail2 || 0) + (s.staffHookahs || 0), 0);
+          // Склад считается кумулятивно за ВСЁ время (приходы - расходы), независимо от selectedMonth
+          const allClosedShifts = allShifts.filter(s => s.status === 'closed');
+          const totalBowls = allClosedShifts.reduce((a, s) => a + (s.items?.cocktail1 || 0) + (s.items?.cocktail2 || 0) + (s.staffHookahs || 0), 0);
           const autoCoalUsed = totalBowls * invStandards.coalPerBowl;
           const autoTobaccoUsed = totalBowls * (invStandards.tobaccoPerBowl || 0);
           const autoMouthpieceUsed = totalBowls * (invStandards.mouthpiecePerBowl || 0);
