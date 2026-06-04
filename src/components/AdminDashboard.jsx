@@ -36,7 +36,7 @@ const AdminDashboard = () => {
 
   // Редактирование смены
   const [editingShift, setEditingShift] = useState(false);
-  const [editForm, setEditForm] = useState({ hookahs: 0, replacements: 0, partnerId: '', removePartner: false });
+  const [editForm, setEditForm] = useState({ ownerId: '', hookahs: 0, replacements: 0, partnerId: '', staffHookahs: 0, removePartner: false });
   const [isSavingEdit, setIsSavingEdit] = useState(false);
 
   // Склад
@@ -462,12 +462,16 @@ const AdminDashboard = () => {
     // Берём общее количество кальянов/замен за всю смену (суммарно по всем записям)
     const totalHookahs = shiftGroup.records.reduce((sum, r) => sum + (r.items?.cocktail1 || 0), 0);
     const totalReplacements = shiftGroup.records.reduce((sum, r) => sum + (r.items?.cocktail2 || 0), 0);
-    // Находим напарника (запись без startTime — это напарник)
-    const partnerRecord = shiftGroup.records.find(r => !r.startTime);
+    // Находим основную запись и напарника
+    const ownerRecord = shiftGroup.records.find(r => r.startTime) || shiftGroup.records[0];
+    const partnerRecord = shiftGroup.records.find(r => !r.startTime && r.id !== ownerRecord.id);
+    
     setEditForm({
+      ownerId: ownerRecord.employeeId,
       hookahs: totalHookahs,
       replacements: totalReplacements,
       partnerId: partnerRecord ? partnerRecord.employeeId : '',
+      staffHookahs: ownerRecord.staffHookahs || 0,
       removePartner: false
     });
     setEditingShift(true);
@@ -484,7 +488,11 @@ const AdminDashboard = () => {
 
       const c1 = Number(editForm.hookahs) || 0;
       const c2 = Number(editForm.replacements) || 0;
-      const ownerEmp = employees.find(e => e.id === ownerRecord.employeeId);
+      const staffCount = Number(editForm.staffHookahs) || 0;
+      
+      const newOwnerId = editForm.ownerId;
+      const ownerEmp = employees.find(e => e.id === newOwnerId);
+      if (!ownerEmp) throw new Error('Основной мастер не найден');
       const ownerBase = ownerEmp?.name?.trim().toLowerCase() === 'tamerlan' ? 1500 : 3000;
 
       // Определяем нового напарника
@@ -511,6 +519,9 @@ const AdminDashboard = () => {
 
         // Обновляем запись владельца
         await updateDoc(doc(db, 'sales', ownerRecord.id), {
+          employeeId: ownerEmp.id,
+          employeeName: ownerEmp.name,
+          staffHookahs: staffCount,
           items: { cocktail1: ownerC1, cocktail2: ownerC2 },
           totalItems: ownerTotalItems,
           earned: ownerEarned,
@@ -556,6 +567,9 @@ const AdminDashboard = () => {
         const myEarned = ownerBase + (c1 * 1500) + (c2 * 1500);
 
         await updateDoc(doc(db, 'sales', ownerRecord.id), {
+          employeeId: ownerEmp.id,
+          employeeName: ownerEmp.name,
+          staffHookahs: staffCount,
           items: { cocktail1: c1, cocktail2: c2 },
           totalItems: myTotalItems,
           earned: myEarned,
@@ -1609,12 +1623,20 @@ const AdminDashboard = () => {
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 uppercase mb-2 ml-1">Общее кол-во кальянов</label>
-                    <input type="number" min="0" value={editForm.hookahs} onChange={e => setEditForm({...editForm, hookahs: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800 focus:ring-2 focus:ring-blue-500" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-slate-400 uppercase mb-2 ml-1">Общее кол-во замен</label>
-                    <input type="number" min="0" value={editForm.replacements} onChange={e => setEditForm({...editForm, replacements: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800 focus:ring-2 focus:ring-blue-500" />
+                    <label className="block text-xs font-bold text-slate-400 uppercase mb-2 ml-1">Основной мастер</label>
+                    <select 
+                      value={editForm.ownerId} 
+                      onChange={e => {
+                        const newOwnerId = e.target.value;
+                        // Если выбрали того же, кто был напарником, убираем напарника
+                        setEditForm({...editForm, ownerId: newOwnerId, partnerId: editForm.partnerId === newOwnerId ? '' : editForm.partnerId});
+                      }}
+                      className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800 focus:ring-2 focus:ring-blue-500"
+                    >
+                      {employees.filter(e => !e.isArchived).map(emp => (
+                        <option key={emp.id} value={emp.id}>{emp.name}</option>
+                      ))}
+                    </select>
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-400 uppercase mb-2 ml-1">Напарник</label>
@@ -1624,10 +1646,24 @@ const AdminDashboard = () => {
                       className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800 focus:ring-2 focus:ring-blue-500"
                     >
                       <option value="">Без напарника (вся ЗП мастеру)</option>
-                      {employees.filter(e => !e.isArchived && e.id !== (selectedEmpReport.records.find(r => r.startTime) || selectedEmpReport.records[0])?.employeeId).map(emp => (
+                      {employees.filter(e => !e.isArchived && e.id !== editForm.ownerId).map(emp => (
                         <option key={emp.id} value={emp.id}>{emp.name}</option>
                       ))}
                     </select>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-400 uppercase mb-2 ml-1">Кальяны</label>
+                      <input type="number" min="0" value={editForm.hookahs} onChange={e => setEditForm({...editForm, hookahs: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800 focus:ring-2 focus:ring-blue-500" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-400 uppercase mb-2 ml-1">Замены</label>
+                      <input type="number" min="0" value={editForm.replacements} onChange={e => setEditForm({...editForm, replacements: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800 focus:ring-2 focus:ring-blue-500" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-400 uppercase mb-2 ml-1">Стафф кальяны</label>
+                    <input type="number" min="0" value={editForm.staffHookahs} onChange={e => setEditForm({...editForm, staffHookahs: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800 focus:ring-2 focus:ring-blue-500" />
                   </div>
                 </div>
 
@@ -1635,8 +1671,9 @@ const AdminDashboard = () => {
                 {(() => {
                   const c1 = Number(editForm.hookahs) || 0;
                   const c2 = Number(editForm.replacements) || 0;
-                  const ownerRecord = selectedEmpReport.records.find(r => r.startTime) || selectedEmpReport.records[0];
-                  const ownerEmp = employees.find(e => e.id === ownerRecord.employeeId);
+                  const staffCount = Number(editForm.staffHookahs) || 0;
+                  
+                  const ownerEmp = employees.find(e => e.id === editForm.ownerId);
                   const ownerBase = ownerEmp?.name?.trim().toLowerCase() === 'tamerlan' ? 1500 : 3000;
 
                   if (editForm.partnerId) {
@@ -1653,6 +1690,7 @@ const AdminDashboard = () => {
                         <h4 className="text-xs font-bold text-blue-400 uppercase tracking-widest">Превью пересчёта</h4>
                         <div className="flex justify-between text-sm"><span className="text-slate-600 font-medium">{ownerEmp?.name} ({ownerC1}к + {ownerC2}з):</span><strong className="text-blue-600">{formatMoney(ownerEarned)} ₸</strong></div>
                         <div className="flex justify-between text-sm"><span className="text-slate-600 font-medium">{partner?.name} ({partnerC1}к + {partnerC2}з):</span><strong className="text-blue-600">{formatMoney(partnerEarned)} ₸</strong></div>
+                        {staffCount > 0 && <div className="text-xs text-slate-500 mt-2">Стафф: {staffCount} шт.</div>}
                       </div>
                     );
                   } else {
@@ -1661,6 +1699,7 @@ const AdminDashboard = () => {
                       <div className="bg-blue-50 border border-blue-100 p-4 rounded-2xl space-y-2">
                         <h4 className="text-xs font-bold text-blue-400 uppercase tracking-widest">Превью пересчёта</h4>
                         <div className="flex justify-between text-sm"><span className="text-slate-600 font-medium">{ownerEmp?.name} ({c1}к + {c2}з):</span><strong className="text-blue-600">{formatMoney(myEarned)} ₸</strong></div>
+                        {staffCount > 0 && <div className="text-xs text-slate-500 mt-2">Стафф: {staffCount} шт.</div>}
                       </div>
                     );
                   }
