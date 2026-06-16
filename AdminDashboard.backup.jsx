@@ -42,10 +42,10 @@ const AdminDashboard = () => {
 
   // Склад
   const [invMovements, setInvMovements] = useState([]);
-  const [invStandards, setInvStandards] = useState({ coalPerBowl: 3, tobaccoPerBowl: 23, mouthpiecePerBowl: 1, revTobaccoPrice: 0, revCoalPrice: 0 });
   const [invTemplates, setInvTemplates] = useState([]);
-  const [invCart, setInvCart] = useState([]);
+  const [invStandards, setInvStandards] = useState({ coalPerBowl: 5, tobaccoPerBowl: 23, mouthpiecePerBowl: 1 });
   const [invForm, setInvForm] = useState({ type: 'in', item: 'coal', amount: '', cost: '', note: '', templateId: '' });
+  const [invCart, setInvCart] = useState([]);
   const [newTemplate, setNewTemplate] = useState({ name: '', item: 'tobacco', amount: '', price: '' });
   const [isSavingInv, setIsSavingInv] = useState(false);
 
@@ -162,11 +162,6 @@ const AdminDashboard = () => {
     });
   }, [allShifts]);
 
-  const [revisions, setRevisions] = useState([]);
-  const [revSelectedMonth, setRevSelectedMonth] = useState(defaultMonth);
-  const [revActuals, setRevActuals] = useState({ tobacco: '', coal: '' });
-  const [isSavingRev, setIsSavingRev] = useState(false);
-
   // Debug Panel State
   const [debugShift, setDebugShift] = useState({
     dateStr: '',
@@ -200,19 +195,14 @@ const AdminDashboard = () => {
       if (docSnap.exists()) setOwnerProfits(docSnap.data());
     });
 
-    // Слушаем ревизии
-    const unsubRevisions = onSnapshot(collection(db, 'revisions'), (snap) => {
-      setRevisions(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    });
-
-    return () => { unsubEmp(); unsubSales(); unsubSettings(); unsubRevisions(); };
+    return () => { unsubEmp(); unsubSales(); unsubSettings(); };
   }, []);
 
   useEffect(() => {
     const shouldSubscribeInventory =
       activeTab === 'dashboard' ||
       activeTab === 'inventory' ||
-      (activeTab === 'settings' && (subTab === 'templates' || subTab === 'standards'));
+      (activeTab === 'settings' && subTab === 'warehouse');
 
     if (!shouldSubscribeInventory) return undefined;
 
@@ -371,21 +361,13 @@ const AdminDashboard = () => {
     const hookahs = closedShifts.reduce((sum, s) => sum + (s.items?.cocktail1 || 0), 0);
     const replacements = closedShifts.reduce((sum, s) => sum + (s.items?.cocktail2 || 0), 0);
 
-    const baseEarned = closedShifts.reduce((sum, s) => sum + (s.earned || 0), 0);
+    const totalEarned = closedShifts.reduce((sum, s) => sum + (s.earned || 0), 0);
     const baseSalaryTotal = closedShifts.reduce((sum, s) => sum + (s.baseSalary || 0), 0);
     const hookahPercentageTotal = closedShifts.reduce((sum, s) => sum + (s.hookahPercentage || 0), 0);
     const shiftsCount = closedShifts.reduce((sum, s) => sum + (s.shiftFraction || 1), 0);
 
-    const totalRevisionDeductions = revisions
-      .filter(r => month === 'all' || r.month === month)
-      .reduce((sum, r) => sum + (r.deductions?.[empId] || 0), 0);
-
-    const totalEarned = baseEarned - totalRevisionDeductions;
-
     return {
       totalEarned,
-      baseEarned,
-      totalRevisionDeductions,
       baseSalaryTotal,
       hookahPercentageTotal,
       hookahs,
@@ -395,7 +377,7 @@ const AdminDashboard = () => {
       hasOpenShift,
       ownerNetProfit: (hookahs * ownerProfits.hookah) + (replacements * ownerProfits.replacement)
     };
-  }, [allShifts, ownerProfits, selectedMonth, revisions]);
+  }, [allShifts, ownerProfits, selectedMonth]);
 
   // Данные для финансовых отчетов (с учетом выбранного месяца)
   const monthlyStats = useMemo(() => {
@@ -639,120 +621,6 @@ const AdminDashboard = () => {
       setIsSavingEdit(false);
     }
   };
-  const handleSaveStandards = async () => {
-    setIsSavingInv(true);
-    try { await setDoc(doc(db, 'settings', 'inventory_standards'), invStandards); alert('Стандарты сохранены!'); }
-    catch (err) { alert('Ошибка: ' + err.message); }
-    finally { setIsSavingInv(false); }
-  };
-
-  const handleTemplateSubmit = async (e) => {
-    e.preventDefault();
-    if (!newTemplate.name || !newTemplate.amount) return;
-    setIsSavingInv(true);
-    try {
-      await addDoc(collection(db, 'inventory_templates'), {
-        ...newTemplate,
-        amount: Number(newTemplate.amount),
-        price: Number(newTemplate.price || 0),
-        createdAt: serverTimestamp()
-      });
-      setNewTemplate({ name: '', item: 'tobacco', amount: '', price: '' });
-    } catch (err) { alert('Ошибка: ' + err.message); }
-    finally { setIsSavingInv(false); }
-  };
-
-  const handleSaveRevision = async (systemTobacco, systemCoal) => {
-    const getAvgPrice = (type) => {
-      const templates = invTemplates.filter(t => t.item === type && t.price > 0 && t.amount > 0);
-      if (templates.length === 0) return 0;
-      return templates.reduce((a, t) => a + (t.price / t.amount), 0) / templates.length;
-    };
-
-    const finalTobaccoPrice = Number(invStandards.revTobaccoPrice) > 0 ? Number(invStandards.revTobaccoPrice) : getAvgPrice('tobacco');
-    const finalCoalPrice = Number(invStandards.revCoalPrice) > 0 ? Number(invStandards.revCoalPrice) : getAvgPrice('coal');
-
-    const actualTobacco = Number(revActuals.tobacco) || 0;
-    const actualCoal = Number(revActuals.coal) || 0;
-
-    const deficits = {
-      tobacco: Math.max(0, systemTobacco - actualTobacco),
-      coal: Math.max(0, systemCoal - actualCoal),
-    };
-
-    const totalDeficitMoney = 
-      (deficits.tobacco * finalTobaccoPrice) + 
-      (deficits.coal * finalCoalPrice);
-
-    if (totalDeficitMoney === 0) {
-      return alert('Сумма недостачи равна 0. Либо все в норме, либо есть только излишки.');
-    }
-
-    const shiftsInMonth = allShifts.filter(s => s.dateStr.endsWith(revSelectedMonth));
-    let totalShifts = 0;
-    const employeeShiftsCount = {};
-    
-    shiftsInMonth.forEach(shift => {
-      const empId = shift.employeeId;
-      if (!employeeShiftsCount[empId]) employeeShiftsCount[empId] = 0;
-      employeeShiftsCount[empId] += 1;
-      totalShifts += 1;
-    });
-
-    if (totalShifts === 0) {
-      return alert('В выбранном месяце нет смен, невозможно распределить удержания.');
-    }
-
-    const deductions = {};
-    Object.keys(employeeShiftsCount).forEach(empId => {
-      const ratio = employeeShiftsCount[empId] / totalShifts;
-      deductions[empId] = Math.round(totalDeficitMoney * ratio);
-    });
-
-    setIsSavingRev(true);
-    try {
-      await addDoc(collection(db, 'revisions'), {
-        month: revSelectedMonth,
-        totalDeficit: totalDeficitMoney,
-        totalShifts: totalShifts,
-        globalDeficits: deficits,
-        deductions: deductions,
-        createdAt: serverTimestamp()
-      });
-
-      // Автоматическое списание со склада
-      const now = new Date();
-      const dateStr = `${String(now.getDate()).padStart(2, '0')}.${String(now.getMonth() + 1).padStart(2, '0')}.${now.getFullYear()}`;
-      
-      const writeoffSums = {
-        coal: deficits.coal,
-        tobacco: deficits.tobacco
-      };
-
-      for (const [itemType, amount] of Object.entries(writeoffSums)) {
-        if (amount > 0) {
-          await addDoc(collection(db, 'inventory_movements'), {
-            type: 'writeoff',
-            item: itemType,
-            amount: amount,
-            cost: 0,
-            note: `Списано по ревизии за ${revSelectedMonth}`,
-            dateStr: dateStr,
-            createdAt: serverTimestamp()
-          });
-        }
-      }
-
-      alert('Ревизия успешно сохранена и распределена!');
-      setRevDeficits({});
-      setSubTab('stock');
-    } catch (err) {
-      alert('Ошибка сохранения ревизии: ' + err.message);
-    } finally {
-      setIsSavingRev(false);
-    }
-  };
-
 
   return (
     <div className="flex h-screen bg-[#F8FAFC] relative no-select">
@@ -1256,9 +1124,6 @@ const AdminDashboard = () => {
                         <div className="flex flex-col gap-1 mt-3 pt-3 border-t border-slate-200 text-sm">
                           <div className="flex justify-between"><span className="text-slate-500 font-medium">Оклад:</span> <strong className="text-slate-800">{formatMoney(stats.baseSalaryTotal)} ₸</strong></div>
                           <div className="flex justify-between"><span className="text-slate-500 font-medium">% с кальянов:</span> <strong className="text-slate-800">{formatMoney(stats.hookahPercentageTotal)} ₸</strong></div>
-                          {stats.totalRevisionDeductions > 0 && (
-                            <div className="flex justify-between mt-1 pt-1 border-t border-red-100"><span className="text-red-400 font-medium">Удержания (ревизия):</span> <strong className="text-red-500">-{formatMoney(stats.totalRevisionDeductions)} ₸</strong></div>
-                          )}
                         </div>
                       </div>
                       <div className="grid grid-cols-2 gap-4 text-center">
@@ -1376,14 +1241,34 @@ const AdminDashboard = () => {
             finally { setIsSavingInv(false); }
           };
 
+          const handleSaveStandards = async () => {
+            setIsSavingInv(true);
+            try { await setDoc(doc(db, 'settings', 'inventory_standards'), invStandards); alert('Стандарты сохранены!'); }
+            catch (err) { alert('Ошибка: ' + err.message); }
+            finally { setIsSavingInv(false); }
+          };
 
+          const handleTemplateSubmit = async (e) => {
+            e.preventDefault();
+            if (!newTemplate.name || !newTemplate.amount) return;
+            setIsSavingInv(true);
+            try {
+              await addDoc(collection(db, 'inventory_templates'), {
+                ...newTemplate,
+                amount: Number(newTemplate.amount),
+                price: Number(newTemplate.price || 0),
+                createdAt: serverTimestamp()
+              });
+              setNewTemplate({ name: '', item: 'tobacco', amount: '', price: '' });
+            } catch (err) { alert('Ошибка: ' + err.message); }
+            finally { setIsSavingInv(false); }
+          };
 
           return (
           <div className="space-y-8 animate-in fade-in duration-300">
             <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm scrollable-tabs">
               <button onClick={() => setSubTab('stock')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'stock' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Остатки</button>
               <button onClick={() => setSubTab('operations')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'operations' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Операции (Приход / Списание)</button>
-              <button onClick={() => setSubTab('revision')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'revision' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Ревизия</button>
             </div>
 
             {subTab === 'stock' && (
@@ -1426,18 +1311,9 @@ const AdminDashboard = () => {
               </div>
             )}
 
-            {subTab === 'operations' && (
+            {subTab === 'incoming' && (
               <div className="space-y-8">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                  <h1 className="text-2xl font-bold text-slate-800">Операции по складу</h1>
-                  <div className="flex bg-slate-100 p-1 rounded-2xl w-full sm:w-auto">
-                    <button onClick={() => setOperationType('in')} className={`flex-1 sm:flex-none px-6 py-2 rounded-xl font-bold text-sm transition-all ${operationType === 'in' ? 'bg-white text-green-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}>Приход</button>
-                    <button onClick={() => setOperationType('writeoff')} className={`flex-1 sm:flex-none px-6 py-2 rounded-xl font-bold text-sm transition-all ${operationType === 'writeoff' ? 'bg-white text-orange-500 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}>Списание</button>
-                  </div>
-                </div>
-
-                {operationType === 'in' && (
-                  <div className="space-y-8">
+                <h1 className="text-2xl font-bold text-slate-800">Приход товара</h1>
                 
                 {/* Плитки шаблонов */}
                 <div>
@@ -1551,215 +1427,7 @@ const AdminDashboard = () => {
               </div>
             )}
 
-
-            {subTab === 'operations' && operationType === 'writeoff' && (
-              <div className="space-y-6">
-                <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm max-w-xl">
-                  <form onSubmit={async (e) => { e.preventDefault(); if (!invForm.amount || Number(invForm.amount) <= 0) return alert('Укажите количество'); setIsSavingInv(true); try { const now = new Date(); await addDoc(collection(db, 'inventory_movements'), { type: 'writeoff', item: invForm.item, amount: Number(invForm.amount), cost: 0, note: invForm.note || '', dateStr: `${String(now.getDate()).padStart(2,'0')}.${String(now.getMonth()+1).padStart(2,'0')}.${now.getFullYear()}`, createdAt: serverTimestamp() }); setInvForm({ type: 'in', item: 'coal', amount: '', cost: '', note: '', templateId: '' }); } catch (err) { alert('Ошибка: ' + err.message); } finally { setIsSavingInv(false); } }} className="space-y-5">
-                    <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Товар</label><select value={invForm.item} onChange={e => setInvForm({...invForm, item: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800"><option value="coal">🔥 Уголь (шт)</option><option value="tobacco">🍃 Табак (г)</option><option value="mouthpiece">💠 Мундштуки (шт)</option></select></div>
-                    <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Количество</label><input type="number" min="1" value={invForm.amount} onChange={e => setInvForm({...invForm, amount: e.target.value})} placeholder="Сколько списать" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" required /></div>
-                    <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Причина</label><input type="text" value={invForm.note} onChange={e => setInvForm({...invForm, note: e.target.value})} placeholder="Например: отправил на вторую точку" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-slate-800" /></div>
-                    <button type="submit" disabled={isSavingInv} className="w-full p-4 bg-orange-500 text-white rounded-2xl font-bold shadow-lg shadow-orange-100 disabled:opacity-50">{isSavingInv ? 'Сохранение...' : 'Списать'}</button>
-                  </form>
-                </div>
-                <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
-                  <div className="p-6 border-b border-slate-100"><h2 className="text-lg font-black text-slate-800">История списаний</h2></div>
-                  <div className="divide-y divide-slate-50">
-                    {invMovements.filter(m => m.type === 'writeoff').length === 0 && <div className="p-6 text-center text-slate-400">Нет записей</div>}
-                    {invMovements.filter(m => m.type === 'writeoff').map(m => (
-                      <div key={m.id} className="p-4 flex justify-between items-center hover:bg-slate-50 transition-colors">
-                        <div><p className="font-bold text-slate-800">{m.item === 'coal' ? '🔥 Уголь' : m.item === 'tobacco' ? '🍃 Табак' : '💠 Мундштуки'} <span className="text-orange-500">-{formatMoney(m.amount)} {m.item === 'coal' || m.item === 'mouthpiece' ? 'шт' : 'г'}</span></p>{m.note && <p className="text-xs text-slate-400 mt-0.5">{m.note}</p>}</div>
-                        <div className="flex items-center gap-3"><span className="text-xs text-slate-400">{m.dateStr}</span><button onClick={() => deleteDoc(doc(db, 'inventory_movements', m.id))} className="text-slate-300 hover:text-red-500"><Trash2 size={16}/></button></div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-              </div>
-            )}
-
-            {subTab === 'revision' && (
-              <div className="space-y-8">
-                <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                  <h1 className="text-2xl font-bold text-slate-800">Ревизия склада</h1>
-                  <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200">
-                    <CalendarDays className="text-slate-400 ml-3" size={18}/>
-                    <select value={revSelectedMonth} onChange={e => setRevSelectedMonth(e.target.value)} className="py-2 pr-4 bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer">
-                      {availableMonths.map(m => <option key={m} value={m}>{m}</option>)}
-                    </select>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  {/* Левая колонка: Форма ревизии */}
-                  <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
-                    <h2 className="text-lg font-black mb-2">Фактические остатки</h2>
-                    <p className="text-sm text-slate-500 mb-6">Взвесьте весь табак вместе и посчитайте весь уголь. Введите общую сумму по складу. Система сама посчитает долг.</p>
-                    
-                    <div className="space-y-4 mb-6">
-                      {/* Ввод табака */}
-                      <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
-                        <div>
-                          <p className="font-bold text-slate-800 text-sm">🍃 Общий вес табака</p>
-                          <p className="text-xs text-slate-500 mt-1">Все бренды вместе</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <input 
-                            type="number" 
-                            min="0"
-                            placeholder="По факту"
-                            value={revActuals.tobacco}
-                            onChange={e => setRevActuals({...revActuals, tobacco: e.target.value})}
-                            className="w-24 p-3 bg-white rounded-xl border border-slate-200 font-bold text-sm text-slate-800 text-center shadow-sm"
-                          />
-                          <span className="text-xs text-slate-400 font-bold">г</span>
-                        </div>
-                      </div>
-
-                      {/* Ввод угля */}
-                      <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
-                        <div>
-                          <p className="font-bold text-slate-800 text-sm">🔥 Общее количество угля</p>
-                          <p className="text-xs text-slate-500 mt-1">В штуках</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <input 
-                            type="number" 
-                            min="0"
-                            placeholder="По факту"
-                            value={revActuals.coal}
-                            onChange={e => setRevActuals({...revActuals, coal: e.target.value})}
-                            className="w-24 p-3 bg-white rounded-xl border border-slate-200 font-bold text-sm text-slate-800 text-center shadow-sm"
-                          />
-                          <span className="text-xs text-slate-400 font-bold">шт</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-blue-50 p-4 rounded-2xl mb-6 space-y-2">
-                      {(() => {
-                        const getAvgPrice = (type) => {
-                          const templates = invTemplates.filter(t => t.item === type && t.price > 0 && t.amount > 0);
-                          if (templates.length === 0) return 0;
-                          return templates.reduce((a, t) => a + (t.price / t.amount), 0) / templates.length;
-                        };
-                        
-                        const finalTobaccoPrice = Number(invStandards.revTobaccoPrice) > 0 ? Number(invStandards.revTobaccoPrice) : getAvgPrice('tobacco');
-                        const finalCoalPrice = Number(invStandards.revCoalPrice) > 0 ? Number(invStandards.revCoalPrice) : getAvgPrice('coal');
-                        
-                        const actualTobacco = Number(revActuals.tobacco) || 0;
-                        const actualCoal = Number(revActuals.coal) || 0;
-                        
-                        const deficits = {
-                          tobacco: Math.max(0, tobaccoStock - actualTobacco),
-                          coal: Math.max(0, coalStock - actualCoal),
-                        };
-
-                        const totalDeficitMoney = (deficits.tobacco * finalTobaccoPrice) + (deficits.coal * finalCoalPrice);
-
-                        return (
-                          <div className="space-y-4 w-full">
-                            {/* Tobacco */}
-                            <div className="bg-white/50 p-3 rounded-xl border border-blue-100">
-                              <h3 className="font-bold text-slate-800 text-xs uppercase mb-2">🍃 Табак</h3>
-                              <div className="flex justify-between text-sm mb-1"><span className="text-slate-500">Ожидание в CRM:</span><span className="font-bold text-slate-700">{formatMoney(Math.round(tobaccoStock))} г</span></div>
-                              <div className="flex justify-between text-sm mb-1"><span className="text-slate-500">По факту:</span><span className="font-bold text-slate-700">{formatMoney(Math.round(actualTobacco))} г</span></div>
-                              <div className="flex justify-between text-sm"><span className="text-slate-500">Недостача:</span><span className="font-bold text-red-500">{formatMoney(Math.round(deficits.tobacco))} г <span className="text-xs text-slate-400 font-normal">(× {formatMoney(finalTobaccoPrice.toFixed(2))} ₸/г)</span></span></div>
-                            </div>
-                            
-                            {/* Coal */}
-                            <div className="bg-white/50 p-3 rounded-xl border border-blue-100">
-                              <h3 className="font-bold text-slate-800 text-xs uppercase mb-2">🔥 Уголь</h3>
-                              <div className="flex justify-between text-sm mb-1"><span className="text-slate-500">Ожидание в CRM:</span><span className="font-bold text-slate-700">{formatMoney(Math.round(coalStock))} шт</span></div>
-                              <div className="flex justify-between text-sm mb-1"><span className="text-slate-500">По факту:</span><span className="font-bold text-slate-700">{formatMoney(Math.round(actualCoal))} шт</span></div>
-                              <div className="flex justify-between text-sm"><span className="text-slate-500">Недостача:</span><span className="font-bold text-red-500">{formatMoney(Math.round(deficits.coal))} шт <span className="text-xs text-slate-400 font-normal">(× {formatMoney(finalCoalPrice.toFixed(2))} ₸/шт)</span></span></div>
-                            </div>
-
-                            <div className="flex justify-between items-center pt-2 border-t border-blue-200">
-                              <span className="text-blue-600 font-bold text-sm">Итого долг:</span>
-                              <span className="font-black text-blue-700 text-xl">{formatMoney(Math.round(totalDeficitMoney))} ₸</span>
-                            </div>
-                          </div>
-                        );
-                      })()}
-                    </div>
-
-                    <button 
-                      onClick={() => handleSaveRevision(tobaccoStock, coalStock)}
-                      disabled={isSavingRev || (revActuals.tobacco === '' && revActuals.coal === '')}
-                      className="w-full p-4 bg-orange-500 text-white rounded-2xl font-bold shadow-lg shadow-orange-200 disabled:opacity-50 transition-all hover:bg-orange-600"
-                    >
-                      {isSavingRev ? 'Сохранение...' : 'Провести ревизию'}
-                    </button>
-                  </div>
-
-                  {/* Правая колонка: История ревизий */}
-                  <div className="space-y-6">
-                    <h2 className="text-lg font-black text-slate-800">История ревизий</h2>
-                    <div className="space-y-4 max-h-[500px] overflow-y-auto">
-                      {revisions.length === 0 && <p className="text-slate-400 text-sm">Ревизии еще не проводились.</p>}
-                      {revisions.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)).map(rev => (
-                        <div key={rev.id} className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
-                          <div className="flex justify-between items-center mb-3">
-                            <div>
-                              <p className="text-xs text-slate-400 font-bold uppercase">За месяц</p>
-                              <p className="font-black text-slate-800">{rev.month}</p>
-                            </div>
-                            <div className="text-right">
-                              <p className="text-xs text-slate-400 font-bold uppercase">Общий долг</p>
-                              <p className="font-black text-red-500">{formatMoney(rev.totalDeficit)} ₸</p>
-                            </div>
-                          </div>
-                          
-                          <div className="space-y-1.5 mb-4 bg-slate-50 p-3 rounded-xl text-xs">
-                            <p className="font-bold text-slate-700 mb-1">Детали недостачи:</p>
-                            {rev.details && rev.details.map((d, i) => (
-                              <div key={i} className="flex justify-between text-slate-600">
-                                <span>{d.name} <span className="text-red-400">-{d.missingAmount}</span></span>
-                                <span className="font-bold">{formatMoney(Math.round(d.cost))} ₸</span>
-                              </div>
-                            ))}
-                          </div>
-
-                          <div className="space-y-1.5 text-sm">
-                            <p className="font-bold text-slate-700 mb-1">Удержания (Всего смен: {rev.totalShifts}):</p>
-                            {Object.entries(rev.deductions).map(([empId, amount]) => {
-                              const emp = employees.find(e => e.id === empId);
-                              return (
-                                <div key={empId} className="flex justify-between items-center">
-                                  <span className="text-slate-600">{emp ? emp.name : 'Удаленный мастер'}</span>
-                                  <span className="font-bold text-orange-500">-{formatMoney(amount)} ₸</span>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-
-          </div>);
-        })()}
-
-        {/* ВКЛАДКА: НАСТРОЙКИ */}
-        {activeTab === 'settings' && (
-          <div className="space-y-8 animate-in fade-in duration-300">
-            <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm scrollable-tabs">
-              <button onClick={() => setSubTab('margins')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'margins' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Маржинальность</button>
-              <button onClick={() => setSubTab('templates')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'templates' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Шаблоны склада</button>
-              <button onClick={() => setSubTab('standards')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'standards' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Стандарты склада</button>
-              <button onClick={() => setSubTab('debug')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'debug' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Система</button>
-            </div>
-
-
-
-                        {subTab === 'templates' && (
+            {subTab === 'templates' && (
               <div className="space-y-6">
                 <h1 className="text-2xl font-bold text-slate-800">Шаблоны закупа</h1>
                 <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm max-w-xl">
@@ -1789,6 +1457,32 @@ const AdminDashboard = () => {
               </div>
             )}
 
+            {subTab === 'writeoff' && (
+              <div className="space-y-6">
+                <h1 className="text-2xl font-bold text-slate-800">Списание</h1>
+                <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm max-w-xl">
+                  <form onSubmit={async (e) => { e.preventDefault(); if (!invForm.amount || Number(invForm.amount) <= 0) return alert('Укажите количество'); setIsSavingInv(true); try { const now = new Date(); await addDoc(collection(db, 'inventory_movements'), { type: 'writeoff', item: invForm.item, amount: Number(invForm.amount), cost: 0, note: invForm.note || '', dateStr: `${String(now.getDate()).padStart(2,'0')}.${String(now.getMonth()+1).padStart(2,'0')}.${now.getFullYear()}`, createdAt: serverTimestamp() }); setInvForm({ type: 'in', item: 'coal', amount: '', cost: '', note: '', templateId: '' }); } catch (err) { alert('Ошибка: ' + err.message); } finally { setIsSavingInv(false); } }} className="space-y-5">
+                    <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Товар</label><select value={invForm.item} onChange={e => setInvForm({...invForm, item: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800"><option value="coal">🔥 Уголь (шт)</option><option value="tobacco">🍃 Табак (г)</option><option value="mouthpiece">💠 Мундштуки (шт)</option></select></div>
+                    <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Количество</label><input type="number" min="1" value={invForm.amount} onChange={e => setInvForm({...invForm, amount: e.target.value})} placeholder="Сколько списать" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" required /></div>
+                    <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Причина</label><input type="text" value={invForm.note} onChange={e => setInvForm({...invForm, note: e.target.value})} placeholder="Например: отправил на вторую точку" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-slate-800" /></div>
+                    <button type="submit" disabled={isSavingInv} className="w-full p-4 bg-orange-500 text-white rounded-2xl font-bold shadow-lg shadow-orange-100 disabled:opacity-50">{isSavingInv ? 'Сохранение...' : 'Списать'}</button>
+                  </form>
+                </div>
+                <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
+                  <div className="p-6 border-b border-slate-100"><h2 className="text-lg font-black text-slate-800">История списаний</h2></div>
+                  <div className="divide-y divide-slate-50">
+                    {invMovements.filter(m => m.type === 'writeoff').length === 0 && <div className="p-6 text-center text-slate-400">Нет записей</div>}
+                    {invMovements.filter(m => m.type === 'writeoff').map(m => (
+                      <div key={m.id} className="p-4 flex justify-between items-center hover:bg-slate-50 transition-colors">
+                        <div><p className="font-bold text-slate-800">{m.item === 'coal' ? '🔥 Уголь' : m.item === 'tobacco' ? '🍃 Табак' : '💠 Мундштуки'} <span className="text-orange-500">-{formatMoney(m.amount)} {m.item === 'coal' || m.item === 'mouthpiece' ? 'шт' : 'г'}</span></p>{m.note && <p className="text-xs text-slate-400 mt-0.5">{m.note}</p>}</div>
+                        <div className="flex items-center gap-3"><span className="text-xs text-slate-400">{m.dateStr}</span><button onClick={() => deleteDoc(doc(db, 'inventory_movements', m.id))} className="text-slate-300 hover:text-red-500"><Trash2 size={16}/></button></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {subTab === 'standards' && (
               <div className="max-w-xl space-y-6">
                 <h1 className="text-2xl font-bold text-slate-800">Стандарты расхода</h1>
@@ -1798,40 +1492,38 @@ const AdminDashboard = () => {
                     <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">🔥 Углей на 1 чашу (шт)</label><input type="number" min="1" value={invStandards.coalPerBowl} onChange={e => setInvStandards({...invStandards, coalPerBowl: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" /></div>
                     <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">🍃 Табака на 1 чашу (г)</label><input type="number" min="1" value={invStandards.tobaccoPerBowl} onChange={e => setInvStandards({...invStandards, tobaccoPerBowl: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" /></div>
                     <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">💠 Мундштуков на 1 чашу (шт)</label><input type="number" min="0" value={invStandards.mouthpiecePerBowl} onChange={e => setInvStandards({...invStandards, mouthpiecePerBowl: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" /></div>
-                    
-                    <div className="pt-6 border-t border-slate-100 mt-6">
-                      <h3 className="font-bold text-slate-800 mb-4">Цены для ревизии (штраф за недостачу)</h3>
-                      <div className="space-y-5">
-                        <div>
-                          <label className="block text-xs font-bold text-slate-400 uppercase mb-2 flex justify-between">
-                            <span>Цена угля (₸/шт)</span>
-                            {(() => {
-                              const temps = invTemplates.filter(t => t.item === 'coal' && t.price > 0 && t.amount > 0);
-                              if (temps.length === 0) return null;
-                              const avg = temps.reduce((a, t) => a + (t.price / t.amount), 0) / temps.length;
-                              return <span className="text-blue-500 font-normal">Средняя закупа: {formatMoney(avg.toFixed(2))} ₸</span>;
-                            })()}
-                          </label>
-                          <input type="number" min="0" step="0.01" value={invStandards.revCoalPrice || ''} onChange={e => setInvStandards({...invStandards, revCoalPrice: Number(e.target.value)})} placeholder="Например: 15" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-bold text-slate-400 uppercase mb-2 flex justify-between">
-                            <span>Цена табака (₸/г)</span>
-                            {(() => {
-                              const temps = invTemplates.filter(t => t.item === 'tobacco' && t.price > 0 && t.amount > 0);
-                              if (temps.length === 0) return null;
-                              const avg = temps.reduce((a, t) => a + (t.price / t.amount), 0) / temps.length;
-                              return <span className="text-blue-500 font-normal">Средняя закупа: {formatMoney(avg.toFixed(2))} ₸</span>;
-                            })()}
-                          </label>
-                          <input type="number" min="0" step="0.01" value={invStandards.revTobaccoPrice || ''} onChange={e => setInvStandards({...invStandards, revTobaccoPrice: Number(e.target.value)})} placeholder="Например: 25" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" />
-                        </div>
-                      </div>
-                    </div>
                     <button onClick={handleSaveStandards} disabled={isSavingInv} className="w-full p-4 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-100 disabled:opacity-50">{isSavingInv ? 'Сохранение...' : 'Сохранить стандарты'}</button>
                   </div>
                 </div>
               </div>
+            )}
+          </div>);
+        })()}
+
+        {/* ВКЛАДКА: НАСТРОЙКИ */}
+        {activeTab === 'settings' && (
+          <div className="space-y-8 animate-in fade-in duration-300">
+            <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm scrollable-tabs">
+              <button onClick={() => setSubTab('employees')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'employees' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Персонал</button>
+              <button onClick={() => setSubTab('margins')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'margins' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Маржинальность</button>
+              <button onClick={() => setSubTab('debug')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'debug' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Debug</button>
+            </div>
+
+            {subTab === 'employees' && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm h-fit">
+              <h2 className="text-xl font-black mb-6">Добавить мастера</h2>
+              <form onSubmit={handleAddEmployee} className="space-y-4">
+                <input type="text" value={newEmpName} onChange={e=>setNewEmpName(e.target.value)} placeholder="Имя мастера" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold" required />
+                <div className="flex gap-2"><input type="text" maxLength="4" value={newEmpPin} onChange={e=>setNewEmpPin(e.target.value.replace(/\D/g, ''))} placeholder="PIN" className="w-full p-4 bg-slate-50 rounded-2xl border-none text-center font-mono font-bold" required /><button type="button" onClick={generatePin} className="p-4 bg-slate-100 rounded-2xl"><Key size={20}/></button></div>
+                <button type="submit" disabled={isAdding || !newEmpName || newEmpPin.length !== 4} className="w-full p-4 bg-blue-600 text-white rounded-2xl font-bold disabled:bg-blue-300">Создать аккаунт</button>
+              </form>
+            </div>
+            <div className="col-span-1 lg:col-span-2 bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-x-auto">
+              <table className="w-full min-w-[500px]"><thead><tr className="bg-slate-50"><th className="p-6 text-left text-xs font-black text-slate-400 uppercase">Мастер</th><th className="p-6 text-left text-xs font-black text-slate-400 uppercase">Доступ</th><th className="p-6 text-left text-xs font-black text-slate-400 uppercase">Статус</th><th className="p-6"></th></tr></thead>
+              <tbody className="divide-y divide-slate-50">{employees.map(emp => (<tr key={emp.id} className={emp.isArchived ? 'opacity-50 bg-slate-50/50' : ''}><td className="p-6 font-bold text-slate-900">{emp.name}</td><td className="p-6 font-mono text-slate-500">{emp.pin}</td><td className="p-6">{emp.isArchived ? <span className="text-xs bg-slate-200 text-slate-500 px-3 py-1 rounded-full font-bold">Архив</span> : <span className="text-xs bg-green-100 text-green-600 px-3 py-1 rounded-full font-bold">Активен</span>}</td><td className="p-6 text-right">{emp.isArchived ? (<button onClick={() => updateDoc(doc(db, 'employees', emp.id), { isArchived: false })} className="text-xs font-bold text-green-500 hover:text-green-700 px-3 py-1.5 bg-green-50 rounded-xl hover:bg-green-100 transition-colors">Восстановить</button>) : (<button onClick={() => { if (window.confirm(`Деактивировать ${emp.name}? Все данные по ЗП сохранятся.`)) updateDoc(doc(db, 'employees', emp.id), { isArchived: true }); }} className="text-slate-300 hover:text-red-500 transition-colors"><Trash2 size={18}/></button>)}</td></tr>))}</tbody></table>
+            </div>
+          </div>
             )}
 
             {subTab === 'margins' && (
@@ -1848,7 +1540,18 @@ const AdminDashboard = () => {
 
             {subTab === 'debug' && (
           <div className="max-w-2xl space-y-10">
-
+            <div className="bg-white p-10 rounded-[40px] border border-slate-100 shadow-sm">
+              <h2 className="text-lg font-black text-slate-900 mb-2">Загрузить прошлые смены</h2>
+              <p className="text-slate-500 mb-8 text-sm">Добавляет прошедшую смену со всеми параметрами.</p>
+              <form onSubmit={handleCreateDebugShift} className="space-y-6">
+                <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Дата</label><input type="date" value={debugShift.dateStr} onChange={e=>setDebugShift({...debugShift, dateStr: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" required /></div>
+                <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Кальянный мастер</label><select value={debugShift.employeeId} onChange={e=>setDebugShift({...debugShift, employeeId: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" required><option value="">Выберите мастера</option>{employees.filter(e => !e.isArchived).map(emp => <option key={emp.id} value={emp.id}>{emp.name}</option>)}</select></div>
+                <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Напарник (Опц.)</label><select value={debugShift.partnerId} onChange={e=>setDebugShift({...debugShift, partnerId: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800"><option value="">Без напарника</option>{employees.filter(e => !e.isArchived && e.id !== debugShift.employeeId).map(emp => <option key={emp.id} value={emp.id}>{emp.name}</option>)}</select></div>
+                <div className="grid grid-cols-2 gap-4"><div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Кальяны</label><input type="number" min="0" value={debugShift.hookahs} onChange={e=>setDebugShift({...debugShift, hookahs: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" /></div><div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Замены</label><input type="number" min="0" value={debugShift.replacements} onChange={e=>setDebugShift({...debugShift, replacements: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" /></div></div>
+                <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Фото (Опц.)</label><input type="file" accept="image/*" onChange={e => setDebugShiftPhoto(e.target.files[0] || null)} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-sm text-slate-800" /></div>
+                <button type="submit" disabled={isUploadingPastShift} className="w-full p-4 mt-4 bg-gray-900 text-white rounded-2xl font-bold shadow-lg shadow-gray-200 disabled:opacity-50">{isUploadingPastShift ? 'Загрузка...' : 'Добавить смену'}</button>
+              </form>
+            </div>
             <div className="bg-white p-10 rounded-[40px] border border-red-100 shadow-sm">
               <div className="flex items-center gap-4 mb-4 text-red-500"><AlertTriangle size={32}/><h2 className="text-lg font-black">Опасная зона</h2></div>
               <p className="text-slate-500 mb-8 text-sm">Действия необратимы.</p>
