@@ -8,7 +8,7 @@ const ShiftTab = () => {
   const { handleOpenShift, handleCloseShift, isUploading } = useEmployeeData();
 
   const [partnerId, setPartnerId] = useState('');
-  const [items, setItems] = useState({ cocktail1: 0, cocktail2: 0, staffHookahs: 0 });
+  const [staffHookahs, setStaffHookahs] = useState(0);
   const [photoFile, setPhotoFile] = useState(null);
   
   const fileInputRef = useRef(null);
@@ -118,56 +118,25 @@ const ShiftTab = () => {
           )}
 
           <div className="space-y-4">
-            {/* Cocktail 1 */}
-            <div className="bg-white/60 p-4 sm:p-6 rounded-3xl border border-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <div>
-                <h3 className="font-bold text-slate-800 text-lg">Кальяны</h3>
-              </div>
-              <div className="flex items-center gap-4 bg-slate-50 p-2 rounded-2xl w-full sm:w-auto justify-between">
-                <button 
-                  onClick={() => setItems(p => ({ ...p, cocktail1: Math.max(0, p.cocktail1 - 1) }))}
-                  className="w-12 h-12 flex items-center justify-center bg-white rounded-xl shadow-sm text-slate-600 font-bold text-xl active:scale-95"
-                >-</button>
-                <span className="w-8 text-center font-black text-xl">{items.cocktail1}</span>
-                <button 
-                  onClick={() => setItems(p => ({ ...p, cocktail1: p.cocktail1 + 1 }))}
-                  className="w-12 h-12 flex items-center justify-center bg-white rounded-xl shadow-sm text-blue-600 font-bold text-xl active:scale-95"
-                >+</button>
-              </div>
-            </div>
-
-            {/* Cocktail 2 */}
-            <div className="bg-white/60 p-4 sm:p-6 rounded-3xl border border-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <div>
-                <h3 className="font-bold text-slate-800 text-lg">Замены</h3>
-              </div>
-              <div className="flex items-center gap-4 bg-slate-50 p-2 rounded-2xl w-full sm:w-auto justify-between">
-                <button 
-                  onClick={() => setItems(p => ({ ...p, cocktail2: Math.max(0, p.cocktail2 - 1) }))}
-                  className="w-12 h-12 flex items-center justify-center bg-white rounded-xl shadow-sm text-slate-600 font-bold text-xl active:scale-95"
-                >-</button>
-                <span className="w-8 text-center font-black text-xl">{items.cocktail2}</span>
-                <button 
-                  onClick={() => setItems(p => ({ ...p, cocktail2: p.cocktail2 + 1 }))}
-                  className="w-12 h-12 flex items-center justify-center bg-white rounded-xl shadow-sm text-blue-600 font-bold text-xl active:scale-95"
-                >+</button>
-              </div>
+            <div className="bg-blue-50/50 p-4 sm:p-6 rounded-3xl border border-blue-100/50 text-center">
+              <h3 className="font-bold text-blue-900 text-sm">Количество кальянов и замен будет автоматически распознано ИИ по чеку.</h3>
+              <p className="text-xs text-blue-600 mt-2">Ручной ввод недоступен</p>
             </div>
 
             {/* Staff Hookahs */}
             <div className="bg-white/60 p-4 sm:p-6 rounded-3xl border border-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
-                <h3 className="font-bold text-slate-800 text-lg">Стафф</h3>
-                <p className="text-xs text-slate-500">Не идет в ЗП</p>
+                <h3 className="font-bold text-slate-800 text-lg">Стафф кальяны</h3>
+                <p className="text-xs text-slate-500">Выкуренные персоналом</p>
               </div>
               <div className="flex items-center gap-4 bg-slate-50 p-2 rounded-2xl w-full sm:w-auto justify-between">
                 <button 
-                  onClick={() => setItems(p => ({ ...p, staffHookahs: Math.max(0, p.staffHookahs - 1) }))}
+                  onClick={() => setStaffHookahs(p => Math.max(0, p - 1))}
                   className="w-12 h-12 flex items-center justify-center bg-white rounded-xl shadow-sm text-slate-600 font-bold text-xl active:scale-95"
                 >-</button>
-                <span className="w-8 text-center font-black text-xl">{items.staffHookahs}</span>
+                <span className="w-8 text-center font-black text-xl">{staffHookahs}</span>
                 <button 
-                  onClick={() => setItems(p => ({ ...p, staffHookahs: p.staffHookahs + 1 }))}
+                  onClick={() => setStaffHookahs(p => p + 1)}
                   className="w-12 h-12 flex items-center justify-center bg-white rounded-xl shadow-sm text-orange-500 font-bold text-xl active:scale-95"
                 >+</button>
               </div>
@@ -185,14 +154,14 @@ const ShiftTab = () => {
             {photoFile ? (
               <>
                 <CheckCircle2 className="text-green-500 mb-2" size={32} />
-                <span className="font-bold text-slate-700">Фото загружено</span>
+                <span className="font-bold text-slate-700">Фото готово</span>
                 <span className="text-xs text-slate-400 mt-1">Нажмите чтобы изменить</span>
               </>
             ) : (
               <>
                 <Camera className="text-blue-500 mb-2" size={32} />
                 <span className="font-bold text-slate-700">Сфотографировать чек</span>
-                <span className="text-xs text-slate-400 mt-1">Обязательно для закрытия</span>
+                <span className="text-xs text-slate-400 mt-1">Обязательно для ИИ анализа</span>
               </>
             )}
             <input 
@@ -206,11 +175,11 @@ const ShiftTab = () => {
           </div>
 
           <button
-            onClick={() => handleCloseShift(items, photoFile)}
+            onClick={() => handleCloseShift(staffHookahs, photoFile)}
             disabled={isUploading || !photoFile}
             className="w-full mt-6 p-5 bg-slate-900 text-white rounded-2xl font-bold text-lg shadow-lg shadow-slate-900/20 active:scale-95 transition-all flex justify-center items-center gap-2 disabled:opacity-50 disabled:active:scale-100"
           >
-            {isUploading ? <><Loader2 className="animate-spin" size={24} /> Обработка...</> : 'Закрыть смену'}
+            {isUploading ? <><Loader2 className="animate-spin" size={24} /> Анализ ИИ...</> : 'Закрыть смену'}
           </button>
         </div>
       </div>

@@ -12,10 +12,8 @@ export const useEmployeeData = () => {
   const { employee, currentShift, openModal } = useEmployee();
   const [isUploading, setIsUploading] = useState(false);
 
-  // Вспомогательная функция загрузки фото (как в старом коде)
   const uploadPhoto = async (file) => {
     try {
-      setIsUploading(true);
       let processedFile = file;
 
       if (file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif')) {
@@ -34,21 +32,21 @@ export const useEmployeeData = () => {
       formData.append('upload_preset', UPLOAD_PRESET);
 
       const res = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
-      if (!res.ok) throw new Error('Network error during upload');
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData?.error?.message || 'Network error during upload');
+      }
       const data = await res.json();
-      setIsUploading(false);
       return data.secure_url;
     } catch (err) {
       console.error('Ошибка загрузки фото:', err);
-      setIsUploading(false);
-      return null;
+      throw new Error('Не удалось загрузить фото. Проверьте формат и размер.');
     }
   };
 
   const handleOpenShift = async (partnerId) => {
     if (!employee) return;
     try {
-      // Ищем открытую смену (вдруг напарник только что открыл)
       const d = new Date();
       if (d.getHours() < 6) d.setDate(d.getDate() - 1);
       const todayStr = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`;
@@ -77,84 +75,127 @@ export const useEmployeeData = () => {
     }
   };
 
-  const handleCloseShift = async (items, photoFile) => {
+  const handleCloseShift = async (staffHookahs, photoFile) => {
     if (!currentShift || currentShift.status !== 'open') return;
 
-    if (items.cocktail1 === 0 && items.cocktail2 === 0) {
-      openModal('zeroConfirm', 'Вы уверены?', 'Вы закрываете смену с 0 кальянов. Продолжить?', { items, photoFile });
+    if (!photoFile) {
+      openModal('error', 'Внимание', 'Фотография чека обязательна для закрытия смены!');
       return;
     }
 
-    await confirmCloseShift(items, photoFile);
-  };
-
-  const confirmCloseShift = async (items, photoFile) => {
+    setIsUploading(true);
+    let photoUrl = 'no-photo';
+    
     try {
-      let photoUrl = 'no-photo';
-      if (photoFile) {
-        photoUrl = await uploadPhoto(photoFile);
-        if (!photoUrl) {
-          openModal('error', 'Ошибка фото', 'Не удалось загрузить чек. Попробуйте снова.');
-          return;
-        }
-      } else {
-        openModal('error', 'Внимание', 'Фотография чека обязательна для закрытия смены!');
+      // 1. Загружаем фото на Cloudinary
+      photoUrl = await uploadPhoto(photoFile);
+      if (!photoUrl) throw new Error("Не удалось получить ссылку на фото");
+
+      // 2. Отправляем ИИ на анализ
+      const aiRes = await fetch('/api/analyze', {
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageUrl: photoUrl }),
+      });
+      
+      if (!aiRes.ok) {
+        const errorText = await aiRes.text();
+        throw new Error(`Сервер ИИ недоступен: ${errorText}`);
+      }
+      
+      const aiData = await aiRes.json();
+      
+      if (aiData.cocktail1 === undefined && aiData.cocktail2 === undefined) {
+         throw new Error('ИИ не смог распознать кальяны на фото чека. Сделайте фото четче.');
+      }
+
+      const c1 = Number(aiData.cocktail1) || 0;
+      const c2 = Number(aiData.cocktail2) || 0;
+
+      // 3. Если нули - требуем подтверждение
+      if (c1 === 0 && c2 === 0) {
+        openModal('zeroConfirm', 'ИИ не нашёл кальянов', 'Система распознала 0 кальянов и 0 замен на чеке. Если кальянов не было — продолжите. Иначе перефоткайте чек.', { 
+          items: { cocktail1: 0, cocktail2: 0, staffHookahs }, 
+          photoUrl 
+        });
+        setIsUploading(false);
         return;
       }
 
-      // Расчет ЗП
-      const baseSalary = 500;
-      const hookahPercentage = 1000;
-      let totalEarned = baseSalary + (items.cocktail1 * hookahPercentage) + (items.cocktail2 * hookahPercentage);
-      let shiftFraction = 1;
+      // 4. Если всё найдено - закрываем
+      await finalizeCloseShift(c1, c2, staffHookahs, photoUrl);
 
-      if (currentShift.partnerId) {
-        totalEarned = totalEarned / 2;
-        shiftFraction = 0.5;
-      }
+    } catch (err) {
+      console.error("Ошибка закрытия смены:", err);
+      openModal('error', 'Возникла проблема', err.message);
+      setIsUploading(false);
+    }
+  };
 
-      await updateDoc(doc(db, 'sales', currentShift.id), {
+  // Вызывается из GlobalModal при подтверждении нулевой смены
+  const confirmCloseShift = async (items, photoUrl) => {
+    setIsUploading(true);
+    try {
+      await finalizeCloseShift(items.cocktail1, items.cocktail2, items.staffHookahs, photoUrl);
+    } catch (err) {
+      console.error(err);
+      openModal('error', 'Ошибка', 'Не удалось закрыть нулевую смену.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const finalizeCloseShift = async (c1, c2, staffHookahs, photoUrl) => {
+    // Получаем ставку (жестко прошита, либо можно брать из employee)
+    const baseSalary = 3000;
+    const hookahPercentage = 1500;
+    
+    let totalEarned = baseSalary + (c1 * hookahPercentage) + (c2 * hookahPercentage);
+    let shiftFraction = 1;
+
+    if (currentShift.partnerId) {
+      totalEarned = totalEarned / 2;
+      shiftFraction = 0.5;
+    }
+
+    const itemsData = { cocktail1: c1, cocktail2: c2 };
+
+    await updateDoc(doc(db, 'sales', currentShift.id), {
+      status: 'closed',
+      items: itemsData,
+      staffHookahs: staffHookahs || 0,
+      photoUrl: photoUrl,
+      baseSalary: currentShift.partnerId ? baseSalary / 2 : baseSalary,
+      hookahPercentage: currentShift.partnerId ? (c1 * hookahPercentage + c2 * hookahPercentage) / 2 : c1 * hookahPercentage + c2 * hookahPercentage,
+      earned: totalEarned,
+      shiftFraction: shiftFraction,
+      closedAt: serverTimestamp()
+    });
+
+    if (currentShift.partnerId) {
+      const partnerSnap = await getDocs(query(collection(db, 'employees'), where('__name__', '==', currentShift.partnerId)));
+      let partnerName = 'Напарник';
+      if (!partnerSnap.empty) partnerName = partnerSnap.docs[0].data().name;
+
+      await addDoc(collection(db, 'sales'), {
+        dateStr: currentShift.dateStr,
+        employeeId: currentShift.partnerId,
+        employeeName: partnerName,
+        partnerId: employee.id,
         status: 'closed',
-        items: items,
-        staffHookahs: items.staffHookahs || 0,
+        items: itemsData,
+        staffHookahs: staffHookahs || 0,
         photoUrl: photoUrl,
-        baseSalary: currentShift.partnerId ? baseSalary / 2 : baseSalary,
-        hookahPercentage: currentShift.partnerId ? (items.cocktail1 * hookahPercentage + items.cocktail2 * hookahPercentage) / 2 : items.cocktail1 * hookahPercentage + items.cocktail2 * hookahPercentage,
+        baseSalary: baseSalary / 2,
+        hookahPercentage: (c1 * hookahPercentage + c2 * hookahPercentage) / 2,
         earned: totalEarned,
-        shiftFraction: shiftFraction,
+        shiftFraction: 0.5,
         closedAt: serverTimestamp()
       });
-
-      // Если есть напарник, записываем и ему (как отдельный закрытый отчет)
-      if (currentShift.partnerId) {
-        const partnerSnap = await getDocs(query(collection(db, 'employees'), where('__name__', '==', currentShift.partnerId)));
-        let partnerName = 'Напарник';
-        if (!partnerSnap.empty) {
-          partnerName = partnerSnap.docs[0].data().name;
-        }
-
-        await addDoc(collection(db, 'sales'), {
-          dateStr: currentShift.dateStr,
-          employeeId: currentShift.partnerId,
-          employeeName: partnerName,
-          partnerId: employee.id, // Я - напарник
-          status: 'closed',
-          items: items,
-          staffHookahs: items.staffHookahs || 0,
-          photoUrl: photoUrl, // та же фотка
-          baseSalary: baseSalary / 2,
-          hookahPercentage: (items.cocktail1 * hookahPercentage + items.cocktail2 * hookahPercentage) / 2,
-          earned: totalEarned,
-          shiftFraction: 0.5,
-          closedAt: serverTimestamp()
-        });
-      }
-
-      openModal('success', 'Смена закрыта', `Вы заработали: ${totalEarned} ₸`);
-    } catch (err) {
-      console.error('Ошибка закрытия смены:', err);
-      openModal('error', 'Ошибка', 'Не удалось закрыть смену. Попробуйте еще раз.');
     }
+
+    openModal('success', 'Смена закрыта!', `Распознано: ${c1} кальянов, ${c2} замен. Заработано: ${totalEarned} ₸`);
+    setIsUploading(false);
   };
 
   return {

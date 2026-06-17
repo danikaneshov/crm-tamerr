@@ -10,7 +10,7 @@ const GlobalModal = () => {
   if (!modal.isOpen) return null;
 
   const handleConfirmZero = () => {
-    confirmCloseShift(modal.data.items, modal.data.photoFile);
+    confirmCloseShift(modal.data.items, modal.data.photoUrl);
     closeModal();
   };
 
