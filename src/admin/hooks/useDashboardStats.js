@@ -73,7 +73,17 @@ export const useDashboardStats = () => {
     return allShifts.filter(s => s.status === 'closed' && (dashboardMonth === 'all' || (s.dateStr && s.dateStr.endsWith(`.${dashboardMonth}`))));
   }, [allShifts, dashboardMonth]);
 
-  const totalSystemEarned = useMemo(() => closedSystemShifts.reduce((a,b) => a + (b.earned || 0), 0), [closedSystemShifts]);
+  const globalRevisionDeductions = useMemo(() => {
+    return revisions
+      .filter(r => dashboardMonth === 'all' || r.month === dashboardMonth)
+      .reduce((sum, r) => sum + (r.debt?.total || 0), 0);
+  }, [revisions, dashboardMonth]);
+
+  const totalSystemEarned = useMemo(() => {
+    const earned = closedSystemShifts.reduce((a,b) => a + (b.earned || 0), 0);
+    return earned - globalRevisionDeductions;
+  }, [closedSystemShifts, globalRevisionDeductions]);
+
   const globalHookahs = useMemo(() => closedSystemShifts.reduce((a,b) => a + (b.items?.cocktail1 || 0), 0), [closedSystemShifts]);
   const globalReplacements = useMemo(() => closedSystemShifts.reduce((a,b) => a + (b.items?.cocktail2 || 0), 0), [closedSystemShifts]);
   const globalOwnerProfit = (globalHookahs * ownerProfits.hookah) + (globalReplacements * ownerProfits.replacement);
@@ -143,6 +153,7 @@ export const useDashboardStats = () => {
     globalStaffHookahs,
     dashboardProfitByMaster,
     chartData,
-    calculateEmployeeStats
+    calculateEmployeeStats,
+    globalRevisionDeductions
   };
 };

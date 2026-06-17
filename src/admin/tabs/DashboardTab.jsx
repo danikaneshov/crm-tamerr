@@ -22,7 +22,8 @@ const DashboardTab = () => {
     dashboardPurchases,
     globalStaffHookahs,
     chartData,
-    dashboardProfitByMaster
+    dashboardProfitByMaster,
+    globalRevisionDeductions
   } = useDashboardStats();
 
   return (
@@ -45,9 +46,16 @@ const DashboardTab = () => {
       
       {/* Hero Widgets */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card variant="gradient" className="p-8">
-          <p className="font-bold text-xs uppercase tracking-widest mb-2 opacity-70">Фонд ЗП</p>
-          <h3 className="text-3xl font-black text-white">{formatMoney(totalSystemEarned)} ₸</h3>
+        <Card variant="gradient" className="p-8 relative overflow-hidden">
+          <div className="relative z-10">
+            <p className="font-bold text-xs uppercase tracking-widest mb-2 opacity-70 text-slate-300">Фонд ЗП</p>
+            <h3 className="text-3xl font-black text-white">{formatMoney(totalSystemEarned)} ₸</h3>
+            {globalRevisionDeductions > 0 && (
+              <p className="text-xs text-red-300 font-bold mt-2 bg-red-900/30 inline-block px-2 py-1 rounded-lg">
+                Удержано ревизиями: {formatMoney(globalRevisionDeductions)} ₸
+              </p>
+            )}
+          </div>
         </Card>
         <Card variant="elevated" className="p-8">
           <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">Кальяны</p>
