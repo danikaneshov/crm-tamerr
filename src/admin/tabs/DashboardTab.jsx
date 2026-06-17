@@ -82,21 +82,21 @@ const DashboardTab = () => {
  {/* Финансовый блок: Прибыль + Расходы */}
  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
  <div className="bg-slate-50 border border-slate-100 p-8 rounded-[32px] shadow-lg shadow-[0_8px_30px_rgb(0,0,0,0.04)] text-slate-700 relative overflow-hidden md:col-span-2 hover:-translate-y-1 transition-all">
- <Wallet className="absolute right-4 top-4 opacity-20" size={80}/>
- <div className="flex flex-col sm:flex-row gap-8 justify-between relative z-10">
- <div>
- <p className="font-bold text-sm uppercase tracking-widest mb-2 opacity-80 text-slate-500">Чистая прибыль</p>
- <h3 className="text-4xl font-black">{formatMoney(dashboardNetProfit)} ₸</h3>
- <p className="text-sm opacity-80 mt-2 text-slate-400">Вычеты: ЗП ({formatMoney(totalSystemEarned)} ₸)</p>
- </div>
- <div className="text-right sm:mt-0 mt-4">
- <p className="font-bold text-xs uppercase tracking-widest mb-1 opacity-80 text-slate-500">Грязная прибыль</p>
- <h4 className="text-2xl font-black">{formatMoney(globalOwnerProfit)} ₸</h4>
- <p className="font-bold text-xs uppercase tracking-widest mb-1 opacity-80 mt-4 text-slate-500">Без вычета ЗП Tamerlan</p>
- <h4 className="text-xl font-black text-slate-700">{formatMoney(dashboardProfitWithoutTamerlan)} ₸</h4>
- </div>
- </div>
- </div>
+    <Wallet className="absolute -right-4 -bottom-4 opacity-[0.03] text-slate-900" size={160}/>
+    <div className="flex flex-col sm:flex-row gap-8 justify-between relative z-10">
+      <div>
+        <p className="font-bold text-sm uppercase tracking-widest mb-2 opacity-80 text-slate-500">Чистая прибыль</p>
+        <h3 className="text-4xl font-black">{formatMoney(dashboardNetProfit)} ₸</h3>
+        <p className="text-sm opacity-80 mt-2 text-slate-400">Вычеты: ЗП ({formatMoney(totalSystemEarned)} ₸)</p>
+      </div>
+      <div className="text-left sm:text-right sm:mt-0 mt-4 sm:pr-8">
+        <p className="font-bold text-xs uppercase tracking-widest mb-1 opacity-80 text-slate-500">Грязная прибыль</p>
+        <h4 className="text-2xl font-black">{formatMoney(globalOwnerProfit)} ₸</h4>
+        <p className="font-bold text-xs uppercase tracking-widest mb-1 opacity-80 mt-4 text-slate-500">Без вычета ЗП Tamerlan</p>
+        <h4 className="text-xl font-black text-slate-700">{formatMoney(dashboardProfitWithoutTamerlan)} ₸</h4>
+      </div>
+    </div>
+  </div>
  
  <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col justify-center hover:-translate-y-1 transition-all">
  <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">Прибыль с кальянов</p>
