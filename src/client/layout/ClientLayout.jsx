@@ -12,7 +12,7 @@ const ClientLayout = ({ children, activeTab, setActiveTab }) => {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6 pb-32 relative z-0">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6 pb-40 sm:pb-32 relative z-0">
         <div className="max-w-2xl mx-auto w-full">
           {children}
         </div>

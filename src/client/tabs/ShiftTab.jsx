@@ -38,13 +38,13 @@ const ShiftTab = () => {
     );
   }
 
-  if (currentShift && currentShift.status === 'locked_closed') {
+  if (currentShift && (currentShift.status === 'locked_closed' || currentShift.status === 'closed')) {
     return (
       <div className="glass p-8 rounded-[40px] text-center animate-in zoom-in-95 duration-500">
         <div className="w-20 h-20 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
           <CheckCircle2 size={40} />
         </div>
-        <h2 className="text-2xl font-black text-slate-800 mb-2">Смена уже закрыта</h2>
+        <h2 className="text-2xl font-black text-slate-800 mb-2">Смена закрыта</h2>
         <p className="text-slate-500">Сегодняшняя смена была успешно закрыта.</p>
       </div>
     );
