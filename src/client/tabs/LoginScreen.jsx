@@ -31,7 +31,7 @@ const LoginScreen = () => {
   };
 
   return (
-    <div className="flex flex-col h-[100dvh] bg-[#F4F7FE] p-6 relative overflow-hidden">
+    <div className="flex flex-col h-[100dvh] bg-slate-50 p-6 relative overflow-hidden">
       {/* Decorative Blobs */}
       <div className="absolute top-[-10%] left-[-10%] w-[40vw] h-[40vw] rounded-full bg-blue-400/20 blur-3xl mix-blend-multiply"></div>
       <div className="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] rounded-full bg-indigo-400/20 blur-3xl mix-blend-multiply"></div>
@@ -40,7 +40,7 @@ const LoginScreen = () => {
         
         <div className="text-center mb-12 animate-in fade-in slide-in-bottom-4 duration-500">
           <span className="text-4xl font-black tracking-tighter text-slate-800 block mb-2">
-            Fifty<span className="text-blue-600">.</span>
+            Fifty<span className="text-slate-800">.</span>
           </span>
           <p className="text-slate-500 font-medium">Приложение для персонала</p>
         </div>
@@ -54,7 +54,7 @@ const LoginScreen = () => {
                 key={i} 
                 className={`w-4 h-4 rounded-full transition-all duration-300 ${
                   i < pin.length 
-                    ? 'bg-blue-600 scale-110 shadow-[0_0_12px_rgba(37,99,235,0.5)]' 
+                    ? 'bg-slate-800 scale-110 shadow-[0_0_12px_rgba(37,99,235,0.5)]' 
                     : 'bg-slate-200'
                 }`}
               />
@@ -96,7 +96,7 @@ const LoginScreen = () => {
           </div>
 
           {isLoading && (
-            <div className="mt-8 flex flex-col items-center gap-2 text-blue-600">
+            <div className="mt-8 flex flex-col items-center gap-2 text-slate-800">
               <Loader2 className="animate-spin" size={24} />
               <span className="text-xs font-bold uppercase tracking-widest">Проверка</span>
             </div>

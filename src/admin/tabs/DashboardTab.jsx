@@ -30,7 +30,7 @@ const DashboardTab = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-center gap-4">
         <h1 className="text-2xl font-bold text-slate-800">Общая статистика</h1>
-        <div className="flex items-center gap-2 p-1 rounded-xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-blue-500">
+        <div className="flex items-center gap-2 p-1 rounded-xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-slate-800">
           <CalendarDays className="text-slate-400 ml-3" size={18}/>
           <select 
             value={dashboardMonth} 
@@ -60,7 +60,7 @@ const DashboardTab = () => {
         <Card variant="elevated" className="p-8 relative">
           <Percent className="absolute right-6 top-6 text-blue-100" size={50}/>
           <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">Процент замен</p>
-          <h3 className="text-3xl font-black text-blue-600">{replacementRate}%</h3>
+          <h3 className="text-3xl font-black text-slate-800">{replacementRate}%</h3>
           <p className="text-xs text-slate-400 mt-1">От числа кальянов</p>
         </Card>
         <Card variant="elevated" className="p-8 relative overflow-hidden lg:col-span-4">
@@ -92,7 +92,7 @@ const DashboardTab = () => {
         
         <div className="bg-white p-6 rounded-[32px] border-none smooth-shadow flex flex-col justify-center hover:-translate-y-1 transition-all">
           <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">Прибыль с кальянов</p>
-          <h3 className="text-2xl font-black text-blue-600">{formatMoney(globalHookahs * ownerProfits.hookah)} ₸</h3>
+          <h3 className="text-2xl font-black text-slate-800">{formatMoney(globalHookahs * ownerProfits.hookah)} ₸</h3>
           <p className="text-slate-400 text-sm mt-1">{globalHookahs} шт × {formatMoney(ownerProfits.hookah)} ₸</p>
         </div>
 

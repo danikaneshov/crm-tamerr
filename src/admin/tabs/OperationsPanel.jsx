@@ -39,8 +39,8 @@ const OperationsPanel = () => {
                   onClick={() => addToCart(t)}
                   className="bg-white/80 backdrop-blur-md p-4 rounded-2xl border-none smooth-shadow hover:border-blue-500 hover:shadow-md transition-all text-left flex flex-col gap-2 group active:scale-95"
                 >
-                  <span className="text-2xl mb-1">{t.item === 'coal' ? '🔥' : t.item === 'tobacco' ? '🍃' : '💠'}</span>
-                  <p className="font-bold text-slate-800 text-sm group-hover:text-blue-600 transition-colors">{t.name}</p>
+                  <span className="text-2xl mb-1">{t.item === 'coal' ? '' : t.item === 'tobacco' ? '' : ''}</span>
+                  <p className="font-bold text-slate-800 text-sm group-hover:text-slate-800 transition-colors">{t.name}</p>
                   <p className="text-xs text-slate-400 font-medium">{t.amount}{t.item === 'tobacco' ? 'г' : 'шт'} • {formatMoney(t.price)} ₸</p>
                 </button>
               ))}
@@ -76,7 +76,7 @@ const OperationsPanel = () => {
                   <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Итого сумма закупа</p>
                   <h3 className="text-2xl font-black text-green-600">{formatMoney(invCart.reduce((a,b)=>a+(b.pricePerUnit*b.quantity),0))} ₸</h3>
                 </div>
-                <button onClick={handleCartSubmit} disabled={isSavingInv} className="w-full sm:w-auto px-8 py-4 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-500/30 disabled:opacity-50 hover:-translate-y-1 transition-all">
+                <button onClick={handleCartSubmit} disabled={isSavingInv} className="w-full sm:w-auto px-8 py-4 bg-slate-800 text-white rounded-2xl font-bold shadow-lg shadow-slate-800/20 disabled:opacity-50 hover:-translate-y-1 transition-all">
                   {isSavingInv ? 'Сохранение...' : 'Провести приход'}
                 </button>
               </div>
@@ -92,10 +92,10 @@ const OperationsPanel = () => {
                 <div key={m.id} className="p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:bg-slate-50 transition-colors">
                   <div>
                     <p className="font-bold text-slate-800">
-                      {m.templateName || (m.item === 'coal' ? '🔥 Уголь' : m.item === 'tobacco' ? '🍃 Табак' : '💠 Мундштуки')}{' '}
+                      {m.templateName || (m.item === 'coal' ? 'Уголь' : m.item === 'tobacco' ? 'Табак' : 'Мундштуки')}{' '}
                       <span className="text-green-500">+{formatMoney(m.amount)} {m.item === 'coal' || m.item === 'mouthpiece' ? 'шт' : 'г'}</span>
                     </p>
-                    {m.cost > 0 && <span className="inline-block mt-1 text-xs font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">{formatMoney(m.cost)} ₸</span>}
+                    {m.cost > 0 && <span className="inline-block mt-1 text-xs font-black text-slate-800 bg-slate-100 px-2 py-0.5 rounded-full">{formatMoney(m.cost)} ₸</span>}
                     {m.note && <p className="text-xs text-slate-400 mt-1">{m.note}</p>}
                   </div>
                   <div className="flex items-center gap-3">
@@ -118,10 +118,10 @@ const OperationsPanel = () => {
             <form onSubmit={handleInvSubmit} className="space-y-4">
               <input type="hidden" value="writeoff" />
               <div className="grid grid-cols-2 gap-4">
-                <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Тип</label><select value={invForm.item} onChange={e => setInvForm({...invForm, item: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold outline-none focus:ring-2 focus:ring-blue-500"><option value="coal">🔥 Уголь</option><option value="tobacco">🍃 Табак</option><option value="mouthpiece">💠 Мундштуки</option></select></div>
-                <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Кол-во</label><input type="number" min="0" value={invForm.amount} onChange={e => setInvForm({...invForm, amount: e.target.value})} placeholder={invForm.item === 'tobacco' ? 'Грамм' : 'Штук'} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold outline-none focus:ring-2 focus:ring-blue-500" required /></div>
+                <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Тип</label><select value={invForm.item} onChange={e => setInvForm({...invForm, item: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold outline-none focus:ring-2 focus:ring-slate-800"><option value="coal">Уголь</option><option value="tobacco">Табак</option><option value="mouthpiece">Мундштуки</option></select></div>
+                <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Кол-во</label><input type="number" min="0" value={invForm.amount} onChange={e => setInvForm({...invForm, amount: e.target.value})} placeholder={invForm.item === 'tobacco' ? 'Грамм' : 'Штук'} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold outline-none focus:ring-2 focus:ring-slate-800" required /></div>
               </div>
-              <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Причина (Опц.)</label><input type="text" value={invForm.note} onChange={e => setInvForm({...invForm, note: e.target.value})} placeholder="Например: Упал на пол" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold outline-none focus:ring-2 focus:ring-blue-500" /></div>
+              <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Причина (Опц.)</label><input type="text" value={invForm.note} onChange={e => setInvForm({...invForm, note: e.target.value})} placeholder="Например: Упал на пол" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold outline-none focus:ring-2 focus:ring-slate-800" /></div>
               <button type="submit" disabled={isSavingInv} className="w-full p-4 bg-orange-500 text-white rounded-2xl font-bold shadow-lg shadow-orange-500/30 disabled:opacity-50 hover:-translate-y-1 transition-all">Списать со склада</button>
             </form>
           </div>
@@ -135,7 +135,7 @@ const OperationsPanel = () => {
                 <div key={m.id} className="p-4 flex justify-between items-center hover:bg-slate-50 transition-colors">
                   <div>
                     <p className="font-bold text-slate-800">
-                      {m.item === 'coal' ? '🔥 Уголь' : m.item === 'tobacco' ? '🍃 Табак' : '💠 Мундштуки'}{' '}
+                      {m.item === 'coal' ? 'Уголь' : m.item === 'tobacco' ? 'Табак' : 'Мундштуки'}{' '}
                       <span className="text-orange-500">-{formatMoney(m.amount)} {m.item === 'coal' || m.item === 'mouthpiece' ? 'шт' : 'г'}</span>
                     </p>
                     {m.note && <p className="text-xs text-slate-400 mt-0.5">{m.note}</p>}

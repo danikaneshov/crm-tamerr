@@ -21,7 +21,7 @@ const ShiftsTab = () => {
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
       {/* Суб-табы */}
-      <div className="flex items-center gap-2 bg-white/50 backdrop-blur-md p-1.5 shadow-sm rounded-2xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-blue-500 shadow-sm w-full max-w-full scrollable-tabs">
+      <div className="flex items-center gap-2 bg-white/50 backdrop-blur-md p-1.5 shadow-sm rounded-2xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-slate-800 shadow-sm w-full max-w-full scrollable-tabs">
         <button onClick={(e) => { setSubTab('calendar'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'calendar' || !subTab ? 'bg-primary text-white shadow-md' : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'}`}>Календарь</button>
         <button onClick={(e) => { setSubTab('list'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'list' ? 'bg-primary text-white shadow-md' : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'}`}>Список смен</button>
       </div>
@@ -31,7 +31,7 @@ const ShiftsTab = () => {
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <h1 className="text-2xl font-bold text-slate-800">Календарь смен</h1>
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 bg-white p-1 rounded-xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-blue-500 shadow-sm">
+              <div className="flex items-center gap-2 bg-white p-1 rounded-xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-slate-800 shadow-sm">
                 <CalendarDays className="text-slate-400 ml-3" size={18}/>
                 <select 
                   value={selectedMonth === 'all' ? (availableMonths[0] || '05.2026') : selectedMonth} 
@@ -116,7 +116,7 @@ const ShiftsTab = () => {
                           onClick={() => { if (shiftGroup) setSelectedEmpReport(shiftGroup); }}
                           className={`relative min-h-[80px] lg:min-h-[110px] p-1.5 lg:p-2.5 flex flex-col transition-all duration-200 ${
                             shiftGroup 
-                              ? 'bg-white cursor-pointer hover:bg-blue-50/50 group' 
+                              ? 'bg-white cursor-pointer hover:bg-slate-100/50 group' 
                               : isMonday && !shiftGroup
                                 ? 'bg-red-50/30'
                                 : isSpecialDay
@@ -141,7 +141,7 @@ const ShiftsTab = () => {
                                       : 'text-slate-400'
                             }`}>{day}</div>
                             {holidayName && (
-                              <span className="hidden lg:inline-block text-[8px] font-bold text-violet-500 bg-violet-100 px-1.5 py-0.5 rounded-full truncate max-w-[60px]" title={holidayName}>🎉</span>
+                              <span className="hidden lg:inline-block text-[8px] font-bold text-violet-500 bg-violet-100 px-1.5 py-0.5 rounded-full truncate max-w-[60px]" title={holidayName}></span>
                             )}
                           </div>
 
@@ -182,7 +182,7 @@ const ShiftsTab = () => {
                                 {shiftGroup.status === 'open' ? '● LIVE' : `${formatMoney(shiftGroup.totalEarned)} ₸`}
                               </div>
                               {shiftGroup.totalStaffHookahs > 0 && (
-                                <div className="text-[7px] lg:text-[9px] text-orange-400 font-bold text-right">🔥 {shiftGroup.totalStaffHookahs}</div>
+                                <div className="text-[7px] lg:text-[9px] text-orange-400 font-bold text-right">{shiftGroup.totalStaffHookahs}</div>
                               )}
                             </div>
                           )}
@@ -208,7 +208,7 @@ const ShiftsTab = () => {
                 const data = filteredShifts.map(group => ({ 'Дата': group.dateStr, 'Статус': group.status === 'open' ? 'Идет смена' : 'Закрыта', 'Мастера': group.records.map(r => r.employeeName).join(', '), 'Кальяны/Замены (шт)': group.totalItems, 'Общая ЗП за смену (₸)': group.totalEarned }));
                 const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Смены"); XLSX.writeFile(wb, `Смены_${selectedMonth}.xlsx`);
               }} className="px-4 py-2 bg-green-500 text-white font-bold rounded-xl shadow-sm hover:bg-green-600 transition-colors">Скачать .xlsx</button>
-              <div className="flex items-center gap-2 bg-white p-1 rounded-xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-blue-500">
+              <div className="flex items-center gap-2 bg-white p-1 rounded-xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-slate-800">
                 <CalendarDays className="text-slate-400 ml-3" size={18}/>
                 <select value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} className="py-2 pr-4 bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer">
                   <option value="all">Все время</option>
@@ -228,7 +228,7 @@ const ShiftsTab = () => {
                 <div className="space-y-3">
                   <p className="text-sm text-slate-600 font-medium border-b border-slate-50 py-3 last:border-0 transition-all hover:bg-slate-50 hover:px-2 rounded-xl">Мастера: <span className="font-bold text-slate-800">{group.records.map(r => r.employeeName).join(', ')}</span></p>
                   <div className="flex justify-between items-center text-sm pt-1"><span className="text-slate-400">Кальяны/Замены:</span><span className="font-bold text-slate-700">{group.totalItems} шт</span></div>
-                  {group.totalStaffHookahs > 0 && <div className="flex justify-between items-center text-sm"><span className="text-slate-400 flex items-center gap-1">🔥 Стафф:</span><span className="font-bold text-orange-500">{group.totalStaffHookahs} шт</span></div>}
+                  {group.totalStaffHookahs > 0 && <div className="flex justify-between items-center text-sm"><span className="text-slate-400 flex items-center gap-1">Стафф:</span><span className="font-bold text-orange-500">{group.totalStaffHookahs} шт</span></div>}
                   <div className="flex justify-between items-center text-sm"><span className="text-slate-400">Общая ЗП за смену:</span><span className="font-bold text-primary">{formatMoney(group.totalEarned)} ₸</span></div>
                 </div>
               </Card>
@@ -256,12 +256,12 @@ const ShiftsTab = () => {
             
             <div className="space-y-6">
               {/* Общая статистика за день */}
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-5 rounded-2xl border border-blue-100">
-                <h3 className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-3">Общая статистика за день</h3>
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-5 rounded-2xl border border-slate-200">
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Общая статистика за день</h3>
                 <div className="flex gap-4">
                   <div className="flex-1 bg-white p-3 rounded-xl shadow-sm text-center">
                     <span className="block text-[10px] text-slate-400 uppercase font-bold mb-1">Всего кальянов</span>
-                    <strong className="text-blue-600 text-xl font-black">
+                    <strong className="text-slate-800 text-xl font-black">
                       {selectedEmpReport.status === 'open' ? '—' : selectedEmpReport.records.reduce((sum, r) => sum + (r.items?.cocktail1 || 0), 0)}
                     </strong>
                   </div>
@@ -277,7 +277,7 @@ const ShiftsTab = () => {
                   const totalStaff = selectedEmpReport.records.reduce((sum, r) => sum + (r.staffHookahs || 0), 0);
                   return totalStaff > 0 ? (
                     <div className="flex items-center gap-2 bg-orange-50 px-4 py-2.5 rounded-xl border border-orange-100 mt-3">
-                      <span className="text-orange-500 text-lg">🔥</span>
+                      <span className="text-orange-500 text-lg"></span>
                       <span className="text-sm font-bold text-orange-600">Стафф: {totalStaff} шт</span>
                       <span className="text-[10px] text-orange-400 font-medium ml-auto">не в продажах</span>
                     </div>
@@ -294,7 +294,7 @@ const ShiftsTab = () => {
                       <p className="text-xs text-slate-500 font-medium mt-0.5">{idx === 0 ? 'Открыл смену' : 'Напарник'}</p>
                     </div>
                     <div className="text-right">
-                      <span className="block font-black text-xl text-blue-600">{rec.status === 'open' ? 'Ожидание' : `${formatMoney(rec.earned)} ₸`}</span>
+                      <span className="block font-black text-xl text-slate-800">{rec.status === 'open' ? 'Ожидание' : `${formatMoney(rec.earned)} ₸`}</span>
                     </div>
                   </div>
                 ))}
@@ -327,7 +327,7 @@ const ShiftsTab = () => {
                   <img 
                     src={selectedEmpReport.records[0].photoUrl} 
                     alt="Чек" 
-                    className="w-full h-48 object-cover rounded-2xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-blue-500 cursor-pointer hover:opacity-90 transition-opacity" 
+                    className="w-full h-48 object-cover rounded-2xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-slate-800 cursor-pointer hover:opacity-90 transition-opacity" 
                     onClick={() => window.open(selectedEmpReport.records[0].photoUrl, '_blank')} 
                   />
                 ) : (

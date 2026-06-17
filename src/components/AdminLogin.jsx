@@ -40,8 +40,8 @@ const AdminLogin = () => {
       <div className="w-full max-w-md bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
         
         <div className="text-center mb-8">
-          <div className="inline-block bg-blue-50 px-4 py-2 rounded-lg mb-4 border border-blue-100">
-            <span className="font-bold text-xl tracking-wide text-blue-600">CRM Admin</span>
+          <div className="inline-block bg-slate-100 px-4 py-2 rounded-lg mb-4 border border-slate-200">
+            <span className="font-bold text-xl tracking-wide text-slate-800">CRM Admin</span>
           </div>
           <h2 className="text-2xl font-semibold text-gray-800">Вход в панель</h2>
         </div>
@@ -60,7 +60,7 @@ const AdminLogin = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-slate-800 transition-all"
               placeholder="admin@crm.com"
               required
             />
@@ -72,7 +72,7 @@ const AdminLogin = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-slate-800 transition-all"
               placeholder="••••••••"
               required
             />
@@ -81,7 +81,7 @@ const AdminLogin = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl shadow-sm transition-colors mt-4 disabled:bg-blue-300"
+            className="w-full bg-slate-800 hover:bg-slate-900 text-white font-semibold py-3 rounded-xl shadow-sm transition-colors mt-4 disabled:bg-blue-300"
           >
             {isLoading ? 'Вход...' : 'Войти'}
           </button>

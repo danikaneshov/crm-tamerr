@@ -4,7 +4,7 @@ import MobileNav from './MobileNav';
 
 const AdminLayout = ({ children }) => {
   return (
-    <div className="flex h-screen relative no-select overflow-hidden bg-[#F4F7FE]">
+    <div className="flex h-screen relative no-select overflow-hidden bg-slate-50">
       <Sidebar />
       <MobileNav />
       

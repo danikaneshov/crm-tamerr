@@ -11,7 +11,7 @@ const ClientMobileNav = ({ activeTab, setActiveTab }) => {
         <button
           onClick={() => setActiveTab('shift')}
           className={`p-3 px-6 rounded-2xl font-bold transition-all duration-300 flex items-center gap-3 ${
-            activeTab === 'shift' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/40' : 'text-slate-400 hover:text-slate-200'
+            activeTab === 'shift' ? 'bg-slate-800 text-white shadow-lg shadow-slate-800/30' : 'text-slate-400 hover:text-slate-200'
           }`}
         >
           <Clock size={20} />
@@ -20,7 +20,7 @@ const ClientMobileNav = ({ activeTab, setActiveTab }) => {
         <button
           onClick={() => setActiveTab('stats')}
           className={`p-3 px-6 rounded-2xl font-bold transition-all duration-300 flex items-center gap-3 ${
-            activeTab === 'stats' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/40' : 'text-slate-400 hover:text-slate-200'
+            activeTab === 'stats' ? 'bg-slate-800 text-white shadow-lg shadow-slate-800/30' : 'text-slate-400 hover:text-slate-200'
           }`}
         >
           <BarChart3 size={20} />

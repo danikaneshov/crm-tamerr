@@ -15,7 +15,7 @@
   }
   
   body {
-    @apply bg-[#F4F7FE] text-slate-900 font-sans antialiased selection:bg-blue-200 selection:text-blue-900;
+    @apply bg-slate-50 text-slate-900 font-sans antialiased selection:bg-blue-200 selection:text-blue-900;
     touch-action: manipulation;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;

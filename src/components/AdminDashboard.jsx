@@ -759,24 +759,24 @@ const AdminDashboard = () => {
       
       {/* Sidebar for Desktop (Floating Glass) */}
       <div className="hidden lg:flex flex-col w-[280px] fixed inset-y-6 left-6 z-40 glass rounded-[40px] p-8">
-        <div className="mb-12 px-2"><span className="text-3xl font-black tracking-tighter text-slate-900">ERP<span className="text-blue-600">.</span></span></div>
+        <div className="mb-12 px-2"><span className="text-3xl font-black tracking-tighter text-slate-900">ERP<span className="text-slate-800">.</span></span></div>
         <nav className="flex-1 space-y-3">
-          <button onClick={() => switchTab('dashboard')} className={`w-full flex items-center gap-4 p-4 rounded-3xl font-bold transition-all duration-300 ${activeTab === 'dashboard' ? 'bg-blue-600 text-white shadow-xl shadow-blue-500/40 translate-x-1' : 'text-slate-400 hover:bg-white hover:text-slate-800 hover:shadow-md hover:translate-x-1'}`}><LayoutDashboard size={22}/>Дашборд</button>
-          <button onClick={() => switchTab('shifts', 'calendar')} className={`w-full flex items-center gap-4 p-4 rounded-3xl font-bold transition-all duration-300 ${activeTab === 'shifts' ? 'bg-blue-600 text-white shadow-xl shadow-blue-500/40 translate-x-1' : 'text-slate-400 hover:bg-white hover:text-slate-800 hover:shadow-md hover:translate-x-1'}`}><CalendarIcon size={22}/>Смены</button>
-          <button onClick={() => switchTab('team', 'salaries')} className={`w-full flex items-center gap-4 p-4 rounded-3xl font-bold transition-all duration-300 ${activeTab === 'team' ? 'bg-blue-600 text-white shadow-xl shadow-blue-500/40 translate-x-1' : 'text-slate-400 hover:bg-white hover:text-slate-800 hover:shadow-md hover:translate-x-1'}`}><Users size={22}/>Команда</button>
-          <button onClick={() => switchTab('inventory', 'stock')} className={`w-full flex items-center gap-4 p-4 rounded-3xl font-bold transition-all duration-300 ${activeTab === 'inventory' ? 'bg-blue-600 text-white shadow-xl shadow-blue-500/40 translate-x-1' : 'text-slate-400 hover:bg-white hover:text-slate-800 hover:shadow-md hover:translate-x-1'}`}><Package size={22}/>Склад</button>
-          <button onClick={() => switchTab('settings', 'margins')} className={`w-full flex items-center gap-4 p-4 rounded-3xl font-bold transition-all duration-300 ${activeTab === 'settings' ? 'bg-blue-600 text-white shadow-xl shadow-blue-500/40 translate-x-1' : 'text-slate-400 hover:bg-white hover:text-slate-800 hover:shadow-md hover:translate-x-1'}`}><Settings size={22}/>Настройки</button>
+          <button onClick={() => switchTab('dashboard')} className={`w-full flex items-center gap-4 p-4 rounded-3xl font-bold transition-all duration-300 ${activeTab === 'dashboard' ? 'bg-slate-800 text-white shadow-xl shadow-slate-800/30 translate-x-1' : 'text-slate-400 hover:bg-white hover:text-slate-800 hover:shadow-md hover:translate-x-1'}`}><LayoutDashboard size={22}/>Дашборд</button>
+          <button onClick={() => switchTab('shifts', 'calendar')} className={`w-full flex items-center gap-4 p-4 rounded-3xl font-bold transition-all duration-300 ${activeTab === 'shifts' ? 'bg-slate-800 text-white shadow-xl shadow-slate-800/30 translate-x-1' : 'text-slate-400 hover:bg-white hover:text-slate-800 hover:shadow-md hover:translate-x-1'}`}><CalendarIcon size={22}/>Смены</button>
+          <button onClick={() => switchTab('team', 'salaries')} className={`w-full flex items-center gap-4 p-4 rounded-3xl font-bold transition-all duration-300 ${activeTab === 'team' ? 'bg-slate-800 text-white shadow-xl shadow-slate-800/30 translate-x-1' : 'text-slate-400 hover:bg-white hover:text-slate-800 hover:shadow-md hover:translate-x-1'}`}><Users size={22}/>Команда</button>
+          <button onClick={() => switchTab('inventory', 'stock')} className={`w-full flex items-center gap-4 p-4 rounded-3xl font-bold transition-all duration-300 ${activeTab === 'inventory' ? 'bg-slate-800 text-white shadow-xl shadow-slate-800/30 translate-x-1' : 'text-slate-400 hover:bg-white hover:text-slate-800 hover:shadow-md hover:translate-x-1'}`}><Package size={22}/>Склад</button>
+          <button onClick={() => switchTab('settings', 'margins')} className={`w-full flex items-center gap-4 p-4 rounded-3xl font-bold transition-all duration-300 ${activeTab === 'settings' ? 'bg-slate-800 text-white shadow-xl shadow-slate-800/30 translate-x-1' : 'text-slate-400 hover:bg-white hover:text-slate-800 hover:shadow-md hover:translate-x-1'}`}><Settings size={22}/>Настройки</button>
         </nav>
         <button onClick={() => signOut(auth)} className="flex items-center gap-4 p-4 mt-8 text-slate-400 font-bold hover:text-red-500 hover:bg-red-50 rounded-3xl transition-all duration-300"><LogOut size={22}/>Выйти</button>
       </div>
 
       {/* Bottom Navigation for Mobile (Floating Glass) */}
       <div className="lg:hidden fixed bottom-6 left-4 right-4 z-50 glass rounded-[32px] px-6 py-4 flex justify-between items-center">
-        <button onClick={() => switchTab('dashboard')} className={`p-3 rounded-2xl transition-all duration-300 ${activeTab === 'dashboard' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/40 scale-110' : 'text-slate-400 hover:text-slate-800'}`}><LayoutDashboard size={24}/></button>
-        <button onClick={() => switchTab('shifts', 'calendar')} className={`p-3 rounded-2xl transition-all duration-300 ${activeTab === 'shifts' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/40 scale-110' : 'text-slate-400 hover:text-slate-800'}`}><CalendarIcon size={24}/></button>
-        <button onClick={() => switchTab('team', 'salaries')} className={`p-3 rounded-2xl transition-all duration-300 ${activeTab === 'team' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/40 scale-110' : 'text-slate-400 hover:text-slate-800'}`}><Users size={24}/></button>
-        <button onClick={() => switchTab('inventory', 'stock')} className={`p-3 rounded-2xl transition-all duration-300 ${activeTab === 'inventory' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/40 scale-110' : 'text-slate-400 hover:text-slate-800'}`}><Package size={24}/></button>
-        <button onClick={() => switchTab('settings', 'margins')} className={`p-3 rounded-2xl transition-all duration-300 ${activeTab === 'settings' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/40 scale-110' : 'text-slate-400 hover:text-slate-800'}`}><Settings size={24}/></button>
+        <button onClick={() => switchTab('dashboard')} className={`p-3 rounded-2xl transition-all duration-300 ${activeTab === 'dashboard' ? 'bg-slate-800 text-white shadow-lg shadow-slate-800/30 scale-110' : 'text-slate-400 hover:text-slate-800'}`}><LayoutDashboard size={24}/></button>
+        <button onClick={() => switchTab('shifts', 'calendar')} className={`p-3 rounded-2xl transition-all duration-300 ${activeTab === 'shifts' ? 'bg-slate-800 text-white shadow-lg shadow-slate-800/30 scale-110' : 'text-slate-400 hover:text-slate-800'}`}><CalendarIcon size={24}/></button>
+        <button onClick={() => switchTab('team', 'salaries')} className={`p-3 rounded-2xl transition-all duration-300 ${activeTab === 'team' ? 'bg-slate-800 text-white shadow-lg shadow-slate-800/30 scale-110' : 'text-slate-400 hover:text-slate-800'}`}><Users size={24}/></button>
+        <button onClick={() => switchTab('inventory', 'stock')} className={`p-3 rounded-2xl transition-all duration-300 ${activeTab === 'inventory' ? 'bg-slate-800 text-white shadow-lg shadow-slate-800/30 scale-110' : 'text-slate-400 hover:text-slate-800'}`}><Package size={24}/></button>
+        <button onClick={() => switchTab('settings', 'margins')} className={`p-3 rounded-2xl transition-all duration-300 ${activeTab === 'settings' ? 'bg-slate-800 text-white shadow-lg shadow-slate-800/30 scale-110' : 'text-slate-400 hover:text-slate-800'}`}><Settings size={24}/></button>
       </div>
 
       {/* Основной контент */}
@@ -787,7 +787,7 @@ const AdminDashboard = () => {
           <div className="space-y-10 animate-slide-in-bottom">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
               <h1 className="text-2xl font-bold text-slate-800">Общая статистика</h1>
-              <div className="flex items-center gap-2 bg-white p-1 rounded-xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-blue-500 shadow-sm">
+              <div className="flex items-center gap-2 bg-white p-1 rounded-xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-slate-800 shadow-sm">
                 <CalendarDays className="text-slate-400 ml-3" size={18}/>
                 <select value={dashboardMonth} onChange={e => setDashboardMonth(e.target.value)} className="py-2 pr-4 bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer">
                   <option value="all">Все время</option>
@@ -812,7 +812,7 @@ const AdminDashboard = () => {
               <Card variant="elevated" className="p-8 relative">
                 <Percent className="absolute right-6 top-6 text-blue-100" size={50}/>
                 <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">Процент замен</p>
-                <h3 className="text-3xl font-black text-blue-600">{replacementRate}%</h3>
+                <h3 className="text-3xl font-black text-slate-800">{replacementRate}%</h3>
                 <p className="text-xs text-slate-400 mt-1">От числа кальянов</p>
               </Card>
               <Card variant="elevated" className="p-8 relative overflow-hidden">
@@ -925,7 +925,7 @@ const AdminDashboard = () => {
               
               <div className="bg-white p-6 rounded-[32px] border-none smooth-shadow flex flex-col justify-center">
                 <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">Прибыль с кальянов</p>
-                <h3 className="text-2xl font-black text-blue-600">{formatMoney(dashboardHookahProfit)} ₸</h3>
+                <h3 className="text-2xl font-black text-slate-800">{formatMoney(dashboardHookahProfit)} ₸</h3>
                 <p className="text-slate-400 text-sm mt-1">{globalHookahs} шт × {formatMoney(ownerProfits.hookah)} ₸</p>
               </div>
 
@@ -984,7 +984,7 @@ const AdminDashboard = () => {
         {activeTab === 'shifts' && (
           <div className="space-y-8 animate-slide-in-bottom">
             {/* Суб-табы */}
-            <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-blue-500 shadow-sm w-fit scrollable-tabs">
+            <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-slate-800 shadow-sm w-fit scrollable-tabs">
               <button onClick={() => setSubTab('calendar')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'calendar' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Календарь</button>
               <button onClick={() => setSubTab('list')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'list' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Список смен</button>
               <button onClick={() => setSubTab('add')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'add' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Добавить</button>
@@ -999,7 +999,7 @@ const AdminDashboard = () => {
                   <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-red-400"></span>Выходной (Пн)</span>
                   <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-primary"></span>Смена</span>
                 </div>
-                <div className="flex items-center gap-2 bg-white p-1 rounded-xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-blue-500 shadow-sm">
+                <div className="flex items-center gap-2 bg-white p-1 rounded-xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-slate-800 shadow-sm">
                   <CalendarDays className="text-slate-400 ml-3" size={18}/>
                   <select 
                     value={selectedMonth === 'all' ? (availableMonths[0] || '05.2026') : selectedMonth} 
@@ -1084,7 +1084,7 @@ const AdminDashboard = () => {
                             onClick={() => { if (shiftGroup) setSelectedEmpReport(shiftGroup); }}
                             className={`relative min-h-[80px] lg:min-h-[110px] p-1.5 lg:p-2.5 flex flex-col transition-all duration-200 ${
                               shiftGroup 
-                                ? 'bg-white cursor-pointer hover:bg-blue-50/50 group' 
+                                ? 'bg-white cursor-pointer hover:bg-slate-100/50 group' 
                                 : isMonday && !shiftGroup
                                   ? 'bg-red-50/30'
                                   : isSpecialDay
@@ -1109,7 +1109,7 @@ const AdminDashboard = () => {
                                         : 'text-slate-400'
                               }`}>{day}</div>
                               {holidayName && (
-                                <span className="hidden lg:inline-block text-[8px] font-bold text-violet-500 bg-violet-100 px-1.5 py-0.5 rounded-full truncate max-w-[60px]" title={holidayName}>🎉</span>
+                                <span className="hidden lg:inline-block text-[8px] font-bold text-violet-500 bg-violet-100 px-1.5 py-0.5 rounded-full truncate max-w-[60px]" title={holidayName}></span>
                               )}
                             </div>
 
@@ -1150,7 +1150,7 @@ const AdminDashboard = () => {
                                   {shiftGroup.status === 'open' ? '● LIVE' : `${formatMoney(shiftGroup.totalEarned)} ₸`}
                                 </div>
                                 {shiftGroup.totalStaffHookahs > 0 && (
-                                  <div className="text-[7px] lg:text-[9px] text-orange-400 font-bold text-right">🔥 {shiftGroup.totalStaffHookahs}</div>
+                                  <div className="text-[7px] lg:text-[9px] text-orange-400 font-bold text-right">{shiftGroup.totalStaffHookahs}</div>
                                 )}
                               </div>
                             )}
@@ -1175,7 +1175,7 @@ const AdminDashboard = () => {
                       const data = filteredShifts.map(group => ({ 'Дата': group.dateStr, 'Статус': group.status === 'open' ? 'Идет смена' : 'Закрыта', 'Мастера': group.records.map(r => r.employeeName).join(', '), 'Кальяны/Замены (шт)': group.totalItems, 'Общая ЗП за смену (₸)': group.totalEarned }));
                       const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Смены"); XLSX.writeFile(wb, `Смены_${selectedMonth}.xlsx`);
                     }} className="px-4 py-2 bg-green-500 text-white font-bold rounded-xl shadow-sm hover:bg-green-600 transition-colors">Скачать .xlsx</button>
-                    <div className="flex items-center gap-2 bg-white p-1 rounded-xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-blue-500">
+                    <div className="flex items-center gap-2 bg-white p-1 rounded-xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-slate-800">
                       <CalendarDays className="text-slate-400 ml-3" size={18}/>
                       <select value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} className="py-2 pr-4 bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer">
                         <option value="all">Все время</option>
@@ -1195,7 +1195,7 @@ const AdminDashboard = () => {
                       <div className="space-y-3">
                         <p className="text-sm text-slate-600 font-medium border-b border-slate-50 pb-3">Мастера: <span className="font-bold text-slate-800">{group.records.map(r => r.employeeName).join(', ')}</span></p>
                         <div className="flex justify-between items-center text-sm pt-1"><span className="text-slate-400">Кальяны/Замены:</span><span className="font-bold text-slate-700">{group.totalItems} шт</span></div>
-                        {group.totalStaffHookahs > 0 && <div className="flex justify-between items-center text-sm"><span className="text-slate-400 flex items-center gap-1">🔥 Стафф:</span><span className="font-bold text-orange-500">{group.totalStaffHookahs} шт</span></div>}
+                        {group.totalStaffHookahs > 0 && <div className="flex justify-between items-center text-sm"><span className="text-slate-400 flex items-center gap-1">Стафф:</span><span className="font-bold text-orange-500">{group.totalStaffHookahs} шт</span></div>}
                         <div className="flex justify-between items-center text-sm"><span className="text-slate-400">Общая ЗП за смену:</span><span className="font-bold text-primary">{formatMoney(group.totalEarned)} ₸</span></div>
                       </div>
                     </Card>
@@ -1218,7 +1218,7 @@ const AdminDashboard = () => {
                     <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Напарник (Опц.)</label><select value={debugShift.partnerId} onChange={e=>setDebugShift({...debugShift, partnerId: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800"><option value="">Без напарника</option>{employees.filter(e => !e.isArchived && e.id !== debugShift.employeeId).map(emp => <option key={emp.id} value={emp.id}>{emp.name}</option>)}</select></div>
                     <div className="grid grid-cols-2 gap-4"><div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Кальяны</label><input type="number" min="0" value={debugShift.hookahs} onChange={e=>setDebugShift({...debugShift, hookahs: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" /></div><div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Замены</label><input type="number" min="0" value={debugShift.replacements} onChange={e=>setDebugShift({...debugShift, replacements: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" /></div></div>
                     <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Фото (Опц.)</label><input type="file" accept="image/*" onChange={e => setDebugShiftPhoto(e.target.files[0] || null)} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-sm text-slate-800" /></div>
-                    <button type="submit" disabled={isUploadingPastShift} className="w-full p-4 mt-4 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-100 disabled:opacity-50">{isUploadingPastShift ? 'Загрузка...' : 'Добавить смену'}</button>
+                    <button type="submit" disabled={isUploadingPastShift} className="w-full p-4 mt-4 bg-slate-800 text-white rounded-2xl font-bold shadow-lg shadow-blue-100 disabled:opacity-50">{isUploadingPastShift ? 'Загрузка...' : 'Добавить смену'}</button>
                   </form>
                 </div>
               </div>
@@ -1229,7 +1229,7 @@ const AdminDashboard = () => {
         {/* ВКЛАДКА: КОМАНДА */}
         {activeTab === 'team' && (
           <div className="space-y-8 animate-slide-in-bottom">
-            <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-blue-500 shadow-sm w-fit scrollable-tabs">
+            <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-slate-800 shadow-sm w-fit scrollable-tabs">
               <button onClick={() => setSubTab('salaries')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'salaries' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Зарплаты</button>
               <button onClick={() => setSubTab('staff')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'staff' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Персонал</button>
             </div>
@@ -1240,7 +1240,7 @@ const AdminDashboard = () => {
                   <h1 className="text-2xl font-bold text-slate-800">Зарплаты сотрудников</h1>
                   <div className="flex items-center gap-2">
                     <button onClick={() => { const data = employees.map(emp => { const stats = calculateEmployeeStats(emp.id, selectedMonth); return { 'Сотрудник': emp.name, 'Смен': stats.shiftsCount, 'Кальянов': stats.hookahs, 'Замен': stats.replacements, 'Оклад': stats.baseSalaryTotal, '%': stats.hookahPercentageTotal, 'ЗП': stats.totalEarned }; }); const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Зарплаты"); XLSX.writeFile(wb, `Зарплаты_${selectedMonth}.xlsx`); }} className="px-4 py-2 bg-green-500 text-white font-bold rounded-xl shadow-sm hover:bg-green-600 transition-colors">Скачать .xlsx</button>
-                    <div className="flex items-center gap-2 bg-white p-1 rounded-xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-blue-500"><CalendarDays className="text-slate-400 ml-3" size={18}/><select value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} className="py-2 pr-4 bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer"><option value="all">Все время</option>{availableMonths.map(m => <option key={m} value={m}>{m}</option>)}</select></div>
+                    <div className="flex items-center gap-2 bg-white p-1 rounded-xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-slate-800"><CalendarDays className="text-slate-400 ml-3" size={18}/><select value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} className="py-2 pr-4 bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer"><option value="all">Все время</option>{availableMonths.map(m => <option key={m} value={m}>{m}</option>)}</select></div>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1275,7 +1275,7 @@ const AdminDashboard = () => {
                   <form onSubmit={handleAddEmployee} className="space-y-4">
                     <input type="text" value={newEmpName} onChange={e=>setNewEmpName(e.target.value)} placeholder="Имя мастера" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold" required />
                     <div className="flex gap-2"><input type="text" maxLength="4" value={newEmpPin} onChange={e=>setNewEmpPin(e.target.value.replace(/\D/g, ''))} placeholder="PIN" className="w-full p-4 bg-slate-50 rounded-2xl border-none text-center font-mono font-bold" required /><button type="button" onClick={generatePin} className="p-4 bg-slate-100 rounded-2xl"><Key size={20}/></button></div>
-                    <button type="submit" disabled={isAdding || !newEmpName || newEmpPin.length !== 4} className="w-full p-4 bg-blue-600 text-white rounded-2xl font-bold disabled:bg-blue-300">Создать аккаунт</button>
+                    <button type="submit" disabled={isAdding || !newEmpName || newEmpPin.length !== 4} className="w-full p-4 bg-slate-800 text-white rounded-2xl font-bold disabled:bg-blue-300">Создать аккаунт</button>
                   </form>
                 </div>
                 <div className="col-span-1 lg:col-span-2 bg-white rounded-[32px] border-none smooth-shadow overflow-x-auto">
@@ -1378,7 +1378,7 @@ const AdminDashboard = () => {
 
           return (
           <div className="space-y-8 animate-slide-in-bottom">
-            <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-blue-500 shadow-sm scrollable-tabs">
+            <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-slate-800 shadow-sm scrollable-tabs">
               <button onClick={() => setSubTab('stock')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'stock' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Остатки</button>
               <button onClick={() => setSubTab('operations')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'operations' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Операции (Приход / Списание)</button>
               <button onClick={() => setSubTab('revision')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'revision' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Ревизия</button>
@@ -1394,31 +1394,31 @@ const AdminDashboard = () => {
                 </Card>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Card variant="elevated" className="p-8 card-hover-effect">
-                    <div className="flex items-center gap-4 mb-4"><div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl flex items-center justify-center text-white text-xl">🔥</div><div><p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Уголь</p><h3 className="text-3xl font-black text-slate-900">{formatMoney(Math.round(coalStock))} шт</h3></div></div>
+                    <div className="flex items-center gap-4 mb-4"><div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl flex items-center justify-center text-white text-xl"></div><div><p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Уголь</p><h3 className="text-3xl font-black text-slate-900">{formatMoney(Math.round(coalStock))} шт</h3></div></div>
                     <div className="bg-slate-50 p-4 rounded-2xl space-y-2 text-sm border border-slate-100">
                       <div className="flex justify-between"><span className="text-slate-500">Приход (всего):</span><strong className="text-green-600">+{formatMoney(coalIn)}</strong></div>
                       <div className="flex justify-between"><span className="text-slate-500">Расход (авто, {totalBowls} чаш × {invStandards.coalPerBowl}):</span><strong className="text-red-500">-{formatMoney(autoCoalUsed)}</strong></div>
                       <div className="flex justify-between"><span className="text-slate-500">Списано вручную:</span><strong className="text-orange-500">-{formatMoney(coalWriteoff)}</strong></div>
                     </div>
-                    <div className="mt-3 px-4 py-2 bg-blue-50 rounded-xl border border-blue-100 text-center"><span className="text-blue-600 font-black text-sm">≈ {Math.max(0, Math.floor(coalStock / invStandards.coalPerBowl))} чаш</span></div>
+                    <div className="mt-3 px-4 py-2 bg-slate-100 rounded-xl border border-slate-200 text-center"><span className="text-slate-800 font-black text-sm">≈ {Math.max(0, Math.floor(coalStock / invStandards.coalPerBowl))} чаш</span></div>
                   </Card>
                   <Card variant="elevated" className="p-8 card-hover-effect">
-                    <div className="flex items-center gap-4 mb-4"><div className="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-600 rounded-2xl flex items-center justify-center text-white text-xl">🍃</div><div><p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Табак</p><h3 className="text-3xl font-black text-slate-900">{formatMoney(Math.round(tobaccoStock))} г</h3></div></div>
+                    <div className="flex items-center gap-4 mb-4"><div className="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-600 rounded-2xl flex items-center justify-center text-white text-xl"></div><div><p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Табак</p><h3 className="text-3xl font-black text-slate-900">{formatMoney(Math.round(tobaccoStock))} г</h3></div></div>
                     <div className="bg-slate-50 p-4 rounded-2xl space-y-2 text-sm border border-slate-100">
                       <div className="flex justify-between"><span className="text-slate-500">Приход (всего):</span><strong className="text-green-600">+{formatMoney(tobaccoIn)} г</strong></div>
                       <div className="flex justify-between"><span className="text-slate-500">Расход (авто, {totalBowls} чаш × {invStandards.tobaccoPerBowl}г):</span><strong className="text-red-500">-{formatMoney(autoTobaccoUsed)} г</strong></div>
                       <div className="flex justify-between"><span className="text-slate-500">Списано вручную:</span><strong className="text-orange-500">-{formatMoney(tobaccoWriteoff)} г</strong></div>
                     </div>
-                    <div className="mt-3 px-4 py-2 bg-blue-50 rounded-xl border border-blue-100 text-center"><span className="text-blue-600 font-black text-sm">≈ {Math.max(0, Math.floor(tobaccoStock / invStandards.tobaccoPerBowl))} чаш</span></div>
+                    <div className="mt-3 px-4 py-2 bg-slate-100 rounded-xl border border-slate-200 text-center"><span className="text-slate-800 font-black text-sm">≈ {Math.max(0, Math.floor(tobaccoStock / invStandards.tobaccoPerBowl))} чаш</span></div>
                   </Card>
                   <Card variant="elevated" className="p-8 card-hover-effect">
-                    <div className="flex items-center gap-4 mb-4"><div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-2xl flex items-center justify-center text-white text-xl">💠</div><div><p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Мундштуки</p><h3 className="text-3xl font-black text-slate-900">{formatMoney(Math.round(mouthpieceStock))} шт</h3></div></div>
+                    <div className="flex items-center gap-4 mb-4"><div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-2xl flex items-center justify-center text-white text-xl"></div><div><p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Мундштуки</p><h3 className="text-3xl font-black text-slate-900">{formatMoney(Math.round(mouthpieceStock))} шт</h3></div></div>
                     <div className="bg-slate-50 p-4 rounded-2xl space-y-2 text-sm border border-slate-100">
                       <div className="flex justify-between"><span className="text-slate-500">Приход (всего):</span><strong className="text-green-600">+{formatMoney(mouthpieceIn)}</strong></div>
                       <div className="flex justify-between"><span className="text-slate-500">Расход (авто, {totalBowls} чаш × {invStandards.mouthpiecePerBowl}):</span><strong className="text-red-500">-{formatMoney(autoMouthpieceUsed)}</strong></div>
                       <div className="flex justify-between"><span className="text-slate-500">Списано вручную:</span><strong className="text-orange-500">-{formatMoney(mouthpieceWriteoff)}</strong></div>
                     </div>
-                    <div className="mt-3 px-4 py-2 bg-blue-50 rounded-xl border border-blue-100 text-center"><span className="text-blue-600 font-black text-sm">≈ {Math.max(0, Math.floor(mouthpieceStock / invStandards.mouthpiecePerBowl))} чаш</span></div>
+                    <div className="mt-3 px-4 py-2 bg-slate-100 rounded-xl border border-slate-200 text-center"><span className="text-slate-800 font-black text-sm">≈ {Math.max(0, Math.floor(mouthpieceStock / invStandards.mouthpiecePerBowl))} чаш</span></div>
                   </Card>
                 </div>
               </div>
@@ -1449,12 +1449,12 @@ const AdminDashboard = () => {
                         className="bg-white p-4 rounded-2xl border-none smooth-shadow hover:border-primary hover:shadow-md transition-all text-left flex flex-col gap-2 group active:scale-95"
                       >
                         <div className="flex justify-between items-start">
-                          <span className="text-2xl group-hover:scale-110 transition-transform">{t.item === 'coal' ? '🔥' : t.item === 'tobacco' ? '🍃' : '💠'}</span>
+                          <span className="text-2xl group-hover:scale-110 transition-transform">{t.item === 'coal' ? '' : t.item === 'tobacco' ? '' : ''}</span>
                           <Plus size={16} className="text-slate-300 group-hover:text-primary transition-colors" />
                         </div>
                         <p className="font-black text-slate-800 text-sm line-clamp-2">{t.name}</p>
                         <p className="text-[10px] font-bold text-slate-400 uppercase">{t.amount} {t.item === 'coal' || t.item === 'mouthpiece' ? 'шт' : 'г'}</p>
-                        {t.price > 0 && <p className="text-[10px] font-bold text-blue-500">{formatMoney(t.price)} ₸</p>}
+                        {t.price > 0 && <p className="text-[10px] font-bold text-slate-700">{formatMoney(t.price)} ₸</p>}
                       </button>
                     ))}
                   </div>
@@ -1476,7 +1476,7 @@ const AdminDashboard = () => {
                         <div key={item.id} className="p-5 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
-                              <span className="text-lg">{item.item === 'coal' ? '🔥' : item.item === 'tobacco' ? '🍃' : '💠'}</span>
+                              <span className="text-lg">{item.item === 'coal' ? '' : item.item === 'tobacco' ? '' : ''}</span>
                               <h4 className="font-black text-slate-900 truncate">{item.name}</h4>
                             </div>
                             <p className="text-xs text-slate-400 font-medium">{item.amountPerUnit} {item.item === 'coal' || item.item === 'mouthpiece' ? 'шт' : 'г'} / ед.</p>
@@ -1485,7 +1485,7 @@ const AdminDashboard = () => {
                           <div className="flex flex-wrap gap-3 items-center">
                             <div className="flex flex-col gap-1">
                               <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Кол-во</label>
-                              <div className="flex items-center gap-1.5 bg-slate-50 p-1 rounded-xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-blue-500">
+                              <div className="flex items-center gap-1.5 bg-slate-50 p-1 rounded-xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-slate-800">
                                 <button onClick={() => updateCartItem(item.id, 'quantity', Math.max(1, item.quantity - 1))} className="w-8 h-8 flex items-center justify-center bg-white rounded-lg text-slate-600 shadow-sm hover:bg-slate-100 transition-colors font-bold">−</button>
                                 <span className="w-8 text-center font-black text-slate-800">{item.quantity}</span>
                                 <button onClick={() => updateCartItem(item.id, 'quantity', item.quantity + 1)} className="w-8 h-8 flex items-center justify-center bg-white rounded-lg text-slate-600 shadow-sm hover:bg-slate-100 transition-colors font-bold">+</button>
@@ -1533,11 +1533,11 @@ const AdminDashboard = () => {
                       <div key={m.id} className="p-4 flex justify-between items-center hover:bg-slate-50 transition-colors">
                         <div>
                           <p className="font-bold text-slate-800">
-                            {m.templateName || (m.item === 'coal' ? '🔥 Уголь' : m.item === 'tobacco' ? '🍃 Табак' : '💠 Мундштуки')} 
+                            {m.templateName || (m.item === 'coal' ? 'Уголь' : m.item === 'tobacco' ? 'Табак' : 'Мундштуки')} 
                             <span className="text-green-600"> +{formatMoney(m.amount)} {m.item === 'coal' || m.item === 'mouthpiece' ? 'шт' : 'г'}</span>
                           </p>
                           <div className="flex gap-2 items-center mt-0.5">
-                            {m.cost > 0 && <span className="text-xs font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">{formatMoney(m.cost)} ₸</span>}
+                            {m.cost > 0 && <span className="text-xs font-black text-slate-800 bg-slate-100 px-2 py-0.5 rounded-full">{formatMoney(m.cost)} ₸</span>}
                             {m.note && <p className="text-xs text-slate-400">{m.note}</p>}
                           </div>
                         </div>
@@ -1554,7 +1554,7 @@ const AdminDashboard = () => {
               <div className="space-y-6">
                 <div className="bg-white p-8 rounded-[32px] border-none smooth-shadow max-w-xl">
                   <form onSubmit={async (e) => { e.preventDefault(); if (!invForm.amount || Number(invForm.amount) <= 0) return alert('Укажите количество'); setIsSavingInv(true); try { const now = new Date(); await addDoc(collection(db, 'inventory_movements'), { type: 'writeoff', item: invForm.item, amount: Number(invForm.amount), cost: 0, note: invForm.note || '', dateStr: `${String(now.getDate()).padStart(2,'0')}.${String(now.getMonth()+1).padStart(2,'0')}.${now.getFullYear()}`, createdAt: serverTimestamp() }); setInvForm({ type: 'in', item: 'coal', amount: '', cost: '', note: '', templateId: '' }); } catch (err) { alert('Ошибка: ' + err.message); } finally { setIsSavingInv(false); } }} className="space-y-5">
-                    <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Товар</label><select value={invForm.item} onChange={e => setInvForm({...invForm, item: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800"><option value="coal">🔥 Уголь (шт)</option><option value="tobacco">🍃 Табак (г)</option><option value="mouthpiece">💠 Мундштуки (шт)</option></select></div>
+                    <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Товар</label><select value={invForm.item} onChange={e => setInvForm({...invForm, item: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800"><option value="coal">Уголь (шт)</option><option value="tobacco">Табак (г)</option><option value="mouthpiece">Мундштуки (шт)</option></select></div>
                     <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Количество</label><input type="number" min="1" value={invForm.amount} onChange={e => setInvForm({...invForm, amount: e.target.value})} placeholder="Сколько списать" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" required /></div>
                     <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Причина</label><input type="text" value={invForm.note} onChange={e => setInvForm({...invForm, note: e.target.value})} placeholder="Например: отправил на вторую точку" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-slate-800" /></div>
                     <button type="submit" disabled={isSavingInv} className="w-full p-4 bg-orange-500 text-white rounded-2xl font-bold shadow-lg shadow-orange-100 disabled:opacity-50">{isSavingInv ? 'Сохранение...' : 'Списать'}</button>
@@ -1566,7 +1566,7 @@ const AdminDashboard = () => {
                     {invMovements.filter(m => m.type === 'writeoff').length === 0 && <div className="p-6 text-center text-slate-400">Нет записей</div>}
                     {invMovements.filter(m => m.type === 'writeoff').map(m => (
                       <div key={m.id} className="p-4 flex justify-between items-center hover:bg-slate-50 transition-colors">
-                        <div><p className="font-bold text-slate-800">{m.item === 'coal' ? '🔥 Уголь' : m.item === 'tobacco' ? '🍃 Табак' : '💠 Мундштуки'} <span className="text-orange-500">-{formatMoney(m.amount)} {m.item === 'coal' || m.item === 'mouthpiece' ? 'шт' : 'г'}</span></p>{m.note && <p className="text-xs text-slate-400 mt-0.5">{m.note}</p>}</div>
+                        <div><p className="font-bold text-slate-800">{m.item === 'coal' ? 'Уголь' : m.item === 'tobacco' ? 'Табак' : 'Мундштуки'} <span className="text-orange-500">-{formatMoney(m.amount)} {m.item === 'coal' || m.item === 'mouthpiece' ? 'шт' : 'г'}</span></p>{m.note && <p className="text-xs text-slate-400 mt-0.5">{m.note}</p>}</div>
                         <div className="flex items-center gap-3"><span className="text-xs text-slate-400">{m.dateStr}</span><button onClick={() => deleteDoc(doc(db, 'inventory_movements', m.id))} className="text-slate-300 hover:text-red-500"><Trash2 size={16}/></button></div>
                       </div>
                     ))}
@@ -1582,7 +1582,7 @@ const AdminDashboard = () => {
               <div className="space-y-8">
                 <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                   <h1 className="text-2xl font-bold text-slate-800">Ревизия склада</h1>
-                  <div className="flex items-center gap-2 bg-white p-1 rounded-xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-blue-500">
+                  <div className="flex items-center gap-2 bg-white p-1 rounded-xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-slate-800">
                     <CalendarDays className="text-slate-400 ml-3" size={18}/>
                     <select value={revSelectedMonth} onChange={e => setRevSelectedMonth(e.target.value)} className="py-2 pr-4 bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer">
                       {availableMonths.map(m => <option key={m} value={m}>{m}</option>)}
@@ -1600,7 +1600,7 @@ const AdminDashboard = () => {
                       {/* Ввод табака */}
                       <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
                         <div>
-                          <p className="font-bold text-slate-800 text-sm">🍃 Общий вес табака</p>
+                          <p className="font-bold text-slate-800 text-sm">Общий вес табака</p>
                           <p className="text-xs text-slate-500 mt-1">Все бренды вместе</p>
                         </div>
                         <div className="flex items-center gap-2">
@@ -1610,7 +1610,7 @@ const AdminDashboard = () => {
                             placeholder="По факту"
                             value={revActuals.tobacco}
                             onChange={e => setRevActuals({...revActuals, tobacco: e.target.value})}
-                            className="w-24 p-3 bg-white rounded-xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-blue-500 font-bold text-sm text-slate-800 text-center shadow-sm"
+                            className="w-24 p-3 bg-white rounded-xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-slate-800 font-bold text-sm text-slate-800 text-center shadow-sm"
                           />
                           <span className="text-xs text-slate-400 font-bold">г</span>
                         </div>
@@ -1619,7 +1619,7 @@ const AdminDashboard = () => {
                       {/* Ввод угля */}
                       <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
                         <div>
-                          <p className="font-bold text-slate-800 text-sm">🔥 Общее количество угля</p>
+                          <p className="font-bold text-slate-800 text-sm">Общее количество угля</p>
                           <p className="text-xs text-slate-500 mt-1">В штуках</p>
                         </div>
                         <div className="flex items-center gap-2">
@@ -1629,14 +1629,14 @@ const AdminDashboard = () => {
                             placeholder="По факту"
                             value={revActuals.coal}
                             onChange={e => setRevActuals({...revActuals, coal: e.target.value})}
-                            className="w-24 p-3 bg-white rounded-xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-blue-500 font-bold text-sm text-slate-800 text-center shadow-sm"
+                            className="w-24 p-3 bg-white rounded-xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-slate-800 font-bold text-sm text-slate-800 text-center shadow-sm"
                           />
                           <span className="text-xs text-slate-400 font-bold">шт</span>
                         </div>
                       </div>
                     </div>
                     
-                    <div className="bg-blue-50 p-4 rounded-2xl mb-6 space-y-2">
+                    <div className="bg-slate-100 p-4 rounded-2xl mb-6 space-y-2">
                       {(() => {
                         const getAvgPrice = (type) => {
                           const templates = invTemplates.filter(t => t.item === type && t.price > 0 && t.amount > 0);
@@ -1660,23 +1660,23 @@ const AdminDashboard = () => {
                         return (
                           <div className="space-y-4 w-full">
                             {/* Tobacco */}
-                            <div className="bg-white/50 p-3 rounded-xl border border-blue-100">
-                              <h3 className="font-bold text-slate-800 text-xs uppercase mb-2">🍃 Табак</h3>
+                            <div className="bg-white/50 p-3 rounded-xl border border-slate-200">
+                              <h3 className="font-bold text-slate-800 text-xs uppercase mb-2">Табак</h3>
                               <div className="flex justify-between text-sm mb-1"><span className="text-slate-500">Ожидание в CRM:</span><span className="font-bold text-slate-700">{formatMoney(Math.round(tobaccoStock))} г</span></div>
                               <div className="flex justify-between text-sm mb-1"><span className="text-slate-500">По факту:</span><span className="font-bold text-slate-700">{formatMoney(Math.round(actualTobacco))} г</span></div>
                               <div className="flex justify-between text-sm"><span className="text-slate-500">Недостача:</span><span className="font-bold text-red-500">{formatMoney(Math.round(deficits.tobacco))} г <span className="text-xs text-slate-400 font-normal">(× {formatMoney(finalTobaccoPrice.toFixed(2))} ₸/г)</span></span></div>
                             </div>
                             
                             {/* Coal */}
-                            <div className="bg-white/50 p-3 rounded-xl border border-blue-100">
-                              <h3 className="font-bold text-slate-800 text-xs uppercase mb-2">🔥 Уголь</h3>
+                            <div className="bg-white/50 p-3 rounded-xl border border-slate-200">
+                              <h3 className="font-bold text-slate-800 text-xs uppercase mb-2">Уголь</h3>
                               <div className="flex justify-between text-sm mb-1"><span className="text-slate-500">Ожидание в CRM:</span><span className="font-bold text-slate-700">{formatMoney(Math.round(coalStock))} шт</span></div>
                               <div className="flex justify-between text-sm mb-1"><span className="text-slate-500">По факту:</span><span className="font-bold text-slate-700">{formatMoney(Math.round(actualCoal))} шт</span></div>
                               <div className="flex justify-between text-sm"><span className="text-slate-500">Недостача:</span><span className="font-bold text-red-500">{formatMoney(Math.round(deficits.coal))} шт <span className="text-xs text-slate-400 font-normal">(× {formatMoney(finalCoalPrice.toFixed(2))} ₸/шт)</span></span></div>
                             </div>
 
-                            <div className="flex justify-between items-center pt-2 border-t border-blue-200">
-                              <span className="text-blue-600 font-bold text-sm">Итого долг:</span>
+                            <div className="flex justify-between items-center pt-2 border-t border-slate-300">
+                              <span className="text-slate-800 font-bold text-sm">Итого долг:</span>
                               <span className="font-black text-blue-700 text-xl">{formatMoney(Math.round(totalDeficitMoney))} ₸</span>
                             </div>
                           </div>
@@ -1748,7 +1748,7 @@ const AdminDashboard = () => {
         {/* ВКЛАДКА: НАСТРОЙКИ */}
         {activeTab === 'settings' && (
           <div className="space-y-8 animate-slide-in-bottom">
-            <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-blue-500 shadow-sm scrollable-tabs">
+            <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-slate-800 shadow-sm scrollable-tabs">
               <button onClick={() => setSubTab('margins')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'margins' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Маржинальность</button>
               <button onClick={() => setSubTab('templates')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'templates' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Шаблоны склада</button>
               <button onClick={() => setSubTab('standards')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'standards' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Стандарты склада</button>
@@ -1765,11 +1765,11 @@ const AdminDashboard = () => {
                   <form onSubmit={handleTemplateSubmit} className="space-y-5">
                     <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Название</label><input type="text" value={newTemplate.name} onChange={e => setNewTemplate({...newTemplate, name: e.target.value})} placeholder="Например: Hell 200гр" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold" required /></div>
                     <div className="grid grid-cols-2 gap-4">
-                      <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Тип</label><select value={newTemplate.item} onChange={e => setNewTemplate({...newTemplate, item: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold"><option value="tobacco">🍃 Табак</option><option value="coal">🔥 Уголь</option><option value="mouthpiece">💠 Мундштуки</option></select></div>
+                      <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Тип</label><select value={newTemplate.item} onChange={e => setNewTemplate({...newTemplate, item: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold"><option value="tobacco">Табак</option><option value="coal">Уголь</option><option value="mouthpiece">Мундштуки</option></select></div>
                       <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Кол-во (г/шт)</label><input type="number" min="1" value={newTemplate.amount} onChange={e => setNewTemplate({...newTemplate, amount: e.target.value})} placeholder="200" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold" required /></div>
                     </div>
                     <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Цена закупа (₸)</label><input type="number" min="0" value={newTemplate.price} onChange={e => setNewTemplate({...newTemplate, price: e.target.value})} placeholder="Например: 5000" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold" /></div>
-                    <button type="submit" disabled={isSavingInv} className="w-full p-4 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-100 disabled:opacity-50">Создать шаблон</button>
+                    <button type="submit" disabled={isSavingInv} className="w-full p-4 bg-slate-800 text-white rounded-2xl font-bold shadow-lg shadow-blue-100 disabled:opacity-50">Создать шаблон</button>
                   </form>
                 </div>
                 <div className="bg-white rounded-[32px] border-none smooth-shadow overflow-hidden">
@@ -1793,9 +1793,9 @@ const AdminDashboard = () => {
                 <div className="bg-white p-8 rounded-[32px] border-none smooth-shadow">
                   <p className="text-slate-500 mb-6 text-sm">Укажи сколько ресурсов уходит на 1 чашу. Система автоматически рассчитает расход по продажам.</p>
                   <div className="space-y-5">
-                    <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">🔥 Углей на 1 чашу (шт)</label><input type="number" min="1" value={invStandards.coalPerBowl} onChange={e => setInvStandards({...invStandards, coalPerBowl: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" /></div>
-                    <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">🍃 Табака на 1 чашу (г)</label><input type="number" min="1" value={invStandards.tobaccoPerBowl} onChange={e => setInvStandards({...invStandards, tobaccoPerBowl: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" /></div>
-                    <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">💠 Мундштуков на 1 чашу (шт)</label><input type="number" min="0" value={invStandards.mouthpiecePerBowl} onChange={e => setInvStandards({...invStandards, mouthpiecePerBowl: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" /></div>
+                    <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Углей на 1 чашу (шт)</label><input type="number" min="1" value={invStandards.coalPerBowl} onChange={e => setInvStandards({...invStandards, coalPerBowl: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" /></div>
+                    <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Табака на 1 чашу (г)</label><input type="number" min="1" value={invStandards.tobaccoPerBowl} onChange={e => setInvStandards({...invStandards, tobaccoPerBowl: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" /></div>
+                    <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Мундштуков на 1 чашу (шт)</label><input type="number" min="0" value={invStandards.mouthpiecePerBowl} onChange={e => setInvStandards({...invStandards, mouthpiecePerBowl: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" /></div>
                     
                     <div className="pt-6 border-t border-slate-100 mt-6">
                       <h3 className="font-bold text-slate-800 mb-4">Цены для ревизии (штраф за недостачу)</h3>
@@ -1807,7 +1807,7 @@ const AdminDashboard = () => {
                               const temps = invTemplates.filter(t => t.item === 'coal' && t.price > 0 && t.amount > 0);
                               if (temps.length === 0) return null;
                               const avg = temps.reduce((a, t) => a + (t.price / t.amount), 0) / temps.length;
-                              return <span className="text-blue-500 font-normal">Средняя закупа: {formatMoney(avg.toFixed(2))} ₸</span>;
+                              return <span className="text-slate-700 font-normal">Средняя закупа: {formatMoney(avg.toFixed(2))} ₸</span>;
                             })()}
                           </label>
                           <input type="number" min="0" step="0.01" value={invStandards.revCoalPrice || ''} onChange={e => setInvStandards({...invStandards, revCoalPrice: Number(e.target.value)})} placeholder="Например: 15" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" />
@@ -1819,14 +1819,14 @@ const AdminDashboard = () => {
                               const temps = invTemplates.filter(t => t.item === 'tobacco' && t.price > 0 && t.amount > 0);
                               if (temps.length === 0) return null;
                               const avg = temps.reduce((a, t) => a + (t.price / t.amount), 0) / temps.length;
-                              return <span className="text-blue-500 font-normal">Средняя закупа: {formatMoney(avg.toFixed(2))} ₸</span>;
+                              return <span className="text-slate-700 font-normal">Средняя закупа: {formatMoney(avg.toFixed(2))} ₸</span>;
                             })()}
                           </label>
                           <input type="number" min="0" step="0.01" value={invStandards.revTobaccoPrice || ''} onChange={e => setInvStandards({...invStandards, revTobaccoPrice: Number(e.target.value)})} placeholder="Например: 25" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" />
                         </div>
                       </div>
                     </div>
-                    <button onClick={handleSaveStandards} disabled={isSavingInv} className="w-full p-4 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-100 disabled:opacity-50">{isSavingInv ? 'Сохранение...' : 'Сохранить стандарты'}</button>
+                    <button onClick={handleSaveStandards} disabled={isSavingInv} className="w-full p-4 bg-slate-800 text-white rounded-2xl font-bold shadow-lg shadow-blue-100 disabled:opacity-50">{isSavingInv ? 'Сохранение...' : 'Сохранить стандарты'}</button>
                   </div>
                 </div>
               </div>
@@ -1837,9 +1837,9 @@ const AdminDashboard = () => {
                 <h2 className="text-lg font-black text-slate-900 mb-2">Маржинальность</h2>
                 <p className="text-slate-500 mb-8 text-sm">Укажи свою чистую прибыль с каждой позиции.</p>
                 <div className="space-y-6">
-                  <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Прибыль с 1 Кальяна (₸)</label><input type="number" value={ownerProfits.hookah} onChange={e=>setOwnerProfits({...ownerProfits, hookah: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-blue-500 font-black text-lg text-slate-800" /></div>
-                  <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Прибыль с 1 Замены (₸)</label><input type="number" value={ownerProfits.replacement} onChange={e=>setOwnerProfits({...ownerProfits, replacement: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-blue-500 font-black text-lg text-slate-800" /></div>
-                  <button onClick={handleSaveSettings} disabled={isSavingSettings} className="w-full p-4 mt-4 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-100 disabled:opacity-50">{isSavingSettings ? 'Сохранение...' : 'Сохранить настройки'}</button>
+                  <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Прибыль с 1 Кальяна (₸)</label><input type="number" value={ownerProfits.hookah} onChange={e=>setOwnerProfits({...ownerProfits, hookah: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-slate-800 font-black text-lg text-slate-800" /></div>
+                  <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Прибыль с 1 Замены (₸)</label><input type="number" value={ownerProfits.replacement} onChange={e=>setOwnerProfits({...ownerProfits, replacement: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-slate-800 font-black text-lg text-slate-800" /></div>
+                  <button onClick={handleSaveSettings} disabled={isSavingSettings} className="w-full p-4 mt-4 bg-slate-800 text-white rounded-2xl font-bold shadow-lg shadow-blue-100 disabled:opacity-50">{isSavingSettings ? 'Сохранение...' : 'Сохранить настройки'}</button>
                 </div>
               </div></div>
             )}
@@ -1872,7 +1872,7 @@ const AdminDashboard = () => {
               </div>
               <div className="flex items-center gap-2">
                 {selectedEmpReport.status === 'closed' && !editingShift && (
-                  <button onClick={() => startEditingShift(selectedEmpReport)} className="p-3 bg-blue-50 text-blue-500 rounded-full hover:bg-blue-100 transition-colors" title="Редактировать">
+                  <button onClick={() => startEditingShift(selectedEmpReport)} className="p-3 bg-slate-100 text-slate-700 rounded-full hover:bg-slate-200 transition-colors" title="Редактировать">
                     <Edit3 size={18}/>
                   </button>
                 )}
@@ -1898,7 +1898,7 @@ const AdminDashboard = () => {
                         // Если выбрали того же, кто был напарником, убираем напарника
                         setEditForm({...editForm, ownerId: newOwnerId, partnerId: editForm.partnerId === newOwnerId ? '' : editForm.partnerId});
                       }}
-                      className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800 focus:ring-2 focus:ring-blue-500"
+                      className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800 focus:ring-2 focus:ring-slate-800"
                     >
                       {employees.filter(e => !e.isArchived).map(emp => (
                         <option key={emp.id} value={emp.id}>{emp.name}</option>
@@ -1910,7 +1910,7 @@ const AdminDashboard = () => {
                     <select 
                       value={editForm.partnerId} 
                       onChange={e => setEditForm({...editForm, partnerId: e.target.value})}
-                      className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800 focus:ring-2 focus:ring-blue-500"
+                      className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800 focus:ring-2 focus:ring-slate-800"
                     >
                       <option value="">Без напарника (вся ЗП мастеру)</option>
                       {employees.filter(e => !e.isArchived && e.id !== editForm.ownerId).map(emp => (
@@ -1921,16 +1921,16 @@ const AdminDashboard = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-slate-400 uppercase mb-2 ml-1">Кальяны</label>
-                      <input type="number" min="0" value={editForm.hookahs} onChange={e => setEditForm({...editForm, hookahs: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800 focus:ring-2 focus:ring-blue-500" />
+                      <input type="number" min="0" value={editForm.hookahs} onChange={e => setEditForm({...editForm, hookahs: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800 focus:ring-2 focus:ring-slate-800" />
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-slate-400 uppercase mb-2 ml-1">Замены</label>
-                      <input type="number" min="0" value={editForm.replacements} onChange={e => setEditForm({...editForm, replacements: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800 focus:ring-2 focus:ring-blue-500" />
+                      <input type="number" min="0" value={editForm.replacements} onChange={e => setEditForm({...editForm, replacements: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800 focus:ring-2 focus:ring-slate-800" />
                     </div>
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-400 uppercase mb-2 ml-1">Стафф кальяны</label>
-                    <input type="number" min="0" value={editForm.staffHookahs} onChange={e => setEditForm({...editForm, staffHookahs: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800 focus:ring-2 focus:ring-blue-500" />
+                    <input type="number" min="0" value={editForm.staffHookahs} onChange={e => setEditForm({...editForm, staffHookahs: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800 focus:ring-2 focus:ring-slate-800" />
                   </div>
                 </div>
 
@@ -1953,19 +1953,19 @@ const AdminDashboard = () => {
                     const ownerEarned = ownerBase + (ownerC1 * 1500) + (ownerC2 * 1500);
                     const partnerEarned = 1500 + (partnerC1 * 1500) + (partnerC2 * 1500);
                     return (
-                      <div className="bg-blue-50 border border-blue-100 p-4 rounded-2xl space-y-2">
-                        <h4 className="text-xs font-bold text-blue-400 uppercase tracking-widest">Превью пересчёта</h4>
-                        <div className="flex justify-between text-sm"><span className="text-slate-600 font-medium">{ownerEmp?.name} ({ownerC1}к + {ownerC2}з):</span><strong className="text-blue-600">{formatMoney(ownerEarned)} ₸</strong></div>
-                        <div className="flex justify-between text-sm"><span className="text-slate-600 font-medium">{partner?.name} ({partnerC1}к + {partnerC2}з):</span><strong className="text-blue-600">{formatMoney(partnerEarned)} ₸</strong></div>
+                      <div className="bg-slate-100 border border-slate-200 p-4 rounded-2xl space-y-2">
+                        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Превью пересчёта</h4>
+                        <div className="flex justify-between text-sm"><span className="text-slate-600 font-medium">{ownerEmp?.name} ({ownerC1}к + {ownerC2}з):</span><strong className="text-slate-800">{formatMoney(ownerEarned)} ₸</strong></div>
+                        <div className="flex justify-between text-sm"><span className="text-slate-600 font-medium">{partner?.name} ({partnerC1}к + {partnerC2}з):</span><strong className="text-slate-800">{formatMoney(partnerEarned)} ₸</strong></div>
                         {staffCount > 0 && <div className="text-xs text-slate-500 mt-2">Стафф: {staffCount} шт.</div>}
                       </div>
                     );
                   } else {
                     const myEarned = ownerBase + (c1 * 1500) + (c2 * 1500);
                     return (
-                      <div className="bg-blue-50 border border-blue-100 p-4 rounded-2xl space-y-2">
-                        <h4 className="text-xs font-bold text-blue-400 uppercase tracking-widest">Превью пересчёта</h4>
-                        <div className="flex justify-between text-sm"><span className="text-slate-600 font-medium">{ownerEmp?.name} ({c1}к + {c2}з):</span><strong className="text-blue-600">{formatMoney(myEarned)} ₸</strong></div>
+                      <div className="bg-slate-100 border border-slate-200 p-4 rounded-2xl space-y-2">
+                        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Превью пересчёта</h4>
+                        <div className="flex justify-between text-sm"><span className="text-slate-600 font-medium">{ownerEmp?.name} ({c1}к + {c2}з):</span><strong className="text-slate-800">{formatMoney(myEarned)} ₸</strong></div>
                         {staffCount > 0 && <div className="text-xs text-slate-500 mt-2">Стафф: {staffCount} шт.</div>}
                       </div>
                     );
@@ -1982,7 +1982,7 @@ const AdminDashboard = () => {
                   <button 
                     onClick={handleSaveShiftEdit} 
                     disabled={isSavingEdit}
-                    className="flex-1 p-4 bg-blue-600 text-white rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-blue-100 hover:bg-blue-700 transition-colors disabled:opacity-50"
+                    className="flex-1 p-4 bg-slate-800 text-white rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-blue-100 hover:bg-slate-900 transition-colors disabled:opacity-50"
                   >
                     <Save size={18}/> {isSavingEdit ? 'Сохранение...' : 'Сохранить'}
                   </button>
@@ -1991,12 +1991,12 @@ const AdminDashboard = () => {
             ) : (
             <div className="space-y-6">
               {/* Общая статистика за день */}
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-5 rounded-2xl border border-blue-100">
-                <h3 className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-3">Общая статистика за день</h3>
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-5 rounded-2xl border border-slate-200">
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Общая статистика за день</h3>
                 <div className="flex gap-4">
                   <div className="flex-1 bg-white p-3 rounded-xl shadow-sm text-center">
                     <span className="block text-[10px] text-slate-400 uppercase font-bold mb-1">Всего кальянов</span>
-                    <strong className="text-blue-600 text-xl font-black">
+                    <strong className="text-slate-800 text-xl font-black">
                       {selectedEmpReport.status === 'open' ? '—' : selectedEmpReport.records.reduce((sum, r) => sum + (r.items?.cocktail1 || 0), 0)}
                     </strong>
                   </div>
@@ -2012,7 +2012,7 @@ const AdminDashboard = () => {
                   const totalStaff = selectedEmpReport.records.reduce((sum, r) => sum + (r.staffHookahs || 0), 0);
                   return totalStaff > 0 ? (
                     <div className="flex items-center gap-2 bg-orange-50 px-4 py-2.5 rounded-xl border border-orange-100 mt-3">
-                      <span className="text-orange-500 text-lg">🔥</span>
+                      <span className="text-orange-500 text-lg"></span>
                       <span className="text-sm font-bold text-orange-600">Стафф: {totalStaff} шт</span>
                       <span className="text-[10px] text-orange-400 font-medium ml-auto">не в продажах</span>
                     </div>
@@ -2029,7 +2029,7 @@ const AdminDashboard = () => {
                       <p className="text-xs text-slate-500 font-medium mt-0.5">{idx === 0 ? 'Открыл смену' : 'Напарник'}</p>
                     </div>
                     <div className="text-right">
-                      <span className="block font-black text-xl text-blue-600">{rec.status === 'open' ? 'Ожидание' : `${formatMoney(rec.earned)} ₸`}</span>
+                      <span className="block font-black text-xl text-slate-800">{rec.status === 'open' ? 'Ожидание' : `${formatMoney(rec.earned)} ₸`}</span>
                     </div>
                   </div>
                 ))}
@@ -2062,7 +2062,7 @@ const AdminDashboard = () => {
                   <img 
                     src={selectedEmpReport.records[0].photoUrl} 
                     alt="Чек" 
-                    className="w-full h-48 object-cover rounded-2xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-blue-500 cursor-pointer hover:opacity-90 transition-opacity" 
+                    className="w-full h-48 object-cover rounded-2xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-slate-800 cursor-pointer hover:opacity-90 transition-opacity" 
                     onClick={() => window.open(selectedEmpReport.records[0].photoUrl, '_blank')} 
                   />
                 ) : (

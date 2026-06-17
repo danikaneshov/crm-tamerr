@@ -25,7 +25,7 @@ const InventoryTab = () => {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
-      <div className="flex items-center gap-2 bg-white/50 backdrop-blur-md p-1.5 rounded-2xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-blue-500 shadow-sm scrollable-tabs w-full max-w-full">
+      <div className="flex items-center gap-2 bg-white/50 backdrop-blur-md p-1.5 rounded-2xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-slate-800 shadow-sm scrollable-tabs w-full max-w-full">
         <button onClick={(e) => { setSubTab('stock'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'stock' || !subTab ? 'bg-primary text-white shadow-md' : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'}`}>Остатки</button>
         <button onClick={(e) => { setSubTab('operations'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'operations' ? 'bg-primary text-white shadow-md' : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'}`}>Операции (Приход / Списание)</button>
         <button onClick={(e) => { setSubTab('revision'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'revision' ? 'bg-primary text-white shadow-md' : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'}`}>Ревизия</button>
@@ -45,33 +45,33 @@ const InventoryTab = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <Card variant="elevated" className="p-8 card-hover-effect">
-              <div className="flex items-center gap-4 mb-4"><div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl flex items-center justify-center text-white text-xl shadow-inner shadow-white/20">🔥</div><div><p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Уголь</p><h3 className="text-3xl font-black text-slate-900">{formatMoney(Math.round(coalStock))} шт</h3></div></div>
+              <div className="flex items-center gap-4 mb-4"><div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl flex items-center justify-center text-white text-xl shadow-inner shadow-white/20"></div><div><p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Уголь</p><h3 className="text-3xl font-black text-slate-900">{formatMoney(Math.round(coalStock))} шт</h3></div></div>
               <div className="bg-slate-50 p-4 rounded-2xl space-y-2 text-sm border border-slate-100">
                 <div className="flex justify-between"><span className="text-slate-500">Приход (всего):</span><strong className="text-green-600">+{formatMoney(coalIn)}</strong></div>
                 <div className="flex justify-between"><span className="text-slate-500">Расход (авто, {totalBowls} чаш):</span><strong className="text-red-500">-{formatMoney(autoCoalUsed)}</strong></div>
                 <div className="flex justify-between"><span className="text-slate-500">Списано вручную:</span><strong className="text-orange-500">-{formatMoney(coalWriteoff)}</strong></div>
               </div>
-              <div className="mt-3 px-4 py-2 bg-blue-50/50 rounded-xl border border-blue-100/50 text-center"><span className="text-blue-600 font-black text-sm">≈ {Math.max(0, Math.floor(coalStock / invStandards.coalPerBowl))} чаш</span></div>
+              <div className="mt-3 px-4 py-2 bg-slate-100/50 rounded-xl border border-slate-200/50 text-center"><span className="text-slate-800 font-black text-sm">≈ {Math.max(0, Math.floor(coalStock / invStandards.coalPerBowl))} чаш</span></div>
             </Card>
 
             <Card variant="elevated" className="p-8 card-hover-effect">
-              <div className="flex items-center gap-4 mb-4"><div className="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-600 rounded-2xl flex items-center justify-center text-white text-xl shadow-inner shadow-white/20">🍃</div><div><p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Табак</p><h3 className="text-3xl font-black text-slate-900">{formatMoney(Math.round(tobaccoStock))} г</h3></div></div>
+              <div className="flex items-center gap-4 mb-4"><div className="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-600 rounded-2xl flex items-center justify-center text-white text-xl shadow-inner shadow-white/20"></div><div><p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Табак</p><h3 className="text-3xl font-black text-slate-900">{formatMoney(Math.round(tobaccoStock))} г</h3></div></div>
               <div className="bg-slate-50 p-4 rounded-2xl space-y-2 text-sm border border-slate-100">
                 <div className="flex justify-between"><span className="text-slate-500">Приход (всего):</span><strong className="text-green-600">+{formatMoney(tobaccoIn)} г</strong></div>
                 <div className="flex justify-between"><span className="text-slate-500">Расход (авто, {totalBowls} чаш):</span><strong className="text-red-500">-{formatMoney(autoTobaccoUsed)} г</strong></div>
                 <div className="flex justify-between"><span className="text-slate-500">Списано вручную:</span><strong className="text-orange-500">-{formatMoney(tobaccoWriteoff)} г</strong></div>
               </div>
-              <div className="mt-3 px-4 py-2 bg-blue-50/50 rounded-xl border border-blue-100/50 text-center"><span className="text-blue-600 font-black text-sm">≈ {Math.max(0, Math.floor(tobaccoStock / (invStandards.tobaccoPerBowl || 1)))} чаш</span></div>
+              <div className="mt-3 px-4 py-2 bg-slate-100/50 rounded-xl border border-slate-200/50 text-center"><span className="text-slate-800 font-black text-sm">≈ {Math.max(0, Math.floor(tobaccoStock / (invStandards.tobaccoPerBowl || 1)))} чаш</span></div>
             </Card>
 
             <Card variant="elevated" className="p-8 card-hover-effect">
-              <div className="flex items-center gap-4 mb-4"><div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-2xl flex items-center justify-center text-white text-xl shadow-inner shadow-white/20">💠</div><div><p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Мундштуки</p><h3 className="text-3xl font-black text-slate-900">{formatMoney(Math.round(mouthpieceStock))} шт</h3></div></div>
+              <div className="flex items-center gap-4 mb-4"><div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-2xl flex items-center justify-center text-white text-xl shadow-inner shadow-white/20"></div><div><p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Мундштуки</p><h3 className="text-3xl font-black text-slate-900">{formatMoney(Math.round(mouthpieceStock))} шт</h3></div></div>
               <div className="bg-slate-50 p-4 rounded-2xl space-y-2 text-sm border border-slate-100">
                 <div className="flex justify-between"><span className="text-slate-500">Приход (всего):</span><strong className="text-green-600">+{formatMoney(mouthpieceIn)}</strong></div>
                 <div className="flex justify-between"><span className="text-slate-500">Расход (авто, {totalBowls} чаш):</span><strong className="text-red-500">-{formatMoney(autoMouthpieceUsed)}</strong></div>
                 <div className="flex justify-between"><span className="text-slate-500">Списано вручную:</span><strong className="text-orange-500">-{formatMoney(mouthpieceWriteoff)}</strong></div>
               </div>
-              <div className="mt-3 px-4 py-2 bg-blue-50/50 rounded-xl border border-blue-100/50 text-center"><span className="text-blue-600 font-black text-sm">≈ {Math.max(0, Math.floor(mouthpieceStock / (invStandards.mouthpiecePerBowl || 1)))} чаш</span></div>
+              <div className="mt-3 px-4 py-2 bg-slate-100/50 rounded-xl border border-slate-200/50 text-center"><span className="text-slate-800 font-black text-sm">≈ {Math.max(0, Math.floor(mouthpieceStock / (invStandards.mouthpiecePerBowl || 1)))} чаш</span></div>
             </Card>
           </div>
         </div>

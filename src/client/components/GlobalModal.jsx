@@ -57,7 +57,7 @@ const GlobalModal = () => {
         ) : (
           <button 
             onClick={closeModal}
-            className="w-full p-4 bg-blue-600 text-white rounded-2xl font-bold active:scale-95 transition-all shadow-lg shadow-blue-500/30"
+            className="w-full p-4 bg-slate-800 text-white rounded-2xl font-bold active:scale-95 transition-all shadow-lg shadow-slate-800/20"
           >
             Понятно
           </button>

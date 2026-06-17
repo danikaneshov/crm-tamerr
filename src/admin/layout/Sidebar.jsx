@@ -11,7 +11,7 @@ const Sidebar = () => {
     <div className="hidden lg:flex flex-col w-[280px] fixed inset-y-6 left-6 z-40 glass rounded-[40px] p-8">
       <div className="mb-12 px-2">
         <span className="text-3xl font-black tracking-tighter text-slate-900">
-          ERP<span className="text-blue-600">.</span>
+          ERP<span className="text-slate-800">.</span>
         </span>
       </div>
       <nav className="flex-1 space-y-3">
@@ -19,7 +19,7 @@ const Sidebar = () => {
           onClick={() => switchTab('dashboard')}
           className={`w-full flex items-center gap-4 p-4 rounded-3xl font-bold transition-all duration-300 ${
             activeTab === 'dashboard'
-              ? 'bg-blue-600 text-white shadow-xl shadow-blue-500/40 translate-x-1'
+              ? 'bg-slate-800 text-white shadow-xl shadow-slate-800/30 translate-x-1'
               : 'text-slate-400 hover:bg-white hover:text-slate-800 hover:shadow-md hover:translate-x-1'
           }`}
         >
@@ -29,7 +29,7 @@ const Sidebar = () => {
           onClick={() => switchTab('shifts', 'calendar')}
           className={`w-full flex items-center gap-4 p-4 rounded-3xl font-bold transition-all duration-300 ${
             activeTab === 'shifts'
-              ? 'bg-blue-600 text-white shadow-xl shadow-blue-500/40 translate-x-1'
+              ? 'bg-slate-800 text-white shadow-xl shadow-slate-800/30 translate-x-1'
               : 'text-slate-400 hover:bg-white hover:text-slate-800 hover:shadow-md hover:translate-x-1'
           }`}
         >
@@ -39,7 +39,7 @@ const Sidebar = () => {
           onClick={() => switchTab('team', 'salaries')}
           className={`w-full flex items-center gap-4 p-4 rounded-3xl font-bold transition-all duration-300 ${
             activeTab === 'team'
-              ? 'bg-blue-600 text-white shadow-xl shadow-blue-500/40 translate-x-1'
+              ? 'bg-slate-800 text-white shadow-xl shadow-slate-800/30 translate-x-1'
               : 'text-slate-400 hover:bg-white hover:text-slate-800 hover:shadow-md hover:translate-x-1'
           }`}
         >
@@ -49,7 +49,7 @@ const Sidebar = () => {
           onClick={() => switchTab('inventory', 'stock')}
           className={`w-full flex items-center gap-4 p-4 rounded-3xl font-bold transition-all duration-300 ${
             activeTab === 'inventory'
-              ? 'bg-blue-600 text-white shadow-xl shadow-blue-500/40 translate-x-1'
+              ? 'bg-slate-800 text-white shadow-xl shadow-slate-800/30 translate-x-1'
               : 'text-slate-400 hover:bg-white hover:text-slate-800 hover:shadow-md hover:translate-x-1'
           }`}
         >
@@ -59,7 +59,7 @@ const Sidebar = () => {
           onClick={() => switchTab('settings', 'margins')}
           className={`w-full flex items-center gap-4 p-4 rounded-3xl font-bold transition-all duration-300 ${
             activeTab === 'settings'
-              ? 'bg-blue-600 text-white shadow-xl shadow-blue-500/40 translate-x-1'
+              ? 'bg-slate-800 text-white shadow-xl shadow-slate-800/30 translate-x-1'
               : 'text-slate-400 hover:bg-white hover:text-slate-800 hover:shadow-md hover:translate-x-1'
           }`}
         >

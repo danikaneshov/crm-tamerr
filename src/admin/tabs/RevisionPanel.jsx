@@ -104,11 +104,11 @@ const RevisionPanel = () => {
         <div className="space-y-6 max-w-2xl">
           <Card variant="outline" className="p-6 border-slate-100">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="font-bold text-slate-800 text-lg">🔥 Уголь</h3>
-              <span className="text-xs font-bold text-blue-500 bg-blue-50 px-3 py-1 rounded-full">Ожидается: {formatMoney(Math.round(coalStock))} шт</span>
+              <h3 className="font-bold text-slate-800 text-lg">Уголь</h3>
+              <span className="text-xs font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-full">Ожидается: {formatMoney(Math.round(coalStock))} шт</span>
             </div>
             <div className="flex items-center gap-4">
-              <input type="number" min="0" value={actualStock.coal} onChange={e => setActualStock({...actualStock, coal: e.target.value})} placeholder="Факт. количество (шт)" className="flex-1 p-4 bg-slate-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-blue-500 font-bold text-lg text-slate-800" />
+              <input type="number" min="0" value={actualStock.coal} onChange={e => setActualStock({...actualStock, coal: e.target.value})} placeholder="Факт. количество (шт)" className="flex-1 p-4 bg-slate-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-slate-800 font-bold text-lg text-slate-800" />
             </div>
             {actualStock.coal !== '' && (
               <div className={`mt-3 text-sm font-medium ${missingCoal > 0 ? 'text-red-500' : missingCoal < 0 ? 'text-green-500' : 'text-slate-400'}`}>
@@ -119,11 +119,11 @@ const RevisionPanel = () => {
 
           <Card variant="outline" className="p-6 border-slate-100">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="font-bold text-slate-800 text-lg">🍃 Табак (Средний)</h3>
-              <span className="text-xs font-bold text-blue-500 bg-blue-50 px-3 py-1 rounded-full">Ожидается: {formatMoney(Math.round(tobaccoStock))} г</span>
+              <h3 className="font-bold text-slate-800 text-lg">Табак (Средний)</h3>
+              <span className="text-xs font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-full">Ожидается: {formatMoney(Math.round(tobaccoStock))} г</span>
             </div>
             <div className="flex items-center gap-4">
-              <input type="number" min="0" value={actualStock.tobacco} onChange={e => setActualStock({...actualStock, tobacco: e.target.value})} placeholder="Факт. количество (г)" className="flex-1 p-4 bg-slate-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-blue-500 font-bold text-lg text-slate-800" />
+              <input type="number" min="0" value={actualStock.tobacco} onChange={e => setActualStock({...actualStock, tobacco: e.target.value})} placeholder="Факт. количество (г)" className="flex-1 p-4 bg-slate-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-slate-800 font-bold text-lg text-slate-800" />
             </div>
             {actualStock.tobacco !== '' && (
               <div className={`mt-3 text-sm font-medium ${missingTobacco > 0 ? 'text-red-500' : missingTobacco < 0 ? 'text-green-500' : 'text-slate-400'}`}>

@@ -600,7 +600,7 @@ const EmployeeApp = () => {
                 <h3 className="text-xl font-black text-slate-800 mb-2">{modal.title}</h3>
                 <p className="text-slate-500 mb-6 text-sm">{modal.message}</p>
                 <div className="space-y-3">
-                  <button onClick={() => setModal({ isOpen: false })} className="w-full py-4 bg-blue-600 text-white rounded-2xl font-bold active:scale-95 transition-transform">
+                  <button onClick={() => setModal({ isOpen: false })} className="w-full py-4 bg-slate-800 text-white rounded-2xl font-bold active:scale-95 transition-transform">
                     Перефоткать чек
                   </button>
                   <button onClick={handleZeroShiftConfirm} className="w-full py-4 bg-slate-100 text-slate-600 rounded-2xl font-bold active:scale-95 transition-transform">
@@ -866,14 +866,14 @@ const EmployeeApp = () => {
       <div className="bg-white border-t border-gray-100 flex z-10 shrink-0 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.03)]">
         <button 
           onClick={() => setActiveTab('shift')}
-          className={`flex-1 py-4 flex flex-col items-center gap-1 font-bold text-xs transition-colors ${activeTab === 'shift' ? 'text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
+          className={`flex-1 py-4 flex flex-col items-center gap-1 font-bold text-xs transition-colors ${activeTab === 'shift' ? 'text-slate-800' : 'text-gray-400 hover:text-gray-600'}`}
         >
           <Clock size={24}/>
           Смена
         </button>
         <button 
           onClick={() => setActiveTab('stats')}
-          className={`flex-1 py-4 flex flex-col items-center gap-1 font-bold text-xs transition-colors ${activeTab === 'stats' ? 'text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
+          className={`flex-1 py-4 flex flex-col items-center gap-1 font-bold text-xs transition-colors ${activeTab === 'stats' ? 'text-slate-800' : 'text-gray-400 hover:text-gray-600'}`}
         >
           <Banknote size={24}/>
           Моя ЗП

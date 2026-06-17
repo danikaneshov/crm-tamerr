@@ -55,7 +55,7 @@ const StatsTab = () => {
       <div className="flex justify-between items-center bg-white/60 backdrop-blur-md p-2 rounded-2xl border-none shadow-sm">
         <h2 className="font-bold text-slate-800 ml-4">Статистика</h2>
         <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-xl">
-          <CalendarDays className="text-blue-500" size={18} />
+          <CalendarDays className="text-slate-700" size={18} />
           <select 
             value={selectedMonth} 
             onChange={e => setSelectedMonth(e.target.value)}
@@ -69,7 +69,7 @@ const StatsTab = () => {
 
       <div className="grid grid-cols-2 gap-4">
         <div className="glass p-5 rounded-[32px] flex flex-col items-center justify-center text-center">
-          <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center mb-3">
+          <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-700 flex items-center justify-center mb-3">
             <Flame size={24} />
           </div>
           <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Сделано</p>

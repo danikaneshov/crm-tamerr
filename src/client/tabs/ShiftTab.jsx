@@ -16,7 +16,7 @@ const ShiftTab = () => {
   if (isSyncing || currentShift === undefined) {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-4 animate-in fade-in">
-        <Loader2 className="animate-spin text-blue-500" size={32} />
+        <Loader2 className="animate-spin text-slate-700" size={32} />
         <span className="text-slate-400 font-bold uppercase tracking-widest text-xs">Загрузка смены...</span>
       </div>
     );
@@ -56,7 +56,7 @@ const ShiftTab = () => {
     return (
       <div className="glass p-8 rounded-[40px] animate-in zoom-in-95 duration-500">
         <div className="text-center mb-8">
-          <div className="w-20 h-20 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
+          <div className="w-20 h-20 bg-slate-200 text-slate-800 rounded-full flex items-center justify-center mx-auto mb-6">
             <PlayCircle size={40} />
           </div>
           <h2 className="text-2xl font-black text-slate-800 mb-2">Открытие смены</h2>
@@ -69,7 +69,7 @@ const ShiftTab = () => {
             <select
               value={partnerId}
               onChange={(e) => setPartnerId(e.target.value)}
-              className="w-full bg-white p-4 rounded-2xl border-none outline-none font-bold text-slate-800 focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-white p-4 rounded-2xl border-none outline-none font-bold text-slate-800 focus:ring-2 focus:ring-slate-800"
             >
               <option value="">Без напарника (Я один)</option>
               {availablePartners.map(p => (
@@ -80,7 +80,7 @@ const ShiftTab = () => {
 
           <button
             onClick={() => handleOpenShift(partnerId)}
-            className="w-full p-5 bg-blue-600 text-white rounded-2xl font-bold text-lg shadow-lg shadow-blue-500/30 active:scale-95 transition-all flex justify-center items-center gap-2"
+            className="w-full p-5 bg-slate-800 text-white rounded-2xl font-bold text-lg shadow-lg shadow-slate-800/20 active:scale-95 transition-all flex justify-center items-center gap-2"
           >
             <PlayCircle size={24} /> Начать смену
           </button>
@@ -99,9 +99,9 @@ const ShiftTab = () => {
               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Смена открыта</p>
               <h2 className="text-xl font-black text-slate-800">{currentShift.dateStr}</h2>
             </div>
-            <div className="flex items-center gap-2 bg-blue-50 px-3 py-1.5 rounded-xl">
-              <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
-              <span className="text-blue-600 font-bold text-sm">В процессе</span>
+            <div className="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-xl">
+              <span className="w-2 h-2 rounded-full bg-slate-1000 animate-pulse"></span>
+              <span className="text-slate-800 font-bold text-sm">В процессе</span>
             </div>
           </div>
 
@@ -118,9 +118,9 @@ const ShiftTab = () => {
           )}
 
           <div className="space-y-4">
-            <div className="bg-blue-50/50 p-4 sm:p-6 rounded-3xl border border-blue-100/50 text-center">
+            <div className="bg-slate-100/50 p-4 sm:p-6 rounded-3xl border border-slate-200/50 text-center">
               <h3 className="font-bold text-blue-900 text-sm">Количество кальянов и замен будет автоматически распознано ИИ по чеку.</h3>
-              <p className="text-xs text-blue-600 mt-2">Ручной ввод недоступен</p>
+              <p className="text-xs text-slate-800 mt-2">Ручной ввод недоступен</p>
             </div>
 
             {/* Staff Hookahs */}
@@ -149,7 +149,7 @@ const ShiftTab = () => {
           <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Фотография чека</h3>
           <div 
             onClick={() => fileInputRef.current?.click()}
-            className="border-2 border-dashed border-blue-200 rounded-3xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-blue-50/50 transition-colors active:scale-95 bg-white/50"
+            className="border-2 border-dashed border-slate-300 rounded-3xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-100/50 transition-colors active:scale-95 bg-white/50"
           >
             {photoFile ? (
               <>
@@ -159,7 +159,7 @@ const ShiftTab = () => {
               </>
             ) : (
               <>
-                <Camera className="text-blue-500 mb-2" size={32} />
+                <Camera className="text-slate-700 mb-2" size={32} />
                 <span className="font-bold text-slate-700">Сфотографировать чек</span>
                 <span className="text-xs text-slate-400 mt-1">Обязательно для ИИ анализа</span>
               </>
