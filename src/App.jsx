@@ -6,32 +6,32 @@ import ProtectedRoute from './components/ProtectedRoute'; // Импортиру�
 import useDynamicFavicon from './hooks/useDynamicFavicon';
 
 function AppRoutes() {
-  useDynamicFavicon(); // Динамическая смена favicon по роуту
+ useDynamicFavicon(); // Динамическая смена favicon по роуту
 
-  return (
-    <Routes>
-      <Route path="/" element={<EmployeeApp />} />
-      <Route path="/admin/login" element={<AdminLogin />} />
-      
-      {/* Защищаем маршрут админки */}
-      <Route 
-        path="/admin" 
-        element={
-          <ProtectedRoute>
-            <AdminDashboard />
-          </ProtectedRoute>
-        } 
-      />
-    </Routes>
-  );
+ return (
+ <Routes>
+ <Route path="/" element={<EmployeeApp />} />
+ <Route path="/admin/login" element={<AdminLogin />} />
+ 
+ {/* Защищаем маршрут админки */}
+ <Route 
+ path="/admin" 
+ element={
+ <ProtectedRoute>
+ <AdminDashboard />
+ </ProtectedRoute>
+ } 
+ />
+ </Routes>
+ );
 }
 
 function App() {
-  return (
-    <Router>
-      <AppRoutes />
-    </Router>
-  );
+ return (
+ <Router>
+ <AppRoutes />
+ </Router>
+ );
 }
 
 export default App;

@@ -5,12 +5,12 @@ import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager
 
 // Твой конфиг из Firebase Console
 const firebaseConfig = {
-  apiKey: "AIzaSyCUQ6IZ-eoAG8qCq5yoRklIl34kVUNCq2U",
-  authDomain: "crm-fifty.firebaseapp.com",
-  projectId: "crm-fifty",
-  storageBucket: "crm-fifty.firebasestorage.app",
-  messagingSenderId: "37266175294",
-  appId: "1:37266175294:web:42118a3130c5b3e88de86f"
+ apiKey: "AIzaSyCUQ6IZ-eoAG8qCq5yoRklIl34kVUNCq2U",
+ authDomain: "crm-fifty.firebaseapp.com",
+ projectId: "crm-fifty",
+ storageBucket: "crm-fifty.firebasestorage.app",
+ messagingSenderId: "37266175294",
+ appId: "1:37266175294:web:42118a3130c5b3e88de86f"
 };
 
 // Инициализация
@@ -20,15 +20,15 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 let db;
 try {
-  db = initializeFirestore(app, {
-    localCache: persistentLocalCache({
-      tabManager: persistentMultipleTabManager()
-    })
-  });
+ db = initializeFirestore(app, {
+ localCache: persistentLocalCache({
+ tabManager: persistentMultipleTabManager()
+ })
+ });
 } catch (e) {
-  console.warn('Persistent cache failed, falling back to memory cache:', e);
-  db = initializeFirestore(app, {
-    localCache: memoryLocalCache()
-  });
+ console.warn('Persistent cache failed, falling back to memory cache:', e);
+ db = initializeFirestore(app, {
+ localCache: memoryLocalCache()
+ });
 }
 export { db };

@@ -3,52 +3,52 @@ import { LayoutDashboard, Calendar as CalendarIcon, Users, Package, Settings } f
 import { useAdmin } from '../context/AdminContext';
 
 const MobileNav = () => {
-  const { activeTab, switchTab } = useAdmin();
+ const { activeTab, switchTab } = useAdmin();
 
-  return (
-    <div className="lg:hidden fixed bottom-6 mb-safe left-4 right-4 z-40 bg-slate-700/80 backdrop-blur-xl border border-slate-600/50 shadow-2xl shadow-slate-700/30 rounded-[32px] px-4 sm:px-6 py-3 flex justify-between items-center">
-      <button
-        onClick={() => switchTab('dashboard')}
-        className={`p-3 min-w-[48px] min-h-[48px] flex justify-center items-center rounded-2xl transition-all duration-300 ${
-          activeTab === 'dashboard' ? 'bg-slate-800 text-white shadow-lg shadow-slate-800/30 scale-110' : 'text-slate-400 hover:text-slate-200'
-        }`}
-      >
-        <LayoutDashboard size={24} />
-      </button>
-      <button
-        onClick={() => switchTab('shifts', 'calendar')}
-        className={`p-3 min-w-[48px] min-h-[48px] flex justify-center items-center rounded-2xl transition-all duration-300 ${
-          activeTab === 'shifts' ? 'bg-slate-800 text-white shadow-lg shadow-slate-800/30 scale-110' : 'text-slate-400 hover:text-slate-200'
-        }`}
-      >
-        <CalendarIcon size={24} />
-      </button>
-      <button
-        onClick={() => switchTab('team', 'salaries')}
-        className={`p-3 min-w-[48px] min-h-[48px] flex justify-center items-center rounded-2xl transition-all duration-300 ${
-          activeTab === 'team' ? 'bg-slate-800 text-white shadow-lg shadow-slate-800/30 scale-110' : 'text-slate-400 hover:text-slate-200'
-        }`}
-      >
-        <Users size={24} />
-      </button>
-      <button
-        onClick={() => switchTab('inventory', 'stock')}
-        className={`p-3 min-w-[48px] min-h-[48px] flex justify-center items-center rounded-2xl transition-all duration-300 ${
-          activeTab === 'inventory' ? 'bg-slate-800 text-white shadow-lg shadow-slate-800/30 scale-110' : 'text-slate-400 hover:text-slate-200'
-        }`}
-      >
-        <Package size={24} />
-      </button>
-      <button
-        onClick={() => switchTab('settings', 'margins')}
-        className={`p-3 min-w-[48px] min-h-[48px] flex justify-center items-center rounded-2xl transition-all duration-300 ${
-          activeTab === 'settings' ? 'bg-slate-800 text-white shadow-lg shadow-slate-800/30 scale-110' : 'text-slate-400 hover:text-slate-200'
-        }`}
-      >
-        <Settings size={24} />
-      </button>
-    </div>
-  );
+ return (
+ <div className="lg:hidden fixed bottom-6 mb-safe left-4 right-4 z-40 bg-slate-700/80 backdrop-blur-xl border border-slate-600/50 shadow-2xl shadow-slate-700/30 rounded-[32px] px-4 sm:px-6 py-3 flex justify-between items-center transition-colors duration-300">
+ <button
+ onClick={() => switchTab('dashboard')}
+ className={`p-3 min-w-[48px] min-h-[48px] flex justify-center items-center rounded-2xl transition-all duration-300 ${
+ activeTab === 'dashboard' ? 'bg-slate-800 text-white shadow-lg shadow-slate-800/30 scale-110' : 'text-slate-400 hover:text-slate-200'
+ }`}
+ >
+ <LayoutDashboard size={24} />
+ </button>
+ <button
+ onClick={() => switchTab('shifts', 'calendar')}
+ className={`p-3 min-w-[48px] min-h-[48px] flex justify-center items-center rounded-2xl transition-all duration-300 ${
+ activeTab === 'shifts' ? 'bg-slate-800 text-white shadow-lg shadow-slate-800/30 scale-110' : 'text-slate-400 hover:text-slate-200'
+ }`}
+ >
+ <CalendarIcon size={24} />
+ </button>
+ <button
+ onClick={() => switchTab('team', 'salaries')}
+ className={`p-3 min-w-[48px] min-h-[48px] flex justify-center items-center rounded-2xl transition-all duration-300 ${
+ activeTab === 'team' ? 'bg-slate-800 text-white shadow-lg shadow-slate-800/30 scale-110' : 'text-slate-400 hover:text-slate-200'
+ }`}
+ >
+ <Users size={24} />
+ </button>
+ <button
+ onClick={() => switchTab('inventory', 'stock')}
+ className={`p-3 min-w-[48px] min-h-[48px] flex justify-center items-center rounded-2xl transition-all duration-300 ${
+ activeTab === 'inventory' ? 'bg-slate-800 text-white shadow-lg shadow-slate-800/30 scale-110' : 'text-slate-400 hover:text-slate-200'
+ }`}
+ >
+ <Package size={24} />
+ </button>
+ <button
+ onClick={() => switchTab('settings', 'margins')}
+ className={`p-3 min-w-[48px] min-h-[48px] flex justify-center items-center rounded-2xl transition-all duration-300 ${
+ activeTab === 'settings' ? 'bg-slate-800 text-white shadow-lg shadow-slate-800/40 scale-110' : 'text-slate-400 hover:text-slate-200'
+ }`}
+ >
+ <Settings size={24} />
+ </button>
+ </div>
+ );
 };
 
 export default MobileNav;

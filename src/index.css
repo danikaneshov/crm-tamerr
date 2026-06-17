@@ -5,116 +5,116 @@
 @tailwind utilities;
 
 @layer base {
-  html {
-    touch-action: manipulation;
-    -webkit-text-size-adjust: 100%;
-    overflow-x: hidden;
-    overscroll-behavior: none;
-    -webkit-tap-highlight-color: transparent;
-    -webkit-touch-callout: none;
-  }
-  
-  body {
-    @apply bg-slate-50 text-slate-900 font-sans antialiased selection:bg-blue-200 selection:text-blue-900;
-    touch-action: manipulation;
-    overflow-x: hidden;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: none;
-    position: fixed;
-    width: 100%;
-    height: 100%;
-  }
+ html {
+ touch-action: manipulation;
+ -webkit-text-size-adjust: 100%;
+ overflow-x: hidden;
+ overscroll-behavior: none;
+ -webkit-tap-highlight-color: transparent;
+ -webkit-touch-callout: none;
+ }
+ 
+ body {
+ @apply bg-slate-50 text-slate-900 font-sans antialiased selection:bg-blue-200 selection:text-blue-900 transition-colors duration-300;
+ touch-action: manipulation;
+ overflow-x: hidden;
+ -webkit-overflow-scrolling: touch;
+ overscroll-behavior-y: none;
+ position: fixed;
+ width: 100%;
+ height: 100%;
+ }
 
-  #root {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-  }
-  
-  h1 { @apply text-4xl leading-tight font-black; }
-  h2 { @apply text-3xl leading-snug font-extrabold; }
-  h3 { @apply text-2xl leading-normal font-bold; }
-  h4 { @apply text-xl leading-normal font-bold; }
-  
-  code, pre, .mono {
-    @apply font-mono;
-  }
+ #root {
+ width: 100%;
+ height: 100%;
+ overflow: hidden;
+ }
+ 
+ h1 { @apply text-4xl leading-tight font-black; }
+ h2 { @apply text-3xl leading-snug font-extrabold; }
+ h3 { @apply text-2xl leading-normal font-bold; }
+ h4 { @apply text-xl leading-normal font-bold; }
+ 
+ code, pre, .mono {
+ @apply font-mono;
+ }
 
-  /* Prevent iOS double-tap zoom on buttons and inputs */
-  button, input, select, textarea {
-    touch-action: manipulation;
-  }
+ /* Prevent iOS double-tap zoom on buttons and inputs */
+ button, input, select, textarea {
+ touch-action: manipulation;
+ }
 
-  /* Prevent text selection on interactive elements in PWA */
-  .no-select {
-    -webkit-user-select: none;
-    user-select: none;
-  }
+ /* Prevent text selection on interactive elements in PWA */
+ .no-select {
+ -webkit-user-select: none;
+ user-select: none;
+ }
 
-  /* Fix iOS standalone mode safe areas */
-  @supports (padding: env(safe-area-inset-top)) {
-    body {
-      padding-top: env(safe-area-inset-top);
-    }
-  }
+ /* Fix iOS standalone mode safe areas */
+ @supports (padding: env(safe-area-inset-top)) {
+ body {
+ padding-top: env(safe-area-inset-top);
+ }
+ }
 }
 
 @layer utilities {
-  .skeleton {
-    background: linear-gradient(
-      90deg, 
-      #f3f4f6 25%, 
-      #e5e7eb 50%, 
-      #f3f4f6 75%
-    );
-    background-size: 1000px 100%;
-    animation: shimmer 2s infinite linear;
-  }
-  
-  .dark .skeleton {
-    background: linear-gradient(
-      90deg, 
-      #1e293b 25%, 
-      #334155 50%, 
-      #1e293b 75%
-    );
-    background-size: 1000px 100%;
-  }
+ .skeleton {
+ background: linear-gradient(
+ 90deg, 
+ #f3f4f6 25%, 
+ #e5e7eb 50%, 
+ #f3f4f6 75%
+ );
+ background-size: 1000px 100%;
+ animation: shimmer 2s infinite linear;
+ }
+ 
+ .dark .skeleton {
+ background: linear-gradient(
+ 90deg, 
+ #1e293b 25%, 
+ #334155 50%, 
+ #1e293b 75%
+ );
+ background-size: 1000px 100%;
+ }
 
-  .pt-safe { padding-top: env(safe-area-inset-top); }
-  .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
-  .pl-safe { padding-left: env(safe-area-inset-left); }
-  .pr-safe { padding-right: env(safe-area-inset-right); }
-  .mb-safe { margin-bottom: env(safe-area-inset-bottom); }
+ .pt-safe { padding-top: env(safe-area-inset-top); }
+ .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+ .pl-safe { padding-left: env(safe-area-inset-left); }
+ .pr-safe { padding-right: env(safe-area-inset-right); }
+ .mb-safe { margin-bottom: env(safe-area-inset-bottom); }
 
-  /* Scrollable tab bar — hides scrollbar but allows horizontal scroll */
-  .scrollable-tabs {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-  .scrollable-tabs::-webkit-scrollbar {
-    display: none;
-  }
+ /* Scrollable tab bar — hides scrollbar but allows horizontal scroll */
+ .scrollable-tabs {
+ overflow-x: auto;
+ -webkit-overflow-scrolling: touch;
+ scrollbar-width: none;
+ -ms-overflow-style: none;
+ }
+ .scrollable-tabs::-webkit-scrollbar {
+ display: none;
+ }
 
-  .glass {
-    @apply bg-white/70 backdrop-blur-xl border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)];
-  }
-  .glass-dark {
-    @apply bg-slate-900/80 backdrop-blur-2xl border border-slate-700/50 shadow-2xl shadow-blue-900/20 text-white;
-  }
-  .smooth-shadow {
-    box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05);
-  }
+ .glass {
+ @apply bg-white backdrop-blur-xl border border-white shadow-[0_8px_30px_rgb(0,0,0,0.04)];
+ }
+ .glass-dark {
+ @apply bg-slate-900/80 backdrop-blur-2xl border border-slate-700/50 shadow-2xl shadow-blue-900/20 text-white;
+ }
+ .smooth-shadow {
+ box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05);
+ }
 }
 
 @layer components {
-  .btn-hover-effect {
-    @apply transition-all duration-200 active:scale-95 hover:-translate-y-0.5 hover:shadow-lg;
-  }
-  
-  .card-hover-effect {
-    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-xl;
-  }
+ .btn-hover-effect {
+ @apply transition-all duration-200 active:scale-95 hover:-translate-y-0.5 hover:shadow-lg;
+ }
+ 
+ .card-hover-effect {
+ @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-xl;
+ }
 }
