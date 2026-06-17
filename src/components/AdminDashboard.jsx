@@ -755,41 +755,39 @@ const AdminDashboard = () => {
 
 
   return (
-    <div className="flex h-screen bg-[#F8FAFC] relative no-select">
+    <div className="flex h-screen relative no-select overflow-hidden">
       
-      {/* Кнопка Меню для мобилок */}
-      <button 
-        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-3 bg-white/90 backdrop-blur-sm rounded-xl shadow-md text-slate-800"
-      >
-        {isMobileMenuOpen ? <X size={24}/> : <Menu size={24}/>}
-      </button>
-
-      {/* Sidebar (Адаптивный) */}
-      <div className={`fixed lg:static inset-y-0 left-0 z-40 transform ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 transition-transform duration-300 w-72 bg-white border-r border-slate-200 flex flex-col p-6 shadow-2xl lg:shadow-none`}>
-        <div className="mb-10 px-2 mt-12 lg:mt-0"><span className="text-2xl font-black tracking-tighter text-slate-900">ERP<span className="text-primary">.</span></span></div>
-        <nav className="flex-1 space-y-2">
-          <button onClick={() => switchTab('dashboard')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'dashboard' ? 'bg-primary text-white shadow-lg shadow-primary-light/50 translate-x-2' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-700 hover:translate-x-1'}`}><LayoutDashboard size={20}/>Дашборд</button>
-          <button onClick={() => switchTab('shifts', 'calendar')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'shifts' ? 'bg-primary text-white shadow-lg shadow-primary-light/50 translate-x-2' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-700 hover:translate-x-1'}`}><CalendarIcon size={20}/>Смены</button>
-          <button onClick={() => switchTab('team', 'salaries')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'team' ? 'bg-primary text-white shadow-lg shadow-primary-light/50 translate-x-2' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-700 hover:translate-x-1'}`}><Users size={20}/>Команда</button>
-          <button onClick={() => switchTab('inventory', 'stock')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'inventory' ? 'bg-primary text-white shadow-lg shadow-primary-light/50 translate-x-2' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-700 hover:translate-x-1'}`}><Package size={20}/>Склад</button>
-          <button onClick={() => switchTab('settings', 'margins')} className={`w-full flex items-center gap-3 p-4 rounded-2xl font-bold transition-all ${activeTab === 'settings' ? 'bg-primary text-white shadow-lg shadow-primary-light/50 translate-x-2' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-700 hover:translate-x-1'}`}><Settings size={20}/>Настройки</button>
+      {/* Sidebar for Desktop (Floating Glass) */}
+      <div className="hidden lg:flex flex-col w-[280px] fixed inset-y-6 left-6 z-40 glass rounded-[40px] p-8">
+        <div className="mb-12 px-2"><span className="text-3xl font-black tracking-tighter text-slate-900">ERP<span className="text-blue-600">.</span></span></div>
+        <nav className="flex-1 space-y-3">
+          <button onClick={() => switchTab('dashboard')} className={`w-full flex items-center gap-4 p-4 rounded-3xl font-bold transition-all duration-300 ${activeTab === 'dashboard' ? 'bg-blue-600 text-white shadow-xl shadow-blue-500/40 translate-x-1' : 'text-slate-400 hover:bg-white hover:text-slate-800 hover:shadow-md hover:translate-x-1'}`}><LayoutDashboard size={22}/>Дашборд</button>
+          <button onClick={() => switchTab('shifts', 'calendar')} className={`w-full flex items-center gap-4 p-4 rounded-3xl font-bold transition-all duration-300 ${activeTab === 'shifts' ? 'bg-blue-600 text-white shadow-xl shadow-blue-500/40 translate-x-1' : 'text-slate-400 hover:bg-white hover:text-slate-800 hover:shadow-md hover:translate-x-1'}`}><CalendarIcon size={22}/>Смены</button>
+          <button onClick={() => switchTab('team', 'salaries')} className={`w-full flex items-center gap-4 p-4 rounded-3xl font-bold transition-all duration-300 ${activeTab === 'team' ? 'bg-blue-600 text-white shadow-xl shadow-blue-500/40 translate-x-1' : 'text-slate-400 hover:bg-white hover:text-slate-800 hover:shadow-md hover:translate-x-1'}`}><Users size={22}/>Команда</button>
+          <button onClick={() => switchTab('inventory', 'stock')} className={`w-full flex items-center gap-4 p-4 rounded-3xl font-bold transition-all duration-300 ${activeTab === 'inventory' ? 'bg-blue-600 text-white shadow-xl shadow-blue-500/40 translate-x-1' : 'text-slate-400 hover:bg-white hover:text-slate-800 hover:shadow-md hover:translate-x-1'}`}><Package size={22}/>Склад</button>
+          <button onClick={() => switchTab('settings', 'margins')} className={`w-full flex items-center gap-4 p-4 rounded-3xl font-bold transition-all duration-300 ${activeTab === 'settings' ? 'bg-blue-600 text-white shadow-xl shadow-blue-500/40 translate-x-1' : 'text-slate-400 hover:bg-white hover:text-slate-800 hover:shadow-md hover:translate-x-1'}`}><Settings size={22}/>Настройки</button>
         </nav>
-        <button onClick={() => signOut(auth)} className="flex items-center gap-3 p-4 text-slate-400 font-bold hover:text-red-500 transition-all"><LogOut size={20}/>Выйти</button>
+        <button onClick={() => signOut(auth)} className="flex items-center gap-4 p-4 mt-8 text-slate-400 font-bold hover:text-red-500 hover:bg-red-50 rounded-3xl transition-all duration-300"><LogOut size={22}/>Выйти</button>
       </div>
 
-      {/* Оверлей для закрытия меню на мобилках */}
-      {isMobileMenuOpen && <div onClick={() => setIsMobileMenuOpen(false)} className="fixed inset-0 bg-slate-900/50 z-30 lg:hidden"></div>}
+      {/* Bottom Navigation for Mobile (Floating Glass) */}
+      <div className="lg:hidden fixed bottom-6 left-4 right-4 z-50 glass rounded-[32px] px-6 py-4 flex justify-between items-center">
+        <button onClick={() => switchTab('dashboard')} className={`p-3 rounded-2xl transition-all duration-300 ${activeTab === 'dashboard' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/40 scale-110' : 'text-slate-400 hover:text-slate-800'}`}><LayoutDashboard size={24}/></button>
+        <button onClick={() => switchTab('shifts', 'calendar')} className={`p-3 rounded-2xl transition-all duration-300 ${activeTab === 'shifts' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/40 scale-110' : 'text-slate-400 hover:text-slate-800'}`}><CalendarIcon size={24}/></button>
+        <button onClick={() => switchTab('team', 'salaries')} className={`p-3 rounded-2xl transition-all duration-300 ${activeTab === 'team' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/40 scale-110' : 'text-slate-400 hover:text-slate-800'}`}><Users size={24}/></button>
+        <button onClick={() => switchTab('inventory', 'stock')} className={`p-3 rounded-2xl transition-all duration-300 ${activeTab === 'inventory' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/40 scale-110' : 'text-slate-400 hover:text-slate-800'}`}><Package size={24}/></button>
+        <button onClick={() => switchTab('settings', 'margins')} className={`p-3 rounded-2xl transition-all duration-300 ${activeTab === 'settings' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/40 scale-110' : 'text-slate-400 hover:text-slate-800'}`}><Settings size={24}/></button>
+      </div>
 
       {/* Основной контент */}
-      <div className="flex-1 overflow-auto p-4 pt-20 lg:p-10 lg:pt-10 pb-safe">
+      <div className="flex-1 lg:ml-[320px] overflow-y-auto overflow-x-hidden p-6 pt-10 pb-32 lg:p-12 lg:pb-12 relative z-0">
         
         {/* ВКЛАДКА 1: ДАШБОРД */}
         {activeTab === 'dashboard' && (
-          <div className="space-y-10 animate-in fade-in duration-300">
+          <div className="space-y-10 animate-slide-in-bottom">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
               <h1 className="text-2xl font-bold text-slate-800">Общая статистика</h1>
-              <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
+              <div className="flex items-center gap-2 bg-white p-1 rounded-xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-blue-500 shadow-sm">
                 <CalendarDays className="text-slate-400 ml-3" size={18}/>
                 <select value={dashboardMonth} onChange={e => setDashboardMonth(e.target.value)} className="py-2 pr-4 bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer">
                   <option value="all">Все время</option>
@@ -799,35 +797,35 @@ const AdminDashboard = () => {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card variant="elevated" className="p-6 card-hover-effect">
-                <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">Фонд ЗП</p>
-                <h3 className="text-2xl font-black text-slate-900">{formatMoney(totalSystemEarned)} ₸</h3>
+              <Card variant="gradient" className="p-8">
+                <p className="font-bold text-xs uppercase tracking-widest mb-2 opacity-70">Фонд ЗП</p>
+                <h3 className="text-3xl font-black text-white">{formatMoney(totalSystemEarned)} ₸</h3>
               </Card>
-              <Card variant="elevated" className="p-6 card-hover-effect">
+              <Card variant="elevated" className="p-8">
                 <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">Кальяны</p>
-                <h3 className="text-2xl font-black text-slate-900">{globalHookahs} шт</h3>
+                <h3 className="text-3xl font-black text-slate-900">{globalHookahs} <span className="text-lg text-slate-400 font-bold">шт</span></h3>
               </Card>
-              <Card variant="elevated" className="p-6 card-hover-effect">
+              <Card variant="elevated" className="p-8">
                 <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">Замены</p>
-                <h3 className="text-2xl font-black text-slate-900">{globalReplacements} шт</h3>
+                <h3 className="text-3xl font-black text-slate-900">{globalReplacements} <span className="text-lg text-slate-400 font-bold">шт</span></h3>
               </Card>
-              <Card variant="gradient" className="p-6 relative">
-                <Percent className="absolute right-4 top-4 opacity-20" size={60}/>
-                <p className="font-bold text-xs uppercase tracking-widest mb-2 opacity-80">Процент замен</p>
-                <h3 className="text-3xl font-black text-white">{replacementRate}%</h3>
-                <p className="text-xs opacity-70 mt-1 text-white">От общего числа кальянов</p>
+              <Card variant="elevated" className="p-8 relative">
+                <Percent className="absolute right-6 top-6 text-blue-100" size={50}/>
+                <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">Процент замен</p>
+                <h3 className="text-3xl font-black text-blue-600">{replacementRate}%</h3>
+                <p className="text-xs text-slate-400 mt-1">От числа кальянов</p>
               </Card>
-              <Card variant="elevated" className="p-6 card-hover-effect relative overflow-hidden">
-                <Flame className="absolute right-4 top-4 text-orange-200" size={50}/>
+              <Card variant="elevated" className="p-8 relative overflow-hidden">
+                <Flame className="absolute right-4 top-6 text-orange-100" size={60}/>
                 <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">Стафф кальяны</p>
-                <h3 className="text-2xl font-black text-orange-500">{globalStaffHookahs} шт</h3>
+                <h3 className="text-3xl font-black text-orange-500">{globalStaffHookahs} <span className="text-lg text-slate-400 font-bold">шт</span></h3>
                 <p className="text-xs text-slate-400 mt-1">Не входят в продажи</p>
               </Card>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* График ЗП */}
-              <div className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm">
+              <div className="bg-white/80 backdrop-blur-xl border border-white p-8 rounded-[40px] smooth-shadow">
                 <div className="flex justify-between items-center mb-8">
                   <h2 className="text-lg font-black text-slate-900">Динамика выплат ЗП</h2>
                 </div>
@@ -851,7 +849,7 @@ const AdminDashboard = () => {
               </div>
 
               {/* График Инфографика товаров */}
-              <div className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm">
+              <div className="bg-white p-8 rounded-[40px] border-none smooth-shadow">
                 <div className="flex justify-between items-center mb-8">
                   <h2 className="text-lg font-black text-slate-900">Кальяны vs Замены</h2>
                 </div>
@@ -872,7 +870,7 @@ const AdminDashboard = () => {
             </div>
 
             {/* График количества продаж */}
-            <div className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm">
+            <div className="bg-white p-8 rounded-[40px] border-none smooth-shadow">
               <div className="flex justify-between items-center mb-8">
                 <div>
                   <h2 className="text-lg font-black text-slate-900">Количество продаж</h2>
@@ -925,13 +923,13 @@ const AdminDashboard = () => {
                 </div>
               </div>
               
-              <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm flex flex-col justify-center">
+              <div className="bg-white p-6 rounded-[32px] border-none smooth-shadow flex flex-col justify-center">
                 <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">Прибыль с кальянов</p>
                 <h3 className="text-2xl font-black text-blue-600">{formatMoney(dashboardHookahProfit)} ₸</h3>
                 <p className="text-slate-400 text-sm mt-1">{globalHookahs} шт × {formatMoney(ownerProfits.hookah)} ₸</p>
               </div>
 
-              <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm flex flex-col justify-center">
+              <div className="bg-white p-6 rounded-[32px] border-none smooth-shadow flex flex-col justify-center">
                 <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">Прибыль с замен</p>
                 <h3 className="text-2xl font-black text-indigo-600">{formatMoney(dashboardReplacementProfit)} ₸</h3>
                 <p className="text-slate-400 text-sm mt-1">{globalReplacements} шт × {formatMoney(ownerProfits.replacement)} ₸</p>
@@ -940,7 +938,7 @@ const AdminDashboard = () => {
 
             {/* Карточка расходов (закупы) */}
             {dashboardPurchases > 0 && (
-              <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm flex items-center justify-between">
+              <div className="bg-white p-6 rounded-[32px] border-none smooth-shadow flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center"><ShoppingCart size={22} className="text-red-500" /></div>
                   <div>
@@ -952,7 +950,7 @@ const AdminDashboard = () => {
             )}
 
             {/* Таблица прибыли по мастерам */}
-            <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-[32px] border-none smooth-shadow overflow-hidden">
               <div className="p-8 border-b border-slate-100">
                 <h2 className="text-xl font-black text-slate-800">Прибыль по мастерам</h2>
               </div>
@@ -984,9 +982,9 @@ const AdminDashboard = () => {
 
         {/* ВКЛАДКА: СМЕНЫ (Календарь + Список) */}
         {activeTab === 'shifts' && (
-          <div className="space-y-8 animate-in fade-in duration-300">
+          <div className="space-y-8 animate-slide-in-bottom">
             {/* Суб-табы */}
-            <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm w-fit scrollable-tabs">
+            <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-blue-500 shadow-sm w-fit scrollable-tabs">
               <button onClick={() => setSubTab('calendar')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'calendar' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Календарь</button>
               <button onClick={() => setSubTab('list')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'list' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Список смен</button>
               <button onClick={() => setSubTab('add')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'add' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Добавить</button>
@@ -1001,7 +999,7 @@ const AdminDashboard = () => {
                   <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-red-400"></span>Выходной (Пн)</span>
                   <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-primary"></span>Смена</span>
                 </div>
-                <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
+                <div className="flex items-center gap-2 bg-white p-1 rounded-xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-blue-500 shadow-sm">
                   <CalendarDays className="text-slate-400 ml-3" size={18}/>
                   <select 
                     value={selectedMonth === 'all' ? (availableMonths[0] || '05.2026') : selectedMonth} 
@@ -1014,7 +1012,7 @@ const AdminDashboard = () => {
               </div>
             </div>
 
-            <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-[32px] border-none smooth-shadow overflow-hidden">
               {(() => {
                 const targetMonthStr = selectedMonth === 'all' ? (availableMonths[0] || '05.2026') : selectedMonth;
                 const [month, year] = targetMonthStr.split('.');
@@ -1177,7 +1175,7 @@ const AdminDashboard = () => {
                       const data = filteredShifts.map(group => ({ 'Дата': group.dateStr, 'Статус': group.status === 'open' ? 'Идет смена' : 'Закрыта', 'Мастера': group.records.map(r => r.employeeName).join(', '), 'Кальяны/Замены (шт)': group.totalItems, 'Общая ЗП за смену (₸)': group.totalEarned }));
                       const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Смены"); XLSX.writeFile(wb, `Смены_${selectedMonth}.xlsx`);
                     }} className="px-4 py-2 bg-green-500 text-white font-bold rounded-xl shadow-sm hover:bg-green-600 transition-colors">Скачать .xlsx</button>
-                    <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200">
+                    <div className="flex items-center gap-2 bg-white p-1 rounded-xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-blue-500">
                       <CalendarDays className="text-slate-400 ml-3" size={18}/>
                       <select value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} className="py-2 pr-4 bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer">
                         <option value="all">Все время</option>
@@ -1212,7 +1210,7 @@ const AdminDashboard = () => {
             {subTab === 'add' && (
               <div className="max-w-2xl space-y-6">
                 <h1 className="text-2xl font-bold text-slate-800">Добавить смену</h1>
-                <div className="bg-white p-10 rounded-[40px] border border-slate-100 shadow-sm">
+                <div className="bg-white p-10 rounded-[40px] border-none smooth-shadow">
                   <p className="text-slate-500 mb-8 text-sm">Добавляет прошедшую смену со всеми параметрами.</p>
                   <form onSubmit={handleCreateDebugShift} className="space-y-6">
                     <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Дата</label><input type="date" value={debugShift.dateStr} onChange={e=>setDebugShift({...debugShift, dateStr: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" required /></div>
@@ -1230,8 +1228,8 @@ const AdminDashboard = () => {
 
         {/* ВКЛАДКА: КОМАНДА */}
         {activeTab === 'team' && (
-          <div className="space-y-8 animate-in fade-in duration-300">
-            <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm w-fit scrollable-tabs">
+          <div className="space-y-8 animate-slide-in-bottom">
+            <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-blue-500 shadow-sm w-fit scrollable-tabs">
               <button onClick={() => setSubTab('salaries')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'salaries' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Зарплаты</button>
               <button onClick={() => setSubTab('staff')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'staff' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Персонал</button>
             </div>
@@ -1242,7 +1240,7 @@ const AdminDashboard = () => {
                   <h1 className="text-2xl font-bold text-slate-800">Зарплаты сотрудников</h1>
                   <div className="flex items-center gap-2">
                     <button onClick={() => { const data = employees.map(emp => { const stats = calculateEmployeeStats(emp.id, selectedMonth); return { 'Сотрудник': emp.name, 'Смен': stats.shiftsCount, 'Кальянов': stats.hookahs, 'Замен': stats.replacements, 'Оклад': stats.baseSalaryTotal, '%': stats.hookahPercentageTotal, 'ЗП': stats.totalEarned }; }); const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Зарплаты"); XLSX.writeFile(wb, `Зарплаты_${selectedMonth}.xlsx`); }} className="px-4 py-2 bg-green-500 text-white font-bold rounded-xl shadow-sm hover:bg-green-600 transition-colors">Скачать .xlsx</button>
-                    <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200"><CalendarDays className="text-slate-400 ml-3" size={18}/><select value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} className="py-2 pr-4 bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer"><option value="all">Все время</option>{availableMonths.map(m => <option key={m} value={m}>{m}</option>)}</select></div>
+                    <div className="flex items-center gap-2 bg-white p-1 rounded-xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-blue-500"><CalendarDays className="text-slate-400 ml-3" size={18}/><select value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} className="py-2 pr-4 bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer"><option value="all">Все время</option>{availableMonths.map(m => <option key={m} value={m}>{m}</option>)}</select></div>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1272,7 +1270,7 @@ const AdminDashboard = () => {
 
             {subTab === 'staff' && (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-                <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm h-fit">
+                <div className="bg-white p-8 rounded-[32px] border-none smooth-shadow h-fit">
                   <h2 className="text-xl font-black mb-6">Добавить мастера</h2>
                   <form onSubmit={handleAddEmployee} className="space-y-4">
                     <input type="text" value={newEmpName} onChange={e=>setNewEmpName(e.target.value)} placeholder="Имя мастера" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold" required />
@@ -1280,7 +1278,7 @@ const AdminDashboard = () => {
                     <button type="submit" disabled={isAdding || !newEmpName || newEmpPin.length !== 4} className="w-full p-4 bg-blue-600 text-white rounded-2xl font-bold disabled:bg-blue-300">Создать аккаунт</button>
                   </form>
                 </div>
-                <div className="col-span-1 lg:col-span-2 bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-x-auto">
+                <div className="col-span-1 lg:col-span-2 bg-white rounded-[32px] border-none smooth-shadow overflow-x-auto">
                   <table className="w-full min-w-[500px]"><thead><tr className="bg-slate-50"><th className="p-6 text-left text-xs font-black text-slate-400 uppercase">Мастер</th><th className="p-6 text-left text-xs font-black text-slate-400 uppercase">Доступ</th><th className="p-6 text-left text-xs font-black text-slate-400 uppercase">Статус</th><th className="p-6"></th></tr></thead>
                   <tbody className="divide-y divide-slate-50">{employees.map(emp => (<tr key={emp.id} className={emp.isArchived ? 'opacity-50 bg-slate-50/50' : ''}><td className="p-6 font-bold text-slate-900">{emp.name}</td><td className="p-6 font-mono text-slate-500">{emp.pin}</td><td className="p-6">{emp.isArchived ? <span className="text-xs bg-slate-200 text-slate-500 px-3 py-1 rounded-full font-bold">Архив</span> : <span className="text-xs bg-green-100 text-green-600 px-3 py-1 rounded-full font-bold">Активен</span>}</td><td className="p-6 text-right">{emp.isArchived ? (<button onClick={() => updateDoc(doc(db, 'employees', emp.id), { isArchived: false })} className="text-xs font-bold text-green-500 hover:text-green-700 px-3 py-1.5 bg-green-50 rounded-xl hover:bg-green-100 transition-colors">Восстановить</button>) : (<button onClick={() => { if (window.confirm(`Деактивировать ${emp.name}? Все данные по ЗП сохранятся.`)) updateDoc(doc(db, 'employees', emp.id), { isArchived: true }); }} className="text-slate-300 hover:text-red-500 transition-colors"><Trash2 size={18}/></button>)}</td></tr>))}</tbody></table>
                 </div>
@@ -1379,8 +1377,8 @@ const AdminDashboard = () => {
 
 
           return (
-          <div className="space-y-8 animate-in fade-in duration-300">
-            <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm scrollable-tabs">
+          <div className="space-y-8 animate-slide-in-bottom">
+            <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-blue-500 shadow-sm scrollable-tabs">
               <button onClick={() => setSubTab('stock')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'stock' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Остатки</button>
               <button onClick={() => setSubTab('operations')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'operations' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Операции (Приход / Списание)</button>
               <button onClick={() => setSubTab('revision')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'revision' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Ревизия</button>
@@ -1448,7 +1446,7 @@ const AdminDashboard = () => {
                       <button 
                         key={t.id} 
                         onClick={() => addToCart(t)}
-                        className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm hover:border-primary hover:shadow-md transition-all text-left flex flex-col gap-2 group active:scale-95"
+                        className="bg-white p-4 rounded-2xl border-none smooth-shadow hover:border-primary hover:shadow-md transition-all text-left flex flex-col gap-2 group active:scale-95"
                       >
                         <div className="flex justify-between items-start">
                           <span className="text-2xl group-hover:scale-110 transition-transform">{t.item === 'coal' ? '🔥' : t.item === 'tobacco' ? '🍃' : '💠'}</span>
@@ -1487,7 +1485,7 @@ const AdminDashboard = () => {
                           <div className="flex flex-wrap gap-3 items-center">
                             <div className="flex flex-col gap-1">
                               <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Кол-во</label>
-                              <div className="flex items-center gap-1.5 bg-slate-50 p-1 rounded-xl border border-slate-200">
+                              <div className="flex items-center gap-1.5 bg-slate-50 p-1 rounded-xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-blue-500">
                                 <button onClick={() => updateCartItem(item.id, 'quantity', Math.max(1, item.quantity - 1))} className="w-8 h-8 flex items-center justify-center bg-white rounded-lg text-slate-600 shadow-sm hover:bg-slate-100 transition-colors font-bold">−</button>
                                 <span className="w-8 text-center font-black text-slate-800">{item.quantity}</span>
                                 <button onClick={() => updateCartItem(item.id, 'quantity', item.quantity + 1)} className="w-8 h-8 flex items-center justify-center bg-white rounded-lg text-slate-600 shadow-sm hover:bg-slate-100 transition-colors font-bold">+</button>
@@ -1527,7 +1525,7 @@ const AdminDashboard = () => {
                 )}
 
                 {/* История приходов */}
-                <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
+                <div className="bg-white rounded-[32px] border-none smooth-shadow overflow-hidden">
                   <div className="p-6 border-b border-slate-100"><h2 className="text-lg font-black text-slate-800">История приходов</h2></div>
                   <div className="divide-y divide-slate-50 max-h-[400px] overflow-y-auto">
                     {invMovements.filter(m => m.type === 'in').length === 0 && <div className="p-6 text-center text-slate-400">Нет записей</div>}
@@ -1554,7 +1552,7 @@ const AdminDashboard = () => {
 
             {subTab === 'operations' && operationType === 'writeoff' && (
               <div className="space-y-6">
-                <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm max-w-xl">
+                <div className="bg-white p-8 rounded-[32px] border-none smooth-shadow max-w-xl">
                   <form onSubmit={async (e) => { e.preventDefault(); if (!invForm.amount || Number(invForm.amount) <= 0) return alert('Укажите количество'); setIsSavingInv(true); try { const now = new Date(); await addDoc(collection(db, 'inventory_movements'), { type: 'writeoff', item: invForm.item, amount: Number(invForm.amount), cost: 0, note: invForm.note || '', dateStr: `${String(now.getDate()).padStart(2,'0')}.${String(now.getMonth()+1).padStart(2,'0')}.${now.getFullYear()}`, createdAt: serverTimestamp() }); setInvForm({ type: 'in', item: 'coal', amount: '', cost: '', note: '', templateId: '' }); } catch (err) { alert('Ошибка: ' + err.message); } finally { setIsSavingInv(false); } }} className="space-y-5">
                     <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Товар</label><select value={invForm.item} onChange={e => setInvForm({...invForm, item: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800"><option value="coal">🔥 Уголь (шт)</option><option value="tobacco">🍃 Табак (г)</option><option value="mouthpiece">💠 Мундштуки (шт)</option></select></div>
                     <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Количество</label><input type="number" min="1" value={invForm.amount} onChange={e => setInvForm({...invForm, amount: e.target.value})} placeholder="Сколько списать" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" required /></div>
@@ -1562,7 +1560,7 @@ const AdminDashboard = () => {
                     <button type="submit" disabled={isSavingInv} className="w-full p-4 bg-orange-500 text-white rounded-2xl font-bold shadow-lg shadow-orange-100 disabled:opacity-50">{isSavingInv ? 'Сохранение...' : 'Списать'}</button>
                   </form>
                 </div>
-                <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
+                <div className="bg-white rounded-[32px] border-none smooth-shadow overflow-hidden">
                   <div className="p-6 border-b border-slate-100"><h2 className="text-lg font-black text-slate-800">История списаний</h2></div>
                   <div className="divide-y divide-slate-50">
                     {invMovements.filter(m => m.type === 'writeoff').length === 0 && <div className="p-6 text-center text-slate-400">Нет записей</div>}
@@ -1584,7 +1582,7 @@ const AdminDashboard = () => {
               <div className="space-y-8">
                 <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                   <h1 className="text-2xl font-bold text-slate-800">Ревизия склада</h1>
-                  <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200">
+                  <div className="flex items-center gap-2 bg-white p-1 rounded-xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-blue-500">
                     <CalendarDays className="text-slate-400 ml-3" size={18}/>
                     <select value={revSelectedMonth} onChange={e => setRevSelectedMonth(e.target.value)} className="py-2 pr-4 bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer">
                       {availableMonths.map(m => <option key={m} value={m}>{m}</option>)}
@@ -1594,7 +1592,7 @@ const AdminDashboard = () => {
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   {/* Левая колонка: Форма ревизии */}
-                  <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
+                  <div className="bg-white p-8 rounded-[32px] border-none smooth-shadow">
                     <h2 className="text-lg font-black mb-2">Фактические остатки</h2>
                     <p className="text-sm text-slate-500 mb-6">Взвесьте весь табак вместе и посчитайте весь уголь. Введите общую сумму по складу. Система сама посчитает долг.</p>
                     
@@ -1612,7 +1610,7 @@ const AdminDashboard = () => {
                             placeholder="По факту"
                             value={revActuals.tobacco}
                             onChange={e => setRevActuals({...revActuals, tobacco: e.target.value})}
-                            className="w-24 p-3 bg-white rounded-xl border border-slate-200 font-bold text-sm text-slate-800 text-center shadow-sm"
+                            className="w-24 p-3 bg-white rounded-xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-blue-500 font-bold text-sm text-slate-800 text-center shadow-sm"
                           />
                           <span className="text-xs text-slate-400 font-bold">г</span>
                         </div>
@@ -1631,7 +1629,7 @@ const AdminDashboard = () => {
                             placeholder="По факту"
                             value={revActuals.coal}
                             onChange={e => setRevActuals({...revActuals, coal: e.target.value})}
-                            className="w-24 p-3 bg-white rounded-xl border border-slate-200 font-bold text-sm text-slate-800 text-center shadow-sm"
+                            className="w-24 p-3 bg-white rounded-xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-blue-500 font-bold text-sm text-slate-800 text-center shadow-sm"
                           />
                           <span className="text-xs text-slate-400 font-bold">шт</span>
                         </div>
@@ -1701,7 +1699,7 @@ const AdminDashboard = () => {
                     <div className="space-y-4 max-h-[500px] overflow-y-auto">
                       {revisions.length === 0 && <p className="text-slate-400 text-sm">Ревизии еще не проводились.</p>}
                       {revisions.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)).map(rev => (
-                        <div key={rev.id} className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+                        <div key={rev.id} className="bg-white p-5 rounded-2xl border-none smooth-shadow">
                           <div className="flex justify-between items-center mb-3">
                             <div>
                               <p className="text-xs text-slate-400 font-bold uppercase">За месяц</p>
@@ -1749,8 +1747,8 @@ const AdminDashboard = () => {
 
         {/* ВКЛАДКА: НАСТРОЙКИ */}
         {activeTab === 'settings' && (
-          <div className="space-y-8 animate-in fade-in duration-300">
-            <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm scrollable-tabs">
+          <div className="space-y-8 animate-slide-in-bottom">
+            <div className="flex items-center gap-2 bg-white p-1.5 rounded-2xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-blue-500 shadow-sm scrollable-tabs">
               <button onClick={() => setSubTab('margins')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'margins' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Маржинальность</button>
               <button onClick={() => setSubTab('templates')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'templates' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Шаблоны склада</button>
               <button onClick={() => setSubTab('standards')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'standards' ? 'bg-primary text-white shadow-md' : 'text-slate-400 hover:text-slate-700'}`}>Стандарты склада</button>
@@ -1762,7 +1760,7 @@ const AdminDashboard = () => {
                         {subTab === 'templates' && (
               <div className="space-y-6">
                 <h1 className="text-2xl font-bold text-slate-800">Шаблоны закупа</h1>
-                <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm max-w-xl">
+                <div className="bg-white p-8 rounded-[32px] border-none smooth-shadow max-w-xl">
                   <h2 className="text-lg font-black mb-6">Создать шаблон</h2>
                   <form onSubmit={handleTemplateSubmit} className="space-y-5">
                     <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Название</label><input type="text" value={newTemplate.name} onChange={e => setNewTemplate({...newTemplate, name: e.target.value})} placeholder="Например: Hell 200гр" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold" required /></div>
@@ -1774,7 +1772,7 @@ const AdminDashboard = () => {
                     <button type="submit" disabled={isSavingInv} className="w-full p-4 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-100 disabled:opacity-50">Создать шаблон</button>
                   </form>
                 </div>
-                <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
+                <div className="bg-white rounded-[32px] border-none smooth-shadow overflow-hidden">
                   <div className="p-6 border-b border-slate-100"><h2 className="text-lg font-black text-slate-800">Мои шаблоны</h2></div>
                   <div className="divide-y divide-slate-50">
                     {invTemplates.length === 0 && <div className="p-6 text-center text-slate-400">Шаблонов пока нет</div>}
@@ -1792,7 +1790,7 @@ const AdminDashboard = () => {
             {subTab === 'standards' && (
               <div className="max-w-xl space-y-6">
                 <h1 className="text-2xl font-bold text-slate-800">Стандарты расхода</h1>
-                <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
+                <div className="bg-white p-8 rounded-[32px] border-none smooth-shadow">
                   <p className="text-slate-500 mb-6 text-sm">Укажи сколько ресурсов уходит на 1 чашу. Система автоматически рассчитает расход по продажам.</p>
                   <div className="space-y-5">
                     <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">🔥 Углей на 1 чашу (шт)</label><input type="number" min="1" value={invStandards.coalPerBowl} onChange={e => setInvStandards({...invStandards, coalPerBowl: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800" /></div>
@@ -1835,7 +1833,7 @@ const AdminDashboard = () => {
             )}
 
             {subTab === 'margins' && (
-              <div className="max-w-2xl"><div className="bg-white p-10 rounded-[40px] border border-slate-100 shadow-sm">
+              <div className="max-w-2xl"><div className="bg-white p-10 rounded-[40px] border-none smooth-shadow">
                 <h2 className="text-lg font-black text-slate-900 mb-2">Маржинальность</h2>
                 <p className="text-slate-500 mb-8 text-sm">Укажи свою чистую прибыль с каждой позиции.</p>
                 <div className="space-y-6">
@@ -2064,7 +2062,7 @@ const AdminDashboard = () => {
                   <img 
                     src={selectedEmpReport.records[0].photoUrl} 
                     alt="Чек" 
-                    className="w-full h-48 object-cover rounded-2xl border border-slate-200 cursor-pointer hover:opacity-90 transition-opacity" 
+                    className="w-full h-48 object-cover rounded-2xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-blue-500 cursor-pointer hover:opacity-90 transition-opacity" 
                     onClick={() => window.open(selectedEmpReport.records[0].photoUrl, '_blank')} 
                   />
                 ) : (

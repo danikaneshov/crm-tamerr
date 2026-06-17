@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import EmployeeApp from './components/EmployeeApp';
 import AdminLogin from './components/AdminLogin';
-import AdminDashboard from './components/AdminDashboard';
+import AdminDashboard from './admin/AdminDashboardNew';
 import ProtectedRoute from './components/ProtectedRoute'; // Импортируем охранника
 import useDynamicFavicon from './hooks/useDynamicFavicon';
 
