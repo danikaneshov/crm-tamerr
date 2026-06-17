@@ -132,13 +132,13 @@ const RevisionPanel = () => {
             )}
           </Card>
 
-          <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex justify-between items-center">
+          <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
             <div>
               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Итого штраф</p>
               <h3 className="text-3xl font-black text-red-600">{formatMoney(totalDebt)} ₸</h3>
               <p className="text-xs text-slate-500 mt-1">Будет вычтено из ЗП мастеров в равных долях</p>
             </div>
-            <button onClick={handleRevisionSubmit} disabled={isSavingRev || actualStock.coal === '' || actualStock.tobacco === ''} className="px-8 py-4 bg-red-600 text-white rounded-2xl font-bold shadow-lg shadow-red-200 hover:bg-red-700 transition-all disabled:opacity-50 hover:-translate-y-1">
+            <button onClick={handleRevisionSubmit} disabled={isSavingRev || actualStock.coal === '' || actualStock.tobacco === ''} className="w-full sm:w-auto px-8 py-4 bg-red-600 text-white rounded-2xl font-bold shadow-lg shadow-red-200 hover:bg-red-700 transition-all disabled:opacity-50 hover:-translate-y-1">
               {isSavingRev ? 'Проведение...' : 'Провести ревизию'}
             </button>
           </div>
