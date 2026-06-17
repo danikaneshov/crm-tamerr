@@ -26,9 +26,9 @@ const InventoryTab = () => {
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
       <div className="flex items-center gap-2 bg-white/50 backdrop-blur-md p-1.5 rounded-2xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-blue-500 shadow-sm scrollable-tabs w-full max-w-full">
-        <button onClick={() => setSubTab('stock')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'stock' || !subTab ? 'bg-primary text-white shadow-md' : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'}`}>Остатки</button>
-        <button onClick={() => setSubTab('operations')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'operations' ? 'bg-primary text-white shadow-md' : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'}`}>Операции (Приход / Списание)</button>
-        <button onClick={() => setSubTab('revision')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'revision' ? 'bg-primary text-white shadow-md' : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'}`}>Ревизия</button>
+        <button onClick={(e) => { setSubTab('stock'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'stock' || !subTab ? 'bg-primary text-white shadow-md' : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'}`}>Остатки</button>
+        <button onClick={(e) => { setSubTab('operations'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'operations' ? 'bg-primary text-white shadow-md' : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'}`}>Операции (Приход / Списание)</button>
+        <button onClick={(e) => { setSubTab('revision'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'revision' ? 'bg-primary text-white shadow-md' : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'}`}>Ревизия</button>
       </div>
 
       {(subTab === 'stock' || !subTab) && (

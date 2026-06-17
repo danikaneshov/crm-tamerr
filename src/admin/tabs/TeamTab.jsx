@@ -43,8 +43,8 @@ const TeamTab = () => {
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
       <div className="flex items-center gap-2 bg-white/50 backdrop-blur-md p-1.5 shadow-sm rounded-2xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-blue-500 shadow-sm w-full max-w-full scrollable-tabs">
-        <button onClick={() => setSubTab('salaries')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'salaries' || !subTab ? 'bg-primary text-white shadow-md' : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'}`}>Зарплаты</button>
-        <button onClick={() => setSubTab('staff')} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'staff' ? 'bg-primary text-white shadow-md' : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'}`}>Персонал</button>
+        <button onClick={(e) => { setSubTab('salaries'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'salaries' || !subTab ? 'bg-primary text-white shadow-md' : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'}`}>Зарплаты</button>
+        <button onClick={(e) => { setSubTab('staff'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'staff' ? 'bg-primary text-white shadow-md' : 'text-slate-500 hover:text-slate-800 hover:bg-white/50'}`}>Персонал</button>
       </div>
 
       {(subTab === 'salaries' || !subTab) && (
@@ -94,38 +94,30 @@ const TeamTab = () => {
               <button type="submit" disabled={isAdding || !newEmpName || newEmpPin.length !== 4} className="w-full p-4 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-500/30 disabled:opacity-50 transition-all hover:translate-y-[-2px]">Создать аккаунт</button>
             </form>
           </div>
-          <div className="col-span-1 lg:col-span-2 bg-white/80 backdrop-blur-xl rounded-[32px] border-none smooth-shadow overflow-x-auto">
-            <table className="w-full min-w-[500px]">
-              <thead>
-                <tr className="bg-slate-50">
-                  <th className="p-6 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Мастер</th>
-                  <th className="p-6 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Доступ</th>
-                  <th className="p-6 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Статус</th>
-                  <th className="p-6"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50">
-                {employees.map(emp => (
-                  <tr key={emp.id} className={`transition-colors hover:bg-slate-50 ${emp.isArchived ? 'opacity-50' : ''}`}>
-                    <td className="p-6 font-bold text-slate-900">{emp.name}</td>
-                    <td className="p-6 font-mono text-slate-500">{emp.pin}</td>
-                    <td className="p-6">
-                      {emp.isArchived ? 
-                        <span className="text-xs bg-slate-200 text-slate-500 px-3 py-1 rounded-full font-bold">Архив</span> : 
-                        <span className="text-xs bg-green-100 text-green-600 px-3 py-1 rounded-full font-bold">Активен</span>
-                      }
-                    </td>
-                    <td className="p-6 text-right">
-                      {emp.isArchived ? (
-                        <button onClick={() => handleToggleArchive(emp.id, true, emp.name)} className="text-xs font-bold text-green-500 hover:text-green-700 px-3 py-1.5 bg-green-50 rounded-xl hover:bg-green-100 transition-colors">Восстановить</button>
-                      ) : (
-                        <button onClick={() => handleToggleArchive(emp.id, false, emp.name)} className="text-slate-300 hover:text-red-500 transition-colors bg-slate-50 p-2 rounded-xl hover:bg-red-50"><Trash2 size={18}/></button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="col-span-1 lg:col-span-2 space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {employees.map(emp => (
+                <div key={emp.id} className={`p-5 rounded-3xl border border-slate-100 transition-all ${emp.isArchived ? 'bg-white/40 opacity-70' : 'bg-white/80 backdrop-blur-xl shadow-sm'}`}>
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h3 className="font-bold text-slate-900 text-lg">{emp.name}</h3>
+                      <p className="font-mono text-slate-500 text-sm mt-1">PIN: {emp.pin}</p>
+                    </div>
+                    {emp.isArchived ? 
+                      <span className="text-xs bg-slate-200 text-slate-500 px-3 py-1 rounded-full font-bold">Архив</span> : 
+                      <span className="text-xs bg-green-100 text-green-600 px-3 py-1 rounded-full font-bold">Активен</span>
+                    }
+                  </div>
+                  <div className="flex justify-end mt-4 pt-4 border-t border-slate-50">
+                    {emp.isArchived ? (
+                      <button onClick={() => handleToggleArchive(emp.id, true, emp.name)} className="text-xs font-bold text-green-500 hover:text-green-700 px-4 py-2 bg-green-50 rounded-xl hover:bg-green-100 transition-colors w-full sm:w-auto">Восстановить</button>
+                    ) : (
+                      <button onClick={() => handleToggleArchive(emp.id, false, emp.name)} className="text-slate-400 hover:text-red-500 transition-colors bg-slate-50 px-4 py-2 rounded-xl hover:bg-red-50 text-sm font-bold w-full sm:w-auto flex justify-center items-center gap-2"><Trash2 size={16}/> В архив</button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
