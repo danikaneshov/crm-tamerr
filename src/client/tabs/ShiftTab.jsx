@@ -29,8 +29,8 @@ const ShiftTab = () => {
  <div className="w-20 h-20 bg-orange-100 text-orange-500 rounded-full flex items-center justify-center mx-auto mb-6">
  <UserPlus size={40} />
  </div>
- <h2 className="text-2xl font-black text-slate-800 mb-2">Смена уже открыта</h2>
- <p className="text-slate-500 mb-6">Открыл: <strong className="text-slate-800 ">{currentShift.employeeName}</strong></p>
+ <h2 className="text-2xl font-black text-slate-900 mb-2">Смена уже открыта</h2>
+ <p className="text-slate-500 mb-6">Открыл: <strong className="text-slate-900 ">{currentShift.employeeName}</strong></p>
  <p className="text-xs text-orange-500 font-bold uppercase tracking-widest bg-orange-50 p-4 rounded-2xl">
  Вы не можете закрыть эту смену. Это сделает {currentShift.employeeName}.
  </p>
@@ -41,10 +41,10 @@ const ShiftTab = () => {
  if (currentShift && (currentShift.status === 'locked_closed' || currentShift.status === 'closed')) {
  return (
  <div className="glass p-8 rounded-[40px] text-center animate-in zoom-in-95 duration-500">
- <div className="w-20 h-20 bg-emerald-900/30 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
+ <div className="w-20 h-20 bg-emerald-900/30 text-slate-500 rounded-full flex items-center justify-center mx-auto mb-6">
  <CheckCircle2 size={40} />
  </div>
- <h2 className="text-2xl font-black text-slate-800 mb-2">Смена закрыта</h2>
+ <h2 className="text-2xl font-black text-slate-900 mb-2">Смена закрыта</h2>
  <p className="text-slate-500">Сегодняшняя смена была успешно закрыта.</p>
  </div>
  );
@@ -56,10 +56,10 @@ const ShiftTab = () => {
  return (
  <div className="glass p-8 rounded-[40px] animate-in zoom-in-95 duration-500">
  <div className="text-center mb-8">
- <div className="w-20 h-20 bg-slate-200 text-slate-800 rounded-full flex items-center justify-center mx-auto mb-6">
+ <div className="w-20 h-20 bg-slate-200 text-slate-900 rounded-full flex items-center justify-center mx-auto mb-6">
  <PlayCircle size={40} />
  </div>
- <h2 className="text-2xl font-black text-slate-800 mb-2">Открытие смены</h2>
+ <h2 className="text-2xl font-black text-slate-900 mb-2">Открытие смены</h2>
  <p className="text-slate-500">Выбери напарника, если он есть</p>
  </div>
 
@@ -69,7 +69,7 @@ const ShiftTab = () => {
  <select
  value={partnerId}
  onChange={(e) => setPartnerId(e.target.value)}
- className="w-full bg-white p-4 rounded-2xl border-none outline-none font-bold text-slate-800 focus:ring-2 focus:ring-slate-800"
+ className="w-full bg-white p-4 rounded-2xl border-none outline-none font-bold text-slate-900 focus:ring-2 focus:ring-slate-800"
  >
  <option value="">Без напарника (Я один)</option>
  {availablePartners.map(p => (
@@ -80,7 +80,7 @@ const ShiftTab = () => {
 
  <button
  onClick={() => handleOpenShift(partnerId)}
- className="w-full p-5 bg-slate-800 text-white rounded-2xl font-bold text-lg shadow-lg shadow-slate-800/20 active:scale-95 transition-all flex justify-center items-center gap-2"
+ className="w-full p-5 bg-slate-100 text-slate-900 border border-slate-200 rounded-2xl font-bold text-lg shadow-lg shadow-slate-800/20 active:scale-95 transition-all flex justify-center items-center gap-2"
  >
  <PlayCircle size={24} /> Начать смену
  </button>
@@ -97,11 +97,11 @@ const ShiftTab = () => {
  <div className="flex justify-between items-center mb-6">
  <div>
  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Смена открыта</p>
- <h2 className="text-xl font-black text-slate-800 ">{currentShift.dateStr}</h2>
+ <h2 className="text-xl font-black text-slate-900 ">{currentShift.dateStr}</h2>
  </div>
  <div className="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-xl">
  <span className="w-2 h-2 rounded-full bg-slate-100 animate-pulse"></span>
- <span className="text-slate-800 font-bold text-sm">В процессе</span>
+ <span className="text-slate-900 font-bold text-sm">В процессе</span>
  </div>
  </div>
 
@@ -120,13 +120,13 @@ const ShiftTab = () => {
  <div className="space-y-4">
  <div className="bg-slate-100 p-4 sm:p-6 rounded-3xl border border-slate-200 text-center">
  <h3 className="font-bold text-blue-900 text-sm">Количество кальянов и замен будет автоматически распознано ИИ по чеку.</h3>
- <p className="text-xs text-slate-800 mt-2">Ручной ввод недоступен</p>
+ <p className="text-xs text-slate-900 mt-2">Ручной ввод недоступен</p>
  </div>
 
  {/* Staff Hookahs */}
  <div className="bg-white p-4 sm:p-6 rounded-3xl border border-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
  <div>
- <h3 className="font-bold text-slate-800 text-lg">Стафф кальяны</h3>
+ <h3 className="font-bold text-slate-900 text-lg">Стафф кальяны</h3>
  <p className="text-xs text-slate-500">Выкуренные персоналом</p>
  </div>
  <div className="flex items-center gap-4 bg-slate-50 p-2 rounded-2xl w-full sm:w-auto justify-between">
@@ -153,7 +153,7 @@ const ShiftTab = () => {
  >
  {photoFile ? (
  <>
- <CheckCircle2 className="text-emerald-500 mb-2" size={32} />
+ <CheckCircle2 className="text-slate-500 mb-2" size={32} />
  <span className="font-bold text-slate-700 ">Фото готово</span>
  <span className="text-xs text-slate-400 mt-1">Нажмите чтобы изменить</span>
  </>
@@ -177,7 +177,7 @@ const ShiftTab = () => {
  <button
  onClick={() => handleCloseShift(staffHookahs, photoFile)}
  disabled={isUploading || !photoFile}
- className="w-full mt-6 p-5 bg-slate-900 text-white rounded-2xl font-bold text-lg shadow-lg shadow-slate-900/20 active:scale-95 transition-all flex justify-center items-center gap-2 disabled:opacity-50 disabled:active:scale-100"
+ className="w-full mt-6 p-5 bg-slate-900 text-slate-700 rounded-2xl font-bold text-lg shadow-lg shadow-slate-900/20 active:scale-95 transition-all flex justify-center items-center gap-2 disabled:opacity-50 disabled:active:scale-100"
  >
  {isUploading ? <><Loader2 className="animate-spin" size={24} /> Анализ ИИ...</> : 'Закрыть смену'}
  </button>

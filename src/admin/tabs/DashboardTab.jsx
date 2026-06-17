@@ -30,7 +30,7 @@ const DashboardTab = () => {
  <div className="space-y-10 animate-in fade-in duration-300">
  {/* Header */}
  <div className="flex flex-col md:flex-row justify-between items-center gap-4">
- <h1 className="text-2xl font-bold text-slate-800 ">Общая статистика</h1>
+ <h1 className="text-2xl font-bold text-slate-900 ">Общая статистика</h1>
  <div className="flex items-center gap-2 p-1 rounded-xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-slate-800">
  <CalendarDays className="text-slate-400 ml-3" size={18}/>
  <select 
@@ -48,10 +48,10 @@ const DashboardTab = () => {
  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
  <Card variant="gradient" className="p-8 relative overflow-hidden">
  <div className="relative z-10">
- <p className="font-bold text-xs uppercase tracking-widest mb-2 opacity-70 text-slate-300">Фонд ЗП</p>
- <h3 className="text-3xl font-black text-white">{formatMoney(totalSystemEarned)} ₸</h3>
+ <p className="font-bold text-xs uppercase tracking-widest mb-2 opacity-70 text-slate-500">Фонд ЗП</p>
+ <h3 className="text-3xl font-black text-slate-700">{formatMoney(totalSystemEarned)} ₸</h3>
  {globalRevisionDeductions > 0 && (
- <p className="text-xs text-red-300 font-bold mt-2 bg-red-900/30 inline-block px-2 py-1 rounded-lg">
+ <p className="text-xs text-slate-500 font-bold mt-2 bg-red-900/30 inline-block px-2 py-1 rounded-lg">
  Удержано ревизиями: {formatMoney(globalRevisionDeductions)} ₸
  </p>
  )}
@@ -68,7 +68,7 @@ const DashboardTab = () => {
  <Card variant="elevated" className="p-8 relative">
  <Percent className="absolute right-6 top-6 text-blue-100" size={50}/>
  <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">Процент замен</p>
- <h3 className="text-3xl font-black text-slate-800 ">{replacementRate}%</h3>
+ <h3 className="text-3xl font-black text-slate-900 ">{replacementRate}%</h3>
  <p className="text-xs text-slate-400 mt-1">От числа кальянов</p>
  </Card>
  <Card variant="elevated" className="p-8 relative overflow-hidden lg:col-span-4">
@@ -81,30 +81,30 @@ const DashboardTab = () => {
 
  {/* Финансовый блок: Прибыль + Расходы */}
  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
- <div className="bg-gradient-to-br from-emerald-700 to-emerald-900 p-8 rounded-[32px] shadow-lg shadow-emerald-900/50 text-white relative overflow-hidden md:col-span-2 hover:-translate-y-1 transition-all">
+ <div className="bg-slate-50 border border-slate-100 p-8 rounded-[32px] shadow-lg shadow-[0_8px_30px_rgb(0,0,0,0.04)] text-slate-700 relative overflow-hidden md:col-span-2 hover:-translate-y-1 transition-all">
  <Wallet className="absolute right-4 top-4 opacity-20" size={80}/>
  <div className="flex flex-col sm:flex-row gap-8 justify-between relative z-10">
  <div>
- <p className="font-bold text-sm uppercase tracking-widest mb-2 opacity-80 text-emerald-100">Чистая прибыль</p>
+ <p className="font-bold text-sm uppercase tracking-widest mb-2 opacity-80 text-slate-500">Чистая прибыль</p>
  <h3 className="text-4xl font-black">{formatMoney(dashboardNetProfit)} ₸</h3>
- <p className="text-sm opacity-80 mt-2 text-emerald-50">Вычеты: ЗП ({formatMoney(totalSystemEarned)} ₸)</p>
+ <p className="text-sm opacity-80 mt-2 text-slate-400">Вычеты: ЗП ({formatMoney(totalSystemEarned)} ₸)</p>
  </div>
  <div className="text-right sm:mt-0 mt-4">
- <p className="font-bold text-xs uppercase tracking-widest mb-1 opacity-80 text-emerald-100">Грязная прибыль</p>
+ <p className="font-bold text-xs uppercase tracking-widest mb-1 opacity-80 text-slate-500">Грязная прибыль</p>
  <h4 className="text-2xl font-black">{formatMoney(globalOwnerProfit)} ₸</h4>
- <p className="font-bold text-xs uppercase tracking-widest mb-1 opacity-80 mt-4 text-emerald-200">Без вычета ЗП Tamerlan</p>
- <h4 className="text-xl font-black text-white">{formatMoney(dashboardProfitWithoutTamerlan)} ₸</h4>
+ <p className="font-bold text-xs uppercase tracking-widest mb-1 opacity-80 mt-4 text-slate-500">Без вычета ЗП Tamerlan</p>
+ <h4 className="text-xl font-black text-slate-700">{formatMoney(dashboardProfitWithoutTamerlan)} ₸</h4>
  </div>
  </div>
  </div>
  
- <div className="bg-white p-6 rounded-[32px] border-none smooth-shadow flex flex-col justify-center hover:-translate-y-1 transition-all">
+ <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col justify-center hover:-translate-y-1 transition-all">
  <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">Прибыль с кальянов</p>
- <h3 className="text-2xl font-black text-slate-800 ">{formatMoney(globalHookahs * ownerProfits.hookah)} ₸</h3>
+ <h3 className="text-2xl font-black text-slate-900 ">{formatMoney(globalHookahs * ownerProfits.hookah)} ₸</h3>
  <p className="text-slate-400 text-sm mt-1">{globalHookahs} шт × {formatMoney(ownerProfits.hookah)} ₸</p>
  </div>
 
- <div className="bg-white p-6 rounded-[32px] border-none smooth-shadow flex flex-col justify-center hover:-translate-y-1 transition-all">
+ <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col justify-center hover:-translate-y-1 transition-all">
  <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">Прибыль с замен</p>
  <h3 className="text-2xl font-black text-indigo-600">{formatMoney(globalReplacements * ownerProfits.replacement)} ₸</h3>
  <p className="text-slate-400 text-sm mt-1">{globalReplacements} шт × {formatMoney(ownerProfits.replacement)} ₸</p>
@@ -113,7 +113,7 @@ const DashboardTab = () => {
 
  {/* Карточка расходов (закупы) */}
  {dashboardPurchases > 0 && (
- <div className="bg-white p-6 rounded-[32px] border-none smooth-shadow flex items-center justify-between hover:-translate-y-1 transition-all">
+ <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex items-center justify-between hover:-translate-y-1 transition-all">
  <div className="flex items-center gap-4">
  <div className="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center"><ShoppingCart size={22} className="text-red-500" /></div>
  <div>
@@ -152,7 +152,7 @@ const DashboardTab = () => {
  </div>
 
  {/* Инфографика товаров */}
- <div className="bg-white p-8 rounded-[40px] border-none smooth-shadow">
+ <div className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
  <div className="flex justify-between items-center mb-8">
  <h2 className="text-lg font-black text-slate-900 ">Кальяны vs Замены</h2>
  </div>
@@ -179,16 +179,16 @@ const DashboardTab = () => {
  {dashboardProfitByMaster.map((emp, index) => (
  <div key={emp.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-white transition-all hover:shadow-md hover:-translate-y-1">
  <div className="flex items-center gap-4">
- <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-white shadow-sm ${index === 0 ? 'bg-gradient-to-br from-yellow-400 to-amber-600' : index === 1 ? 'bg-gradient-to-br from-slate-300 to-slate-500' : index === 2 ? 'bg-gradient-to-br from-orange-400 to-red-500' : 'bg-slate-200 text-slate-500'}`}>
+ <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-slate-700 shadow-sm ${index === 0 ? 'bg-gradient-to-br from-yellow-400 to-amber-600' : index === 1 ? 'bg-gradient-to-br from-slate-300 to-slate-500' : index === 2 ? 'bg-gradient-to-br from-orange-400 to-red-500' : 'bg-slate-200 text-slate-500'}`}>
  {index + 1}
  </div>
  <div>
- <p className="font-bold text-slate-800 ">{emp.name}</p>
+ <p className="font-bold text-slate-900 ">{emp.name}</p>
  <p className="text-xs text-slate-400 font-medium">{emp.hookahs} кальянов • {emp.replacements} замен</p>
  </div>
  </div>
  <div className="text-right">
- <p className="font-black text-lg text-emerald-600">{formatMoney(emp.ownerNetProfit)} ₸</p>
+ <p className="font-black text-lg text-slate-600">{formatMoney(emp.ownerNetProfit)} ₸</p>
  </div>
  </div>
  ))}

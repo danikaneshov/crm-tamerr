@@ -53,7 +53,7 @@ const StatsTab = () => {
  return (
  <div className="space-y-6 animate-in fade-in duration-300">
  <div className="flex justify-between items-center bg-white backdrop-blur-md p-2 rounded-2xl border-none shadow-sm">
- <h2 className="font-bold text-slate-800 ml-4">Статистика</h2>
+ <h2 className="font-bold text-slate-900 ml-4">Статистика</h2>
  <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-xl">
  <CalendarDays className="text-slate-700 " size={18} />
  <select 
@@ -73,19 +73,19 @@ const StatsTab = () => {
  <Flame size={24} />
  </div>
  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Сделано</p>
- <h3 className="text-2xl font-black text-slate-800 ">{myStats.hookahs + myStats.replacements}</h3>
+ <h3 className="text-2xl font-black text-slate-900 ">{myStats.hookahs + myStats.replacements}</h3>
  </div>
  <div className="glass p-5 rounded-[32px] flex flex-col items-center justify-center text-center">
- <div className="w-12 h-12 rounded-2xl bg-green-50 text-emerald-500 flex items-center justify-center mb-3">
+ <div className="w-12 h-12 rounded-2xl bg-green-50 text-slate-500 flex items-center justify-center mb-3">
  <Banknote size={24} />
  </div>
  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Заработано</p>
- <h3 className="text-xl font-black text-slate-800 ">{formatMoney(myStats.totalEarned)} ₸</h3>
+ <h3 className="text-xl font-black text-slate-900 ">{formatMoney(myStats.totalEarned)} ₸</h3>
  </div>
  </div>
 
  <div className="glass rounded-[32px] p-6">
- <h3 className="font-black text-lg text-slate-800 mb-4">История смен</h3>
+ <h3 className="font-black text-lg text-slate-900 mb-4">История смен</h3>
  <div className="space-y-3">
  {myStats.closedShifts.length === 0 ? (
  <div className="text-center p-6 text-slate-400 font-medium">В этом месяце смен пока не было</div>
@@ -93,7 +93,7 @@ const StatsTab = () => {
  myStats.closedShifts.map(s => (
  <div key={s.id} className="bg-white p-4 rounded-2xl flex justify-between items-center border border-white ">
  <div>
- <p className="font-bold text-slate-800 ">{s.dateStr}</p>
+ <p className="font-bold text-slate-900 ">{s.dateStr}</p>
  <p className="text-xs text-slate-500 mt-1">Кальяны: {s.items?.cocktail1} | Замены: {s.items?.cocktail2}</p>
  </div>
  <div className="text-right">

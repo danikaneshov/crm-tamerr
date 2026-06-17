@@ -43,16 +43,16 @@ const TeamTab = () => {
  return (
  <div className="space-y-8 animate-in fade-in duration-300">
  <div className="flex items-center gap-2 bg-white backdrop-blur-md p-1.5 shadow-sm rounded-2xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-slate-800 shadow-sm w-full max-w-full scrollable-tabs">
- <button onClick={(e) => { setSubTab('salaries'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'salaries' || !subTab ? 'bg-primary text-white shadow-md' : 'text-slate-500 hover:text-slate-800 hover:bg-white '}`}>Зарплаты</button>
- <button onClick={(e) => { setSubTab('staff'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'staff' ? 'bg-primary text-white shadow-md' : 'text-slate-500 hover:text-slate-800 hover:bg-white '}`}>Персонал</button>
+ <button onClick={(e) => { setSubTab('salaries'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'salaries' || !subTab ? 'bg-primary text-slate-700 shadow-md' : 'text-slate-500 hover:text-slate-900 hover:bg-white '}`}>Зарплаты</button>
+ <button onClick={(e) => { setSubTab('staff'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'staff' ? 'bg-primary text-slate-700 shadow-md' : 'text-slate-500 hover:text-slate-900 hover:bg-white '}`}>Персонал</button>
  </div>
 
  {(subTab === 'salaries' || !subTab) && (
  <div className="space-y-8">
  <div className="flex flex-col md:flex-row justify-between items-center gap-4">
- <h1 className="text-2xl font-bold text-slate-800 ">Зарплаты сотрудников</h1>
+ <h1 className="text-2xl font-bold text-slate-900 ">Зарплаты сотрудников</h1>
  <div className="flex items-center gap-2">
- <button onClick={() => { const data = employees.map(emp => { const stats = calculateEmployeeStats(emp.id, selectedMonth); return { 'Сотрудник': emp.name, 'Смен': stats.shiftsCount, 'Кальянов': stats.hookahs, 'Замен': stats.replacements, 'Оклад': stats.baseSalaryTotal, '%': stats.hookahPercentageTotal, 'ЗП': stats.totalEarned }; }); const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Зарплаты"); XLSX.writeFile(wb, `Зарплаты_${selectedMonth}.xlsx`); }} className="px-4 py-2 bg-emerald-700 text-white font-bold rounded-xl shadow-sm hover:bg-emerald-800 transition-colors">Скачать .xlsx</button>
+ <button onClick={() => { const data = employees.map(emp => { const stats = calculateEmployeeStats(emp.id, selectedMonth); return { 'Сотрудник': emp.name, 'Смен': stats.shiftsCount, 'Кальянов': stats.hookahs, 'Замен': stats.replacements, 'Оклад': stats.baseSalaryTotal, '%': stats.hookahPercentageTotal, 'ЗП': stats.totalEarned }; }); const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Зарплаты"); XLSX.writeFile(wb, `Зарплаты_${selectedMonth}.xlsx`); }} className="px-4 py-2 bg-slate-100 border border-slate-200 text-slate-700 font-bold rounded-xl shadow-sm hover:bg-slate-200 transition-colors">Скачать .xlsx</button>
  <div className="flex items-center gap-2 bg-white p-1 rounded-xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-slate-800"><CalendarDays className="text-slate-400 ml-3" size={18}/><select value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} className="py-2 pr-4 bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer"><option value="all">Все время</option>{availableMonths.map(m => <option key={m} value={m}>{m}</option>)}</select></div>
  </div>
  </div>
@@ -60,21 +60,21 @@ const TeamTab = () => {
  {employees.map(emp => { const stats = calculateEmployeeStats(emp.id, selectedMonth); return (
  <Card variant="elevated" key={emp.id} className="p-8 relative flex flex-col h-full card-hover-effect">
  {stats.hasOpenShift && <div className="absolute top-0 left-0 w-full h-1.5 bg-primary animate-pulse"></div>}
- <div className="flex items-center gap-4 mb-6"><div className="w-14 h-14 bg-gradient-to-br from-emerald-700 to-emerald-900 rounded-full flex items-center justify-center text-white font-black text-2xl shadow-inner">{emp.name.charAt(0).toUpperCase()}</div><div><h3 className="text-xl font-black text-slate-900 ">{emp.name}</h3><p className="text-sm text-slate-400 font-medium">{stats.shiftsCount} смен</p></div></div>
+ <div className="flex items-center gap-4 mb-6"><div className="w-14 h-14 bg-slate-50 border border-slate-100 rounded-full flex items-center justify-center text-slate-700 font-black text-2xl shadow-inner">{emp.name.charAt(0).toUpperCase()}</div><div><h3 className="text-xl font-black text-slate-900 ">{emp.name}</h3><p className="text-sm text-slate-400 font-medium">{stats.shiftsCount} смен</p></div></div>
  <div className="bg-slate-50 p-5 rounded-2xl mb-6 flex-1 flex flex-col justify-center border border-slate-100">
  <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mb-1">Общая ЗП</p>
- <h4 className="text-4xl font-black text-emerald-700">{formatMoney(stats.totalEarned)} ₸</h4>
+ <h4 className="text-4xl font-black text-slate-700">{formatMoney(stats.totalEarned)} ₸</h4>
  <div className="flex flex-col gap-1 mt-3 pt-3 border-t border-slate-200 text-sm">
- <div className="flex justify-between"><span className="text-slate-500 font-medium">Оклад:</span> <strong className="text-slate-800 ">{formatMoney(stats.baseSalaryTotal)} ₸</strong></div>
- <div className="flex justify-between"><span className="text-slate-500 font-medium">% с кальянов:</span> <strong className="text-slate-800 ">{formatMoney(stats.hookahPercentageTotal)} ₸</strong></div>
+ <div className="flex justify-between"><span className="text-slate-500 font-medium">Оклад:</span> <strong className="text-slate-900 ">{formatMoney(stats.baseSalaryTotal)} ₸</strong></div>
+ <div className="flex justify-between"><span className="text-slate-500 font-medium">% с кальянов:</span> <strong className="text-slate-900 ">{formatMoney(stats.hookahPercentageTotal)} ₸</strong></div>
  {stats.totalRevisionDeductions > 0 && (
  <div className="flex justify-between mt-1 pt-1 border-t border-red-100"><span className="text-red-400 font-medium">Удержания (ревизия):</span> <strong className="text-red-500">-{formatMoney(stats.totalRevisionDeductions)} ₸</strong></div>
  )}
  </div>
  </div>
  <div className="grid grid-cols-2 gap-4 text-center">
- <div className="bg-white border border-slate-100 p-3 rounded-2xl shadow-sm"><p className="text-xs text-slate-400 uppercase font-bold mb-1">Кальянов</p><p className="font-black text-slate-800 text-xl">{stats.hookahs}</p></div>
- <div className="bg-white border border-slate-100 p-3 rounded-2xl shadow-sm"><p className="text-xs text-slate-400 uppercase font-bold mb-1">Замен</p><p className="font-black text-slate-800 text-xl">{stats.replacements}</p></div>
+ <div className="bg-white border border-slate-100 p-3 rounded-2xl shadow-sm"><p className="text-xs text-slate-400 uppercase font-bold mb-1">Кальянов</p><p className="font-black text-slate-900 text-xl">{stats.hookahs}</p></div>
+ <div className="bg-white border border-slate-100 p-3 rounded-2xl shadow-sm"><p className="text-xs text-slate-400 uppercase font-bold mb-1">Замен</p><p className="font-black text-slate-900 text-xl">{stats.replacements}</p></div>
  </div>
  </Card>); })}
  </div>
@@ -83,7 +83,7 @@ const TeamTab = () => {
 
  {subTab === 'staff' && (
  <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
- <div className="bg-white backdrop-blur-xl p-8 rounded-[32px] border-none smooth-shadow h-fit">
+ <div className="bg-white backdrop-blur-xl p-8 rounded-[32px] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] h-fit">
  <h2 className="text-xl font-black mb-6">Добавить мастера</h2>
  <form onSubmit={handleAddEmployee} className="space-y-4">
  <input type="text" value={newEmpName} onChange={e=>setNewEmpName(e.target.value)} placeholder="Имя мастера" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold outline-none focus:ring-2 focus:ring-slate-800" required />
@@ -91,7 +91,7 @@ const TeamTab = () => {
  <input type="text" maxLength="4" value={newEmpPin} onChange={e=>setNewEmpPin(e.target.value.replace(/\D/g, ''))} placeholder="PIN" className="w-full p-4 bg-slate-50 rounded-2xl border-none text-center font-mono font-bold outline-none focus:ring-2 focus:ring-slate-800" required />
  <button type="button" onClick={generatePin} className="p-4 bg-slate-100 rounded-2xl hover:bg-slate-200 transition-colors"><Key size={20} className="text-slate-600"/></button>
  </div>
- <button type="submit" disabled={isAdding || !newEmpName || newEmpPin.length !== 4} className="w-full p-4 bg-slate-800 text-white rounded-2xl font-bold shadow-lg shadow-slate-800/20 disabled:opacity-50 transition-all hover:translate-y-[-2px]">Создать аккаунт</button>
+ <button type="submit" disabled={isAdding || !newEmpName || newEmpPin.length !== 4} className="w-full p-4 bg-slate-100 text-slate-900 border border-slate-200 rounded-2xl font-bold shadow-lg shadow-slate-800/20 disabled:opacity-50 transition-all hover:translate-y-[-2px]">Создать аккаунт</button>
  </form>
  </div>
  <div className="col-span-1 lg:col-span-2 space-y-4">
@@ -105,12 +105,12 @@ const TeamTab = () => {
  </div>
  {emp.isArchived ? 
  <span className="text-xs bg-slate-200 text-slate-500 px-3 py-1 rounded-full font-bold">Архив</span> : 
- <span className="text-xs bg-emerald-900/30 text-emerald-700 px-3 py-1 rounded-full font-bold">Активен</span>
+ <span className="text-xs bg-emerald-900/30 text-slate-700 px-3 py-1 rounded-full font-bold">Активен</span>
  }
  </div>
  <div className="flex justify-end mt-4 pt-4 border-t border-slate-50">
  {emp.isArchived ? (
- <button onClick={() => handleToggleArchive(emp.id, true, emp.name)} className="text-xs font-bold text-emerald-700 hover:text-emerald-800 px-4 py-2 bg-emerald-100 rounded-xl hover:bg-emerald-900/30 transition-colors w-full sm:w-auto">Восстановить</button>
+ <button onClick={() => handleToggleArchive(emp.id, true, emp.name)} className="text-xs font-bold text-slate-700 hover:text-emerald-800 px-4 py-2 bg-slate-100 rounded-xl hover:bg-emerald-900/30 transition-colors w-full sm:w-auto">Восстановить</button>
  ) : (
  <button onClick={() => handleToggleArchive(emp.id, false, emp.name)} className="text-slate-400 hover:text-red-500 transition-colors bg-slate-50 px-4 py-2 rounded-xl hover:bg-red-50 text-sm font-bold w-full sm:w-auto flex justify-center items-center gap-2"><Trash2 size={16}/> В архив</button>
  )}

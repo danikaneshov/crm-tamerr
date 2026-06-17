@@ -19,7 +19,7 @@ const GlobalModal = () => {
  <div className="bg-white backdrop-blur-xl w-full max-w-sm rounded-[40px] p-8 text-center shadow-2xl animate-in zoom-in-95 duration-200">
  
  {modal.type === 'success' && (
- <div className="w-20 h-20 bg-emerald-900/30 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
+ <div className="w-20 h-20 bg-emerald-900/30 text-slate-500 rounded-full flex items-center justify-center mx-auto mb-6">
  <CheckCircle2 size={40} />
  </div>
  )}
@@ -36,7 +36,7 @@ const GlobalModal = () => {
  </div>
  )}
 
- <h2 className="text-2xl font-black text-slate-800 mb-2">{modal.title}</h2>
+ <h2 className="text-2xl font-black text-slate-900 mb-2">{modal.title}</h2>
  <p className="text-slate-500 mb-8">{modal.message}</p>
 
  {modal.type === 'zeroConfirm' ? (
@@ -49,7 +49,7 @@ const GlobalModal = () => {
  </button>
  <button 
  onClick={handleConfirmZero}
- className="flex-1 p-4 bg-orange-500 text-white rounded-2xl font-bold active:scale-95 transition-all shadow-lg shadow-orange-500/30"
+ className="flex-1 p-4 bg-orange-500 text-slate-700 rounded-2xl font-bold active:scale-95 transition-all shadow-lg shadow-orange-500/30"
  >
  Продолжить
  </button>
@@ -57,7 +57,7 @@ const GlobalModal = () => {
  ) : (
  <button 
  onClick={closeModal}
- className="w-full p-4 bg-slate-800 text-white rounded-2xl font-bold active:scale-95 transition-all shadow-lg shadow-slate-800/20"
+ className="w-full p-4 bg-slate-100 text-slate-900 border border-slate-200 rounded-2xl font-bold active:scale-95 transition-all shadow-lg shadow-slate-800/20"
  >
  Понятно
  </button>

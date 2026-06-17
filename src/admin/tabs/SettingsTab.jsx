@@ -19,16 +19,16 @@ const SettingsTab = () => {
  return (
  <div className="space-y-8 animate-in fade-in duration-300">
  <div className="flex items-center gap-2 bg-white backdrop-blur-md p-1.5 shadow-sm rounded-2xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-slate-800 shadow-sm scrollable-tabs w-full max-w-full">
- <button onClick={(e) => { setSubTab('margins'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'margins' || !subTab ? 'bg-primary text-white shadow-md' : 'text-slate-500 hover:text-slate-800 hover:bg-white '}`}>Маржинальность</button>
- <button onClick={(e) => { setSubTab('templates'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'templates' ? 'bg-primary text-white shadow-md' : 'text-slate-500 hover:text-slate-800 hover:bg-white '}`}>Шаблоны склада</button>
- <button onClick={(e) => { setSubTab('standards'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'standards' ? 'bg-primary text-white shadow-md' : 'text-slate-500 hover:text-slate-800 hover:bg-white '}`}>Стандарты склада</button>
- <button onClick={(e) => { setSubTab('debug'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'debug' ? 'bg-primary text-white shadow-md' : 'text-slate-500 hover:text-slate-800 hover:bg-white '}`}>Система</button>
+ <button onClick={(e) => { setSubTab('margins'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'margins' || !subTab ? 'bg-primary text-slate-700 shadow-md' : 'text-slate-500 hover:text-slate-900 hover:bg-white '}`}>Маржинальность</button>
+ <button onClick={(e) => { setSubTab('templates'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'templates' ? 'bg-primary text-slate-700 shadow-md' : 'text-slate-500 hover:text-slate-900 hover:bg-white '}`}>Шаблоны склада</button>
+ <button onClick={(e) => { setSubTab('standards'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'standards' ? 'bg-primary text-slate-700 shadow-md' : 'text-slate-500 hover:text-slate-900 hover:bg-white '}`}>Стандарты склада</button>
+ <button onClick={(e) => { setSubTab('debug'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'debug' ? 'bg-primary text-slate-700 shadow-md' : 'text-slate-500 hover:text-slate-900 hover:bg-white '}`}>Система</button>
  </div>
 
  {(subTab === 'templates' || !subTab) && (
  <div className="space-y-6">
- <h1 className="text-2xl font-bold text-slate-800 ">Шаблоны закупа</h1>
- <div className="bg-white backdrop-blur-xl p-8 rounded-[32px] border-none smooth-shadow max-w-xl">
+ <h1 className="text-2xl font-bold text-slate-900 ">Шаблоны закупа</h1>
+ <div className="bg-white backdrop-blur-xl p-8 rounded-[32px] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] max-w-xl">
  <h2 className="text-lg font-black mb-6">Создать шаблон</h2>
  <form onSubmit={handleTemplateSubmit} className="space-y-5">
  <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Название</label><input type="text" value={newTemplate.name} onChange={e => setNewTemplate({...newTemplate, name: e.target.value})} placeholder="Например: Hell 200гр" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold outline-none focus:ring-2 focus:ring-slate-800" required /></div>
@@ -37,17 +37,17 @@ const SettingsTab = () => {
  <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Кол-во (г/шт)</label><input type="number" min="1" value={newTemplate.amount} onChange={e => setNewTemplate({...newTemplate, amount: e.target.value})} placeholder="200" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold outline-none focus:ring-2 focus:ring-slate-800" required /></div>
  </div>
  <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Цена закупа (₸)</label><input type="number" min="0" value={newTemplate.price} onChange={e => setNewTemplate({...newTemplate, price: e.target.value})} placeholder="Например: 5000" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold outline-none focus:ring-2 focus:ring-slate-800" /></div>
- <button type="submit" disabled={isSavingInv} className="w-full p-4 bg-slate-800 text-white rounded-2xl font-bold shadow-lg shadow-slate-800/20 disabled:opacity-50 transition-all hover:-translate-y-1">Создать шаблон</button>
+ <button type="submit" disabled={isSavingInv} className="w-full p-4 bg-slate-100 text-slate-900 border border-slate-200 rounded-2xl font-bold shadow-lg shadow-slate-800/20 disabled:opacity-50 transition-all hover:-translate-y-1">Создать шаблон</button>
  </form>
  </div>
- <div className="bg-white backdrop-blur-xl rounded-[32px] border-none smooth-shadow overflow-hidden max-w-xl">
- <div className="p-6 border-b border-slate-100"><h2 className="text-lg font-black text-slate-800 ">Мои шаблоны</h2></div>
+ <div className="bg-white backdrop-blur-xl rounded-[32px] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden max-w-xl">
+ <div className="p-6 border-b border-slate-100"><h2 className="text-lg font-black text-slate-900 ">Мои шаблоны</h2></div>
  <div className="divide-y divide-slate-50">
  {invTemplates.length === 0 && <div className="p-6 text-center text-slate-400">Шаблонов пока нет</div>}
  {invTemplates.map(t => (
  <div key={t.id} className="p-4 flex justify-between items-center hover:bg-slate-50 transition-colors">
- <div><p className="font-bold text-slate-800 ">{t.name}</p><p className="text-xs text-slate-400 mt-0.5">{t.item === 'coal' ? 'Уголь' : t.item === 'tobacco' ? 'Табак' : 'Мундштуки'} — {t.amount} {t.item === 'coal' || t.item === 'mouthpiece' ? 'шт' : 'г'}{t.price > 0 ? ` • ${formatMoney(t.price)} ₸` : ''}</p></div>
- <button onClick={() => deleteDoc(doc(db, 'inventory_templates', t.id))} className="text-slate-300 hover:text-red-500 p-2 rounded-xl hover:bg-red-50 transition-colors"><Trash2 size={18}/></button>
+ <div><p className="font-bold text-slate-900 ">{t.name}</p><p className="text-xs text-slate-400 mt-0.5">{t.item === 'coal' ? 'Уголь' : t.item === 'tobacco' ? 'Табак' : 'Мундштуки'} — {t.amount} {t.item === 'coal' || t.item === 'mouthpiece' ? 'шт' : 'г'}{t.price > 0 ? ` • ${formatMoney(t.price)} ₸` : ''}</p></div>
+ <button onClick={() => deleteDoc(doc(db, 'inventory_templates', t.id))} className="text-slate-500 hover:text-red-500 p-2 rounded-xl hover:bg-red-50 transition-colors"><Trash2 size={18}/></button>
  </div>
  ))}
  </div>
@@ -57,16 +57,16 @@ const SettingsTab = () => {
 
  {subTab === 'standards' && (
  <div className="max-w-xl space-y-6">
- <h1 className="text-2xl font-bold text-slate-800 ">Стандарты расхода</h1>
- <div className="bg-white backdrop-blur-xl p-8 rounded-[32px] border-none smooth-shadow">
+ <h1 className="text-2xl font-bold text-slate-900 ">Стандарты расхода</h1>
+ <div className="bg-white backdrop-blur-xl p-8 rounded-[32px] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
  <p className="text-slate-500 mb-6 text-sm">Укажи сколько ресурсов уходит на 1 чашу. Система автоматически рассчитает расход по продажам.</p>
  <div className="space-y-5">
- <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Углей на 1 чашу (шт)</label><input type="number" min="1" value={invStandards.coalPerBowl} onChange={e => setInvStandards({...invStandards, coalPerBowl: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800 outline-none focus:ring-2 focus:ring-slate-800" /></div>
- <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Табака на 1 чашу (г)</label><input type="number" min="1" value={invStandards.tobaccoPerBowl} onChange={e => setInvStandards({...invStandards, tobaccoPerBowl: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800 outline-none focus:ring-2 focus:ring-slate-800" /></div>
- <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Мундштуков на 1 чашу (шт)</label><input type="number" min="0" value={invStandards.mouthpiecePerBowl} onChange={e => setInvStandards({...invStandards, mouthpiecePerBowl: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800 outline-none focus:ring-2 focus:ring-slate-800" /></div>
+ <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Углей на 1 чашу (шт)</label><input type="number" min="1" value={invStandards.coalPerBowl} onChange={e => setInvStandards({...invStandards, coalPerBowl: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-900 outline-none focus:ring-2 focus:ring-slate-800" /></div>
+ <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Табака на 1 чашу (г)</label><input type="number" min="1" value={invStandards.tobaccoPerBowl} onChange={e => setInvStandards({...invStandards, tobaccoPerBowl: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-900 outline-none focus:ring-2 focus:ring-slate-800" /></div>
+ <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Мундштуков на 1 чашу (шт)</label><input type="number" min="0" value={invStandards.mouthpiecePerBowl} onChange={e => setInvStandards({...invStandards, mouthpiecePerBowl: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-900 outline-none focus:ring-2 focus:ring-slate-800" /></div>
  
  <div className="pt-6 border-t border-slate-100 mt-6">
- <h3 className="font-bold text-slate-800 mb-4">Цены для ревизии (штраф за недостачу)</h3>
+ <h3 className="font-bold text-slate-900 mb-4">Цены для ревизии (штраф за недостачу)</h3>
  <div className="space-y-5">
  <div>
  <label className="block text-xs font-bold text-slate-400 uppercase mb-2 flex justify-between">
@@ -78,7 +78,7 @@ const SettingsTab = () => {
  return <span className="text-slate-700 font-normal">Средняя закупа: {formatMoney(avg.toFixed(2))} ₸</span>;
  })()}
  </label>
- <input type="number" min="0" step="0.01" value={invStandards.revCoalPrice || ''} onChange={e => setInvStandards({...invStandards, revCoalPrice: Number(e.target.value)})} placeholder="Например: 15" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800 outline-none focus:ring-2 focus:ring-slate-800" />
+ <input type="number" min="0" step="0.01" value={invStandards.revCoalPrice || ''} onChange={e => setInvStandards({...invStandards, revCoalPrice: Number(e.target.value)})} placeholder="Например: 15" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-900 outline-none focus:ring-2 focus:ring-slate-800" />
  </div>
  <div>
  <label className="block text-xs font-bold text-slate-400 uppercase mb-2 flex justify-between">
@@ -90,11 +90,11 @@ const SettingsTab = () => {
  return <span className="text-slate-700 font-normal">Средняя закупа: {formatMoney(avg.toFixed(2))} ₸</span>;
  })()}
  </label>
- <input type="number" min="0" step="0.01" value={invStandards.revTobaccoPrice || ''} onChange={e => setInvStandards({...invStandards, revTobaccoPrice: Number(e.target.value)})} placeholder="Например: 25" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-800 outline-none focus:ring-2 focus:ring-slate-800" />
+ <input type="number" min="0" step="0.01" value={invStandards.revTobaccoPrice || ''} onChange={e => setInvStandards({...invStandards, revTobaccoPrice: Number(e.target.value)})} placeholder="Например: 25" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-lg text-slate-900 outline-none focus:ring-2 focus:ring-slate-800" />
  </div>
  </div>
  </div>
- <button onClick={handleSaveStandards} disabled={isSavingInv} className="w-full p-4 bg-slate-800 text-white rounded-2xl font-bold shadow-lg shadow-slate-800/20 disabled:opacity-50 transition-all hover:-translate-y-1">{isSavingInv ? 'Сохранение...' : 'Сохранить стандарты'}</button>
+ <button onClick={handleSaveStandards} disabled={isSavingInv} className="w-full p-4 bg-slate-100 text-slate-900 border border-slate-200 rounded-2xl font-bold shadow-lg shadow-slate-800/20 disabled:opacity-50 transition-all hover:-translate-y-1">{isSavingInv ? 'Сохранение...' : 'Сохранить стандарты'}</button>
  </div>
  </div>
  </div>
@@ -102,13 +102,13 @@ const SettingsTab = () => {
 
  {subTab === 'margins' && (
  <div className="max-w-2xl">
- <div className="bg-white backdrop-blur-xl p-10 rounded-[40px] border-none smooth-shadow">
+ <div className="bg-white backdrop-blur-xl p-10 rounded-[40px] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
  <h2 className="text-lg font-black text-slate-900 mb-2">Маржинальность</h2>
  <p className="text-slate-500 mb-8 text-sm">Укажи свою чистую прибыль с каждой позиции.</p>
  <div className="space-y-6">
- <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Прибыль с 1 Кальяна (₸)</label><input type="number" value={ownerProfits.hookah} onChange={e=>setOwnerProfits({...ownerProfits, hookah: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-slate-800 font-black text-lg text-slate-800 outline-none" /></div>
- <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Прибыль с 1 Замены (₸)</label><input type="number" value={ownerProfits.replacement} onChange={e=>setOwnerProfits({...ownerProfits, replacement: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-slate-800 font-black text-lg text-slate-800 outline-none" /></div>
- <button onClick={handleSaveSettings} disabled={isSavingSettings} className="w-full p-4 mt-4 bg-slate-800 text-white rounded-2xl font-bold shadow-lg shadow-slate-800/20 disabled:opacity-50 transition-all hover:-translate-y-1">{isSavingSettings ? 'Сохранение...' : 'Сохранить настройки'}</button>
+ <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Прибыль с 1 Кальяна (₸)</label><input type="number" value={ownerProfits.hookah} onChange={e=>setOwnerProfits({...ownerProfits, hookah: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-slate-800 font-black text-lg text-slate-900 outline-none" /></div>
+ <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Прибыль с 1 Замены (₸)</label><input type="number" value={ownerProfits.replacement} onChange={e=>setOwnerProfits({...ownerProfits, replacement: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-slate-800 font-black text-lg text-slate-900 outline-none" /></div>
+ <button onClick={handleSaveSettings} disabled={isSavingSettings} className="w-full p-4 mt-4 bg-slate-100 text-slate-900 border border-slate-200 rounded-2xl font-bold shadow-lg shadow-slate-800/20 disabled:opacity-50 transition-all hover:-translate-y-1">{isSavingSettings ? 'Сохранение...' : 'Сохранить настройки'}</button>
  </div>
  </div>
  </div>
@@ -122,7 +122,7 @@ const SettingsTab = () => {
  <div className="bg-red-50/50 p-6 rounded-2xl border border-red-100 hover:bg-red-50 transition-colors">
  <h3 className="font-bold text-red-800 mb-2">Удалить все смены</h3>
  <p className="text-sm text-red-600 mb-4">Удалит все записи о сменах из базы данных.</p>
- <button onClick={handleDropSales} className="px-6 py-3 bg-red-600 text-white rounded-xl font-bold shadow-lg shadow-red-200 hover:bg-red-700 transition-all hover:-translate-y-1">Дропнуть таблицу sales</button>
+ <button onClick={handleDropSales} className="px-6 py-3 bg-red-600 text-slate-700 rounded-xl font-bold shadow-lg shadow-red-200 hover:bg-red-700 transition-all hover:-translate-y-1">Дропнуть таблицу sales</button>
  </div>
  </div>
  </div>

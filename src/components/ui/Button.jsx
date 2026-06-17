@@ -15,13 +15,13 @@ const Button = React.forwardRef(({
  const baseStyles = 'inline-flex items-center justify-center font-bold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 rounded-2xl';
  
  const variants = {
- primary: 'bg-primary text-white hover:bg-primary-dark shadow-md hover:shadow-lg focus:ring-primary-light',
+ primary: 'bg-primary text-slate-700 hover:bg-primary-dark shadow-md hover:shadow-lg focus:ring-primary-light',
  secondary: 'bg-slate-100 text-slate-700 hover:bg-slate-200 focus:ring-slate-200',
  ghost: 'bg-transparent text-slate-600 hover:bg-slate-100 focus:ring-slate-200',
  outline: 'border-2 border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50 focus:ring-slate-200',
- gradient: 'bg-gradient-to-r from-primary to-primary-dark text-white shadow-md hover:shadow-lg hover:from-primary-dark hover:to-primary-dark focus:ring-primary-light',
- danger: 'bg-error text-white hover:bg-red-600 shadow-md hover:shadow-lg focus:ring-red-200',
- dark: 'bg-neutral-900 text-white hover:bg-neutral-800 shadow-md hover:shadow-lg focus:ring-neutral-200',
+ gradient: 'bg-gradient-to-r from-primary to-primary-dark text-slate-700 shadow-md hover:shadow-lg hover:from-primary-dark hover:to-primary-dark focus:ring-primary-light',
+ danger: 'bg-error text-slate-700 hover:bg-red-600 shadow-md hover:shadow-lg focus:ring-red-200',
+ dark: 'bg-neutral-900 text-slate-700 hover:bg-neutral-800 shadow-md hover:shadow-lg focus:ring-neutral-200',
  };
 
  const sizes = {

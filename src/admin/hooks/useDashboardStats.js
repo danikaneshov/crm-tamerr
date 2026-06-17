@@ -48,11 +48,11 @@ export const useDashboardStats = () => {
  const hookahPercentageTotal = closedShifts.reduce((sum, s) => sum + (s.hookahPercentage || 0), 0);
  const shiftsCount = closedShifts.reduce((sum, s) => sum + (s.shiftFraction || 1), 0);
 
- const totalRevisionDeductions = revisions
+ const totalRevisionDeductions = Math.round(revisions
  .filter(r => month === 'all' || r.month === month)
- .reduce((sum, r) => sum + (r.deductions?.[empId] || 0), 0);
+ .reduce((sum, r) => sum + (r.deductions?.[empId] || 0), 0));
 
- const totalEarned = baseEarned - totalRevisionDeductions;
+ const totalEarned = Math.round(baseEarned - totalRevisionDeductions);
 
  return {
  totalEarned,
@@ -74,9 +74,9 @@ export const useDashboardStats = () => {
  }, [allShifts, dashboardMonth]);
 
  const globalRevisionDeductions = useMemo(() => {
- return revisions
+ return Math.round(revisions
  .filter(r => dashboardMonth === 'all' || r.month === dashboardMonth)
- .reduce((sum, r) => sum + (r.debt?.total || 0), 0);
+ .reduce((sum, r) => sum + (r.debt?.total || 0), 0));
  }, [revisions, dashboardMonth]);
 
  const totalSystemEarned = useMemo(() => {

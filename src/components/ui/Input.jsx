@@ -28,7 +28,7 @@ const Input = React.forwardRef(({
  id={inputId}
  ref={ref}
  className={`
- w-full p-4 rounded-2xl font-bold text-lg text-slate-800 bg-slate-50 border-2
+ w-full p-4 rounded-2xl font-bold text-lg text-slate-900 bg-slate-50 border-2
  focus:outline-none focus:ring-0 transition-colors
  ${icon ? 'pl-12' : ''}
  ${error 

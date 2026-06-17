@@ -97,21 +97,21 @@ const RevisionPanel = () => {
 
  return (
  <div className="space-y-8 animate-in fade-in duration-300">
- <div className="bg-white backdrop-blur-xl p-8 rounded-[40px] border-none smooth-shadow">
+ <div className="bg-white backdrop-blur-xl p-8 rounded-[40px] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
  <h2 className="text-xl font-black mb-6">Проведение ревизии</h2>
  <p className="text-slate-500 mb-8 text-sm">Укажите ФАКТИЧЕСКИЙ остаток на полках. Система сама высчитает разницу и распределит недостачу между мастерами.</p>
  
  <div className="space-y-6 max-w-2xl">
  <Card variant="outline" className="p-6 border-slate-100">
  <div className="flex justify-between items-center mb-4">
- <h3 className="font-bold text-slate-800 text-lg">Уголь</h3>
+ <h3 className="font-bold text-slate-900 text-lg">Уголь</h3>
  <span className="text-xs font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-full">Ожидается: {formatMoney(Math.round(coalStock))} шт</span>
  </div>
  <div className="flex items-center gap-4">
- <input type="number" min="0" value={actualStock.coal} onChange={e => setActualStock({...actualStock, coal: e.target.value})} placeholder="Факт. количество (шт)" className="flex-1 p-4 bg-slate-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-slate-800 font-bold text-lg text-slate-800 " />
+ <input type="number" min="0" value={actualStock.coal} onChange={e => setActualStock({...actualStock, coal: e.target.value})} placeholder="Факт. количество (шт)" className="flex-1 p-4 bg-slate-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-slate-800 font-bold text-lg text-slate-900 " />
  </div>
  {actualStock.coal !== '' && (
- <div className={`mt-3 text-sm font-medium ${missingCoal > 0 ? 'text-red-500' : missingCoal < 0 ? 'text-emerald-500' : 'text-slate-400'}`}>
+ <div className={`mt-3 text-sm font-medium ${missingCoal > 0 ? 'text-red-500' : missingCoal < 0 ? 'text-slate-500' : 'text-slate-400'}`}>
  {missingCoal > 0 ? `Недостача: ${missingCoal} шт (-${formatMoney(coalDebt)} ₸)` : missingCoal < 0 ? `Профицит: ${Math.abs(missingCoal)} шт` : 'Идеально совпадает'}
  </div>
  )}
@@ -119,14 +119,14 @@ const RevisionPanel = () => {
 
  <Card variant="outline" className="p-6 border-slate-100">
  <div className="flex justify-between items-center mb-4">
- <h3 className="font-bold text-slate-800 text-lg">Табак (Средний)</h3>
+ <h3 className="font-bold text-slate-900 text-lg">Табак (Средний)</h3>
  <span className="text-xs font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-full">Ожидается: {formatMoney(Math.round(tobaccoStock))} г</span>
  </div>
  <div className="flex items-center gap-4">
- <input type="number" min="0" value={actualStock.tobacco} onChange={e => setActualStock({...actualStock, tobacco: e.target.value})} placeholder="Факт. количество (г)" className="flex-1 p-4 bg-slate-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-slate-800 font-bold text-lg text-slate-800 " />
+ <input type="number" min="0" value={actualStock.tobacco} onChange={e => setActualStock({...actualStock, tobacco: e.target.value})} placeholder="Факт. количество (г)" className="flex-1 p-4 bg-slate-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-slate-800 font-bold text-lg text-slate-900 " />
  </div>
  {actualStock.tobacco !== '' && (
- <div className={`mt-3 text-sm font-medium ${missingTobacco > 0 ? 'text-red-500' : missingTobacco < 0 ? 'text-emerald-500' : 'text-slate-400'}`}>
+ <div className={`mt-3 text-sm font-medium ${missingTobacco > 0 ? 'text-red-500' : missingTobacco < 0 ? 'text-slate-500' : 'text-slate-400'}`}>
  {missingTobacco > 0 ? `Недостача: ${missingTobacco} г (-${formatMoney(tobaccoDebt)} ₸)` : missingTobacco < 0 ? `Профицит: ${Math.abs(missingTobacco)} г` : 'Идеально совпадает'}
  </div>
  )}
@@ -138,7 +138,7 @@ const RevisionPanel = () => {
  <h3 className="text-3xl font-black text-red-600">{formatMoney(totalDebt)} ₸</h3>
  <p className="text-xs text-slate-500 mt-1">Будет вычтено из ЗП мастеров в равных долях</p>
  </div>
- <button onClick={handleRevisionSubmit} disabled={isSavingRev || actualStock.coal === '' || actualStock.tobacco === ''} className="w-full sm:w-auto px-8 py-4 bg-red-600 text-white rounded-2xl font-bold shadow-lg shadow-red-200 hover:bg-red-700 transition-all disabled:opacity-50 hover:-translate-y-1">
+ <button onClick={handleRevisionSubmit} disabled={isSavingRev || actualStock.coal === '' || actualStock.tobacco === ''} className="w-full sm:w-auto px-8 py-4 bg-red-600 text-slate-700 rounded-2xl font-bold shadow-lg shadow-red-200 hover:bg-red-700 transition-all disabled:opacity-50 hover:-translate-y-1">
  {isSavingRev ? 'Проведение...' : 'Провести ревизию'}
  </button>
  </div>
@@ -147,13 +147,13 @@ const RevisionPanel = () => {
 
  {/* История ревизий */}
  {revisions.length > 0 && (
- <div className="bg-white backdrop-blur-xl p-8 rounded-[40px] border-none smooth-shadow">
+ <div className="bg-white backdrop-blur-xl p-8 rounded-[40px] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
  <h2 className="text-xl font-black mb-6">История ревизий</h2>
  <div className="space-y-4">
  {revisions.sort((a,b)=>b.createdAt?.seconds - a.createdAt?.seconds).map(rev => (
  <div key={rev.id} className="p-5 border border-slate-100 rounded-2xl hover:bg-slate-50 transition-colors">
  <div className="flex justify-between items-center mb-3">
- <span className="font-bold text-slate-800 ">{rev.dateStr}</span>
+ <span className="font-bold text-slate-900 ">{rev.dateStr}</span>
  <span className="font-black text-red-500">-{formatMoney(rev.debt?.total || 0)} ₸</span>
  </div>
  <div className="text-sm text-slate-500 flex gap-4">

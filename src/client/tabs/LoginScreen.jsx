@@ -39,8 +39,8 @@ const LoginScreen = () => {
  <div className="flex-1 flex flex-col items-center justify-center relative z-10 max-w-sm mx-auto w-full">
  
  <div className="text-center mb-12 animate-in fade-in slide-in-bottom-4 duration-500">
- <span className="text-4xl font-black tracking-tighter text-slate-800 block mb-2">
- Fifty<span className="text-slate-800 ">.</span>
+ <span className="text-4xl font-black tracking-tighter text-slate-900 block mb-2">
+ Fifty<span className="text-slate-900 ">.</span>
  </span>
  <p className="text-slate-500 font-medium">Приложение для персонала</p>
  </div>
@@ -73,7 +73,7 @@ const LoginScreen = () => {
  key={num}
  disabled={isLoading}
  onClick={() => handleKeyPress(num.toString())}
- className="h-16 bg-white rounded-2xl text-2xl font-black text-slate-800 border-none smooth-shadow active:scale-90 hover:-translate-y-1 transition-all flex items-center justify-center touch-manipulation"
+ className="h-16 bg-white rounded-2xl text-2xl font-black text-slate-900 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] active:scale-90 hover:-translate-y-1 transition-all flex items-center justify-center touch-manipulation"
  >
  {num}
  </button>
@@ -82,7 +82,7 @@ const LoginScreen = () => {
  <button
  disabled={isLoading}
  onClick={() => handleKeyPress('0')}
- className="h-16 bg-white rounded-2xl text-2xl font-black text-slate-800 border-none smooth-shadow active:scale-90 hover:-translate-y-1 transition-all flex items-center justify-center touch-manipulation"
+ className="h-16 bg-white rounded-2xl text-2xl font-black text-slate-900 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] active:scale-90 hover:-translate-y-1 transition-all flex items-center justify-center touch-manipulation"
  >
  0
  </button>
@@ -96,7 +96,7 @@ const LoginScreen = () => {
  </div>
 
  {isLoading && (
- <div className="mt-8 flex flex-col items-center gap-2 text-slate-800 ">
+ <div className="mt-8 flex flex-col items-center gap-2 text-slate-900 ">
  <Loader2 className="animate-spin" size={24} />
  <span className="text-xs font-bold uppercase tracking-widest">Проверка</span>
  </div>
