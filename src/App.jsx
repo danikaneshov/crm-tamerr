@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import EmployeeApp from './components/EmployeeApp';
+import EmployeeApp from './client/EmployeeAppNew';
 import AdminLogin from './components/AdminLogin';
 import AdminDashboard from './admin/AdminDashboardNew';
 import ProtectedRoute from './components/ProtectedRoute'; // Импортируем охранника
