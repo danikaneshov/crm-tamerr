@@ -75,6 +75,19 @@ export const useEmployeeData = () => {
  }
  };
 
+ const handleAddPartnerMidShift = async (partnerId) => {
+ if (!currentShift || !partnerId) return;
+ try {
+ await updateDoc(doc(db, 'sales', currentShift.id), {
+ partnerId: partnerId
+ });
+ openModal('success', 'Готово', 'Напарник успешно добавлен к текущей смене');
+ } catch (err) {
+ console.error('Ошибка добавления напарника:', err);
+ openModal('error', 'Ошибка', 'Не удалось добавить напарника');
+ }
+ };
+
  const handleCloseShift = async (staffHookahs, photoFile) => {
  if (!currentShift || currentShift.status !== 'open') return;
 
@@ -145,63 +158,83 @@ export const useEmployeeData = () => {
  }
  };
 
- const finalizeCloseShift = async (c1, c2, staffHookahs, photoUrl) => {
- // Получаем ставку (жестко прошита, либо можно брать из employee)
- const baseSalary = 3000;
- const hookahPercentage = 1500;
- 
- let totalEarned = baseSalary + (c1 * hookahPercentage) + (c2 * hookahPercentage);
- let shiftFraction = 1;
+  const finalizeCloseShift = async (c1, c2, staffHookahs, photoUrl) => {
+    let creatorBase = Number(employee.baseSalary) || 3000;
+    let creatorPercentage = Number(employee.hookahPercentage) || Number(employee.bonus1) || 1500;
 
- if (currentShift.partnerId) {
- totalEarned = totalEarned / 2;
- shiftFraction = 0.5;
- }
+    const totalHookahs = Number(c1) + Number(c2);
+    let creatorShare = totalHookahs;
+    let partnerShare = 0;
 
- const itemsData = { cocktail1: c1, cocktail2: c2 };
+    let partnerBase = 0;
+    let partnerPercentage = 0;
+    let partnerName = 'Напарник';
+    let partnerEarned = 0;
 
- await updateDoc(doc(db, 'sales', currentShift.id), {
- status: 'closed',
- items: itemsData,
- staffHookahs: staffHookahs || 0,
- photoUrl: photoUrl,
- baseSalary: currentShift.partnerId ? baseSalary / 2 : baseSalary,
- hookahPercentage: currentShift.partnerId ? (c1 * hookahPercentage + c2 * hookahPercentage) / 2 : c1 * hookahPercentage + c2 * hookahPercentage,
- earned: totalEarned,
- shiftFraction: shiftFraction,
- closedAt: serverTimestamp()
- });
+    if (currentShift.partnerId) {
+      creatorShare = Math.ceil(totalHookahs / 2);
+      partnerShare = Math.floor(totalHookahs / 2);
 
- if (currentShift.partnerId) {
- const partnerSnap = await getDocs(query(collection(db, 'employees'), where('__name__', '==', currentShift.partnerId)));
- let partnerName = 'Напарник';
- if (!partnerSnap.empty) partnerName = partnerSnap.docs[0].data().name;
+      const partnerSnap = await getDocs(query(collection(db, 'employees'), where('__name__', '==', currentShift.partnerId)));
+      if (!partnerSnap.empty) {
+        const partnerData = partnerSnap.docs[0].data();
+        partnerName = partnerData.name || 'Напарник';
+        partnerBase = Number(partnerData.baseSalary) || 3000;
+        partnerPercentage = Number(partnerData.hookahPercentage) || Number(partnerData.bonus1) || 1500;
+        
+        if (!partnerData.strictSalary) {
+          partnerBase = partnerBase / 2;
+        }
+      } else {
+        partnerBase = 1500; 
+        partnerPercentage = 1500;
+      }
+      partnerEarned = partnerBase + (partnerShare * partnerPercentage);
+    }
 
- await addDoc(collection(db, 'sales'), {
- dateStr: currentShift.dateStr,
- employeeId: currentShift.partnerId,
- employeeName: partnerName,
- partnerId: employee.id,
- status: 'closed',
- items: itemsData,
- staffHookahs: staffHookahs || 0,
- photoUrl: photoUrl,
- baseSalary: baseSalary / 2,
- hookahPercentage: (c1 * hookahPercentage + c2 * hookahPercentage) / 2,
- earned: totalEarned,
- shiftFraction: 0.5,
- closedAt: serverTimestamp()
- });
- }
+    const creatorEarned = creatorBase + (creatorShare * creatorPercentage);
+    const itemsData = { cocktail1: c1, cocktail2: c2 };
 
- openModal('success', 'Смена закрыта!', `Распознано: ${c1} кальянов, ${c2} замен. Заработано: ${totalEarned} ₸`);
- setIsUploading(false);
- };
+    await updateDoc(doc(db, 'sales', currentShift.id), {
+      status: 'closed',
+      items: itemsData,
+      staffHookahs: staffHookahs || 0,
+      photoUrl: photoUrl,
+      baseSalary: creatorBase,
+      hookahPercentage: creatorShare * creatorPercentage,
+      earned: creatorEarned,
+      shiftFraction: currentShift.partnerId ? 0.5 : 1,
+      closedAt: serverTimestamp()
+    });
+
+    if (currentShift.partnerId) {
+      await addDoc(collection(db, 'sales'), {
+        dateStr: currentShift.dateStr,
+        employeeId: currentShift.partnerId,
+        employeeName: partnerName,
+        partnerId: employee.id,
+        status: 'closed',
+        items: itemsData,
+        staffHookahs: staffHookahs || 0,
+        photoUrl: photoUrl,
+        baseSalary: partnerBase,
+        hookahPercentage: partnerShare * partnerPercentage,
+        earned: partnerEarned,
+        shiftFraction: 0.5,
+        closedAt: serverTimestamp(),
+        createdAt: serverTimestamp()
+      });
+    }
+
+    openModal('success', 'Смена закрыта!', `Распознано: ${c1} кальянов, ${c2} замен. Ваш заработок: ${creatorEarned} ₸`);
+    setIsUploading(false);
+  };
 
  return {
  handleOpenShift,
  handleCloseShift,
  confirmCloseShift,
+ handleAddPartnerMidShift,
  isUploading
  };
 };

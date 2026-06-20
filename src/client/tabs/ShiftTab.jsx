@@ -5,7 +5,7 @@ import { Camera, CheckCircle2, UserPlus, Flame, PlayCircle, Loader2 } from 'luci
 
 const ShiftTab = () => {
  const { employee, currentShift, isSyncing, employeesList } = useEmployee();
- const { handleOpenShift, handleCloseShift, isUploading } = useEmployeeData();
+ const { handleOpenShift, handleCloseShift, isUploading, handleAddPartnerMidShift } = useEmployeeData();
 
  const [partnerId, setPartnerId] = useState('');
  const [staffHookahs, setStaffHookahs] = useState(0);
@@ -105,7 +105,7 @@ const ShiftTab = () => {
  </div>
  </div>
 
- {currentShift.partnerId && (
+ {currentShift.partnerId ? (
  <div className="mb-6 bg-orange-50 p-4 rounded-2xl border border-orange-100 flex items-center gap-3">
  <UserPlus className="text-orange-500" size={24} />
  <div>
@@ -113,6 +113,29 @@ const ShiftTab = () => {
  <p className="font-bold text-orange-700">
  {employeesList.find(e => e.id === currentShift.partnerId)?.name || 'Неизвестно'}
  </p>
+ </div>
+ </div>
+ ) : (
+ <div className="mb-6 bg-white p-4 rounded-2xl border border-slate-100 flex flex-col gap-3">
+ <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Добавить напарника к текущей смене</label>
+ <div className="flex gap-2">
+ <select
+ value={partnerId}
+ onChange={(e) => setPartnerId(e.target.value)}
+ className="flex-1 bg-slate-50 p-3 rounded-xl border-none outline-none font-bold text-slate-900"
+ >
+ <option value="">Выберите напарника</option>
+ {employeesList.filter(e => e.id !== employee.id && !e.isArchived).map(p => (
+ <option key={p.id} value={p.id}>{p.name}</option>
+ ))}
+ </select>
+ <button 
+ onClick={() => { if(partnerId) handleAddPartnerMidShift(partnerId); }}
+ disabled={!partnerId}
+ className="bg-slate-900 text-white px-4 py-2 rounded-xl font-bold disabled:opacity-50 active:scale-95 transition-all"
+ >
+ Добавить
+ </button>
  </div>
  </div>
  )}
@@ -167,7 +190,6 @@ const ShiftTab = () => {
  <input 
  type="file" 
  accept="image/*" 
- capture="environment" 
  className="hidden" 
  ref={fileInputRef}
  onChange={(e) => setPhotoFile(e.target.files[0])}

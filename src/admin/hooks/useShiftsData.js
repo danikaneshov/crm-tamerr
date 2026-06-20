@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useAdmin } from '../context/AdminContext';
+import { doc, updateDoc, deleteDoc, addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { db } from '../../firebase';
 
 export const useShiftsData = () => {
  const { allShifts, employees } = useAdmin();
@@ -82,9 +84,6 @@ export const useShiftsData = () => {
  };
  }
  groups[date].records.push(shift);
- groups[date].totalItems += (shift.totalItems || 0);
- groups[date].totalEarned += (shift.earned || 0);
- groups[date].totalStaffHookahs += (shift.staffHookahs || 0);
  if (shift.status === 'open') {
  groups[date].status = 'open';
  }
@@ -95,6 +94,12 @@ export const useShiftsData = () => {
  if (!a.startTime && b.startTime) return 1;
  return 0;
  });
+
+ group.totalEarned = group.records.reduce((sum, r) => sum + (r.earned || 0), 0);
+ const firstRec = group.records[0] || {};
+ group.totalItems = (firstRec.items?.cocktail1 || 0) + (firstRec.items?.cocktail2 || 0);
+ group.totalStaffHookahs = firstRec.staffHookahs || 0;
+
  return group;
  }).sort((a, b) => {
  if (!a.dateStr.includes('.') || !b.dateStr.includes('.')) return 0;
@@ -106,6 +111,45 @@ export const useShiftsData = () => {
  });
  }, [allShifts]);
 
+ const updateShiftGroup = async (group, editData) => {
+ try {
+ const { cocktail1, cocktail2, staffHookahs, updatedRecords, recordsToDelete } = editData;
+ 
+ // Сначала удаляем удаленных напарников
+ for (const id of recordsToDelete) {
+ await deleteDoc(doc(db, 'sales', id));
+ }
+
+ // Затем обновляем или создаем записи
+ for (const rec of updatedRecords) {
+ const dataToSave = {
+ items: { cocktail1, cocktail2 },
+ staffHookahs,
+ earned: rec.earned,
+ partnerId: rec.partnerId || '',
+ employeeId: rec.employeeId,
+ employeeName: rec.employeeName
+ };
+
+ if (rec.isNew) {
+ await addDoc(collection(db, 'sales'), {
+ ...dataToSave,
+ dateStr: group.dateStr,
+ status: 'closed',
+ closedAt: serverTimestamp(),
+ createdAt: serverTimestamp()
+ });
+ } else {
+ await updateDoc(doc(db, 'sales', rec.id), dataToSave);
+ }
+ }
+ return true;
+ } catch (err) {
+ console.error('Ошибка сохранения смены:', err);
+ throw err;
+ }
+ };
+
  return {
  availableMonths,
  selectedMonth,
@@ -113,6 +157,7 @@ export const useShiftsData = () => {
  groupedShifts,
  selectedEmpReport,
  setSelectedEmpReport,
- employees
+ employees,
+ updateShiftGroup
  };
 };

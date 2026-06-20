@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CalendarDays, Key, Trash2 } from 'lucide-react';
+import { CalendarDays, Key, Trash2, Edit2, Save, X } from 'lucide-react';
 import { Card } from '../../components/ui/Card';
 import { formatMoney } from '../utils/format';
 import { useAdmin } from '../context/AdminContext';
@@ -15,6 +15,36 @@ const TeamTab = () => {
  const [newEmpName, setNewEmpName] = useState('');
  const [newEmpPin, setNewEmpPin] = useState('');
  const [isAdding, setIsAdding] = useState(false);
+  
+ const [editingEmp, setEditingEmp] = useState(null);
+ const [editForm, setEditForm] = useState({ name: '', pin: '', baseSalary: 3000, hookahPercentage: 1500, strictSalary: false });
+
+ const startEdit = (emp) => {
+   setEditingEmp(emp.id);
+   setEditForm({
+     name: emp.name,
+     pin: emp.pin,
+     baseSalary: emp.baseSalary || 3000,
+     hookahPercentage: emp.hookahPercentage || emp.bonus1 || 1500,
+     strictSalary: emp.strictSalary || false
+   });
+ };
+
+ const saveEdit = async (empId) => {
+   try {
+     await updateDoc(doc(db, 'employees', empId), {
+       name: editForm.name,
+       pin: editForm.pin,
+       baseSalary: Number(editForm.baseSalary),
+       hookahPercentage: Number(editForm.hookahPercentage),
+       strictSalary: editForm.strictSalary
+     });
+     setEditingEmp(null);
+   } catch (e) {
+     console.error(e);
+     alert('Ошибка при сохранении');
+   }
+ };
 
  const generatePin = () => {
  setNewEmpPin(Math.floor(1000 + Math.random() * 9000).toString());
@@ -25,10 +55,10 @@ const TeamTab = () => {
  if (!newEmpName || newEmpPin.length !== 4) return;
  setIsAdding(true);
  try {
- await addDoc(collection(db, 'employees'), {
- name: newEmpName, pin: newEmpPin.toString(),
- createdAt: serverTimestamp(), baseSalary: 3000, bonus1: 1500, bonus2: 1500, isArchived: false
- });
+  await addDoc(collection(db, 'employees'), {
+  name: newEmpName, pin: newEmpPin.toString(),
+  createdAt: serverTimestamp(), baseSalary: 3000, hookahPercentage: 1500, strictSalary: false, isArchived: false
+  });
  setNewEmpName(''); setNewEmpPin('');
  } catch (error) { console.error(error); } finally { setIsAdding(false); }
  };
@@ -96,27 +126,78 @@ const TeamTab = () => {
  </div>
  <div className="col-span-1 lg:col-span-2 space-y-4">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
- {employees.map(emp => (
- <div key={emp.id} className={`p-5 rounded-3xl border border-slate-100 transition-all ${emp.isArchived ? 'bg-white opacity-70' : 'bg-white backdrop-blur-xl shadow-sm'}`}>
- <div className="flex justify-between items-start mb-4">
- <div>
- <h3 className="font-bold text-slate-900 text-lg">{emp.name}</h3>
- <p className="font-mono text-slate-500 text-sm mt-1">PIN: {emp.pin}</p>
- </div>
- {emp.isArchived ? 
- <span className="text-xs bg-slate-200 text-slate-500 px-3 py-1 rounded-full font-bold">Архив</span> : 
- <span className="text-xs bg-emerald-900/30 text-slate-700 px-3 py-1 rounded-full font-bold">Активен</span>
- }
- </div>
- <div className="flex justify-end mt-4 pt-4 border-t border-slate-50">
- {emp.isArchived ? (
- <button onClick={() => handleToggleArchive(emp.id, true, emp.name)} className="text-xs font-bold text-slate-700 hover:text-emerald-800 px-4 py-2 bg-slate-100 rounded-xl hover:bg-emerald-900/30 transition-colors w-full sm:w-auto">Восстановить</button>
- ) : (
- <button onClick={() => handleToggleArchive(emp.id, false, emp.name)} className="text-slate-400 hover:text-red-500 transition-colors bg-slate-50 px-4 py-2 rounded-xl hover:bg-red-50 text-sm font-bold w-full sm:w-auto flex justify-center items-center gap-2"><Trash2 size={16}/> В архив</button>
- )}
- </div>
- </div>
- ))}
+  {employees.map(emp => (
+  <div key={emp.id} className={`p-5 rounded-3xl border border-slate-100 transition-all ${emp.isArchived ? 'bg-white opacity-70' : 'bg-white backdrop-blur-xl shadow-sm'}`}>
+  {editingEmp === emp.id ? (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center mb-2">
+        <h3 className="font-bold text-slate-900 text-lg">Редактирование</h3>
+        <button onClick={() => setEditingEmp(null)} className="text-slate-400 hover:text-slate-600"><X size={20}/></button>
+      </div>
+      <div className="space-y-3">
+        <div>
+          <label className="block text-xs font-bold text-slate-500 mb-1">Имя</label>
+          <input type="text" value={editForm.name} onChange={e => setEditForm({...editForm, name: e.target.value})} className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold text-slate-700 outline-none focus:ring-2 focus:ring-slate-900" />
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-slate-500 mb-1">PIN-код</label>
+          <input type="text" maxLength="4" value={editForm.pin} onChange={e => setEditForm({...editForm, pin: e.target.value.replace(/\D/g, '')})} className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-mono font-bold text-slate-700 outline-none focus:ring-2 focus:ring-slate-900" />
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs font-bold text-slate-500 mb-1">Оклад (₸)</label>
+            <input type="number" value={editForm.baseSalary} onChange={e => setEditForm({...editForm, baseSalary: e.target.value})} className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold text-slate-700 outline-none focus:ring-2 focus:ring-slate-900" />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-500 mb-1">Ставка за 1шт (₸)</label>
+            <input type="number" value={editForm.hookahPercentage} onChange={e => setEditForm({...editForm, hookahPercentage: e.target.value})} className="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl font-bold text-slate-700 outline-none focus:ring-2 focus:ring-slate-900" />
+          </div>
+        </div>
+        <div className="flex items-center gap-2 mt-2 p-3 bg-slate-50 rounded-xl border border-slate-100">
+          <input type="checkbox" id={`strict_${emp.id}`} checked={editForm.strictSalary} onChange={e => setEditForm({...editForm, strictSalary: e.target.checked})} className="w-5 h-5 rounded accent-slate-900 cursor-pointer" />
+          <label htmlFor={`strict_${emp.id}`} className="text-xs font-bold text-slate-700 cursor-pointer select-none">
+            Сохранять оклад жестко <br/><span className="text-[10px] text-slate-400 font-medium leading-tight block">Не делить оклад на 2, если выходит напарником</span>
+          </label>
+        </div>
+      </div>
+      <button onClick={() => saveEdit(emp.id)} className="w-full py-3 bg-slate-900 text-white rounded-xl font-bold shadow-md hover:bg-slate-800 transition-colors flex justify-center items-center gap-2 mt-4">
+        <Save size={18} /> Сохранить изменения
+      </button>
+    </div>
+  ) : (
+    <>
+      <div className="flex justify-between items-start mb-4">
+      <div>
+      <h3 className="font-bold text-slate-900 text-lg">{emp.name}</h3>
+      <p className="font-mono text-slate-500 text-sm mt-1">PIN: {emp.pin}</p>
+      <div className="mt-2 space-y-0.5">
+        <p className="text-xs text-slate-500 font-medium">Оклад: <strong className="text-slate-800">{emp.baseSalary || 3000} ₸</strong> {emp.strictSalary && <span className="text-[10px] bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded font-bold ml-1">Жесткий</span>}</p>
+        <p className="text-xs text-slate-500 font-medium">Ставка: <strong className="text-slate-800">{emp.hookahPercentage || emp.bonus1 || 1500} ₸</strong></p>
+      </div>
+      </div>
+      <div className="flex flex-col items-end gap-2">
+        {emp.isArchived ? 
+        <span className="text-xs bg-slate-200 text-slate-500 px-3 py-1 rounded-full font-bold">Архив</span> : 
+        <span className="text-xs bg-emerald-900/30 text-slate-700 px-3 py-1 rounded-full font-bold">Активен</span>
+        }
+        {!emp.isArchived && (
+          <button onClick={() => startEdit(emp)} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+            <Edit2 size={16} />
+          </button>
+        )}
+      </div>
+      </div>
+      <div className="flex justify-end mt-4 pt-4 border-t border-slate-50">
+      {emp.isArchived ? (
+      <button onClick={() => handleToggleArchive(emp.id, true, emp.name)} className="text-xs font-bold text-slate-700 hover:text-emerald-800 px-4 py-2 bg-slate-100 rounded-xl hover:bg-emerald-900/30 transition-colors w-full sm:w-auto">Восстановить</button>
+      ) : (
+      <button onClick={() => handleToggleArchive(emp.id, false, emp.name)} className="text-slate-400 hover:text-red-500 transition-colors bg-slate-50 px-4 py-2 rounded-xl hover:bg-red-50 text-sm font-bold w-full sm:w-auto flex justify-center items-center gap-2"><Trash2 size={16}/> В архив</button>
+      )}
+      </div>
+    </>
+  )}
+  </div>
+  ))}
  </div>
  </div>
  </div>
