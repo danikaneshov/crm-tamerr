@@ -10,7 +10,10 @@ const AdminLayout = ({ children }) => {
     <MobileNav />
     
     {/* Основной контент */}
-    <div className="flex-1 lg:ml-[320px] overflow-y-auto overflow-x-hidden p-6 pt-[calc(env(safe-area-inset-top)+24px)] pb-32 lg:p-12 lg:pb-12">
+    <div 
+      className="flex-1 lg:ml-[320px] overflow-y-auto overflow-x-hidden p-6 pb-32 lg:p-12 lg:pb-12"
+      style={{ paddingTop: 'calc(env(safe-area-inset-top) + 24px)' }}
+    >
       {children}
     </div>
  </div>
