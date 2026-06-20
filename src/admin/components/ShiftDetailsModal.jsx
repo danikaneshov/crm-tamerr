@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import React, { useState, useEffect } from 'react';
 import { X, Edit2, Save, UserPlus, Trash2 } from 'lucide-react';
 import { formatMoney } from '../utils/format';
@@ -123,6 +124,20 @@ const ShiftDetailsModal = ({ report, onClose, onSave, employees }) => {
     });
   };
 
+  const makeCreator = (idx) => {
+    if (idx === 0) return;
+    setForm(prev => {
+      const newRecs = [...prev.records];
+      // Меняем местами idx и 0
+      const temp = newRecs[0];
+      newRecs[0] = newRecs[idx];
+      newRecs[idx] = temp;
+      
+      const finalRecs = recalculateSalaries(prev.cocktail1, prev.cocktail2, newRecs.length, newRecs);
+      return { ...prev, records: finalRecs };
+    });
+  };
+
   if (!report) return null;
 
   return (
@@ -159,8 +174,8 @@ const ShiftDetailsModal = ({ report, onClose, onSave, employees }) => {
             ) : (
               <>
                 <button onClick={() => setIsEditing(false)} className="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl font-bold text-sm">Отмена</button>
-                <button onClick={handleSave} disabled={isSaving} className="px-4 py-2 bg-slate-900 text-white rounded-xl font-bold text-sm flex items-center gap-2 disabled:opacity-50">
-                  <Save size={16} /> {isSaving ? '...' : 'Сохранить'}
+                <button onClick={handleSave} disabled={isSaving} className="flex-1 p-4 bg-slate-800 hover:bg-slate-900 text-white rounded-2xl font-bold shadow-lg shadow-slate-900/20 active:scale-95 transition-all disabled:opacity-50">
+                  {isSaving ? 'Сохранение...' : 'Сохранить изменения'}
                 </button>
               </>
             )}
@@ -207,14 +222,34 @@ const ShiftDetailsModal = ({ report, onClose, onSave, employees }) => {
               <div className="grid gap-4">
               {form.records.map((rec, idx) => (
                 <div key={rec.id} className={`p-5 rounded-3xl relative border shadow-md transition-all ${idx === 0 ? 'bg-white border-slate-300' : 'bg-slate-50 border-slate-300'}`}>
-                  {idx === 0 && <div className="absolute -top-2.5 left-5 bg-slate-900 text-white text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full shadow-sm">Открыл смену</div>}
-                  {idx > 0 && <div className="absolute -top-2.5 left-5 bg-indigo-100 text-indigo-700 text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full shadow-sm">Напарник</div>}
                   
-                  {idx > 0 && (
-                    <button onClick={() => removeRecord(idx)} className="absolute top-4 right-4 p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors">
-                      <Trash2 size={18} />
-                    </button>
-                  )}
+                  <div className="flex justify-between items-center mb-2">
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                      {idx === 0 ? 'Создатель (Открыл смену)' : `Напарник ${idx}`}
+                      {idx === 0 && <span className="bg-primary/20 text-slate-800 px-1.5 py-0.5 rounded text-[10px]">Больше %</span>}
+                    </p>
+                    {isEditing && (
+                      <div className="flex items-center gap-2">
+                        {idx > 0 && (
+                          <button 
+                            type="button"
+                            onClick={() => makeCreator(idx)}
+                            className="text-[10px] font-bold text-blue-500 hover:text-blue-700 uppercase tracking-wider px-2 py-1 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+                          >
+                            Сделать открывающим
+                          </button>
+                        )}
+                        {idx > 0 && (
+                          <button 
+                            onClick={() => removeRecord(idx)} 
+                            className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
                   
                   <div className="space-y-4 mt-2">
                     <div className="group">
@@ -300,22 +335,39 @@ const ShiftDetailsModal = ({ report, onClose, onSave, employees }) => {
             </div>
 
             <div className="space-y-3">
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-2">Сделано позиций</h3>
-              {report.records.map((rec) => (
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-2">Засчитано в ЗП (доля)</h3>
+              {report.records.map((rec, idx) => {
+                const totalHookahs = rec.items?.cocktail1 || 0;
+                const totalReplacements = rec.items?.cocktail2 || 0;
+                let shareHookahs = totalHookahs;
+                let shareReplacements = totalReplacements;
+                
+                if (report.records.length > 1) {
+                  if (idx === 0) {
+                    shareHookahs = Math.ceil(totalHookahs / 2);
+                    shareReplacements = Math.ceil(totalReplacements / 2);
+                  } else {
+                    shareHookahs = Math.floor(totalHookahs / 2);
+                    shareReplacements = Math.floor(totalReplacements / 2);
+                  }
+                }
+
+                return (
                 <div key={'items'+rec.id} className="bg-slate-50 p-4 rounded-2xl hover:-translate-y-1 transition-all">
                   <p className="font-bold text-slate-700 mb-3">{rec.employeeName}</p>
                   <div className="flex gap-4 text-sm">
                     <div className="flex-1 bg-white p-3 rounded-xl border border-slate-100 text-center">
                       <span className="block text-xs text-slate-400 uppercase font-bold mb-1">Кальяны</span>
-                      <strong className="text-slate-900 text-lg">{rec.status === 'open' ? '—' : (rec.items?.cocktail1 || 0)}</strong>
+                      <strong className="text-slate-900 text-lg">{rec.status === 'open' ? '—' : shareHookahs}</strong>
                     </div>
                     <div className="flex-1 bg-white p-3 rounded-xl border border-slate-100 text-center">
                       <span className="block text-xs text-slate-400 uppercase font-bold mb-1">Замены</span>
-                      <strong className="text-slate-900 text-lg">{rec.status === 'open' ? '—' : (rec.items?.cocktail2 || 0)}</strong>
+                      <strong className="text-slate-900 text-lg">{rec.status === 'open' ? '—' : shareReplacements}</strong>
                     </div>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
 
             <div className="space-y-3">

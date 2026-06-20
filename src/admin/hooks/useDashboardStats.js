@@ -69,35 +69,45 @@ export const useDashboardStats = () => {
  };
  }, [allShifts, ownerProfits, selectedMonth, revisions]);
 
- const closedSystemShifts = useMemo(() => {
- return allShifts.filter(s => s.status === 'closed' && (dashboardMonth === 'all' || (s.dateStr && s.dateStr.endsWith(`.${dashboardMonth}`))));
- }, [allShifts, dashboardMonth]);
+  const closedSystemShifts = useMemo(() => {
+    return allShifts.filter(s => s.status === 'closed' && (dashboardMonth === 'all' || (s.dateStr && s.dateStr.endsWith(`.${dashboardMonth}`))));
+  }, [allShifts, dashboardMonth]);
 
- const globalRevisionDeductions = useMemo(() => {
- return Math.round(revisions
- .filter(r => dashboardMonth === 'all' || r.month === dashboardMonth)
- .reduce((sum, r) => sum + (r.debt?.total || 0), 0));
- }, [revisions, dashboardMonth]);
+  const uniqueShiftsGroups = useMemo(() => {
+    const groups = {};
+    closedSystemShifts.forEach(shift => {
+      const date = shift.dateStr || 'unknown';
+      if (!groups[date]) groups[date] = [];
+      groups[date].push(shift);
+    });
+    return Object.values(groups);
+  }, [closedSystemShifts]);
 
- const totalSystemEarned = useMemo(() => {
- const earned = closedSystemShifts.reduce((a,b) => a + (b.earned || 0), 0);
- return earned - globalRevisionDeductions;
- }, [closedSystemShifts, globalRevisionDeductions]);
+  const globalRevisionDeductions = useMemo(() => {
+    return Math.round(revisions
+      .filter(r => dashboardMonth === 'all' || r.month === dashboardMonth)
+      .reduce((sum, r) => sum + (r.debt?.total || 0), 0));
+  }, [revisions, dashboardMonth]);
 
- const globalHookahs = useMemo(() => closedSystemShifts.reduce((a,b) => a + (b.items?.cocktail1 || 0), 0), [closedSystemShifts]);
- const globalReplacements = useMemo(() => closedSystemShifts.reduce((a,b) => a + (b.items?.cocktail2 || 0), 0), [closedSystemShifts]);
- const globalOwnerProfit = (globalHookahs * ownerProfits.hookah) + (globalReplacements * ownerProfits.replacement);
- const globalStaffHookahs = useMemo(() => closedSystemShifts.reduce((a,b) => a + (b.staffHookahs || 0), 0), [closedSystemShifts]);
- 
- const replacementRate = globalHookahs > 0 ? ((globalReplacements / globalHookahs) * 100).toFixed(1) : 0;
+  const totalSystemEarned = useMemo(() => {
+    const earned = closedSystemShifts.reduce((a,b) => a + (b.earned || 0), 0);
+    return earned - globalRevisionDeductions;
+  }, [closedSystemShifts, globalRevisionDeductions]);
 
- const dashboardNetProfit = globalOwnerProfit - totalSystemEarned;
- 
- const dashboardPurchases = useMemo(() => {
- return invMovements
- .filter(m => m.type === 'in' && m.cost > 0 && (dashboardMonth === 'all' || (m.dateStr && m.dateStr.endsWith(`.${dashboardMonth}`))))
- .reduce((sum, m) => sum + m.cost, 0);
- }, [invMovements, dashboardMonth]);
+  const globalHookahs = useMemo(() => uniqueShiftsGroups.reduce((sum, group) => sum + (group[0]?.items?.cocktail1 || 0), 0), [uniqueShiftsGroups]);
+  const globalReplacements = useMemo(() => uniqueShiftsGroups.reduce((sum, group) => sum + (group[0]?.items?.cocktail2 || 0), 0), [uniqueShiftsGroups]);
+  const globalOwnerProfit = (globalHookahs * ownerProfits.hookah) + (globalReplacements * ownerProfits.replacement);
+  const globalStaffHookahs = useMemo(() => uniqueShiftsGroups.reduce((sum, group) => sum + (group[0]?.staffHookahs || 0), 0), [uniqueShiftsGroups]);
+  
+  const replacementRate = globalHookahs > 0 ? ((globalReplacements / globalHookahs) * 100).toFixed(1) : 0;
+
+  const dashboardNetProfit = globalOwnerProfit - totalSystemEarned;
+  
+  const dashboardPurchases = useMemo(() => {
+    return invMovements
+      .filter(m => m.type === 'in' && m.cost > 0 && (dashboardMonth === 'all' || (m.dateStr && m.dateStr.endsWith(`.${dashboardMonth}`))))
+      .reduce((sum, m) => sum + m.cost, 0);
+  }, [invMovements, dashboardMonth]);
 
  const dashboardProfitWithoutTamerlan = useMemo(() => {
  const tamerlanEmp = employees.find(e => e.name?.trim().toLowerCase() === 'tamerlan');
@@ -121,20 +131,22 @@ export const useDashboardStats = () => {
  }).sort((a, b) => b.ownerNetProfit - a.ownerNetProfit);
  }, [employees, calculateEmployeeStats, dashboardMonth]);
 
- const chartData = useMemo(() => {
- const map = {};
- closedSystemShifts.forEach(s => {
- if (s.dateStr) {
- const shortDate = s.dateStr.split('.').slice(0, 2).join('.');
- if (!map[shortDate]) map[shortDate] = { name: shortDate, revenue: 0, hookahs: 0, replacements: 0, totalSales: 0 };
- map[shortDate].revenue += s.earned;
- map[shortDate].hookahs += (s.items?.cocktail1 || 0);
- map[shortDate].replacements += (s.items?.cocktail2 || 0);
- map[shortDate].totalSales += (s.items?.cocktail1 || 0) + (s.items?.cocktail2 || 0);
- }
- });
- return Object.values(map).reverse();
- }, [closedSystemShifts]);
+  const chartData = useMemo(() => {
+    const map = {};
+    uniqueShiftsGroups.forEach(group => {
+      const s = group[0];
+      if (s && s.dateStr) {
+        const shortDate = s.dateStr.split('.').slice(0, 2).join('.');
+        if (!map[shortDate]) map[shortDate] = { name: shortDate, revenue: 0, hookahs: 0, replacements: 0, totalSales: 0 };
+        const totalEarned = group.reduce((sum, rec) => sum + (rec.earned || 0), 0);
+        map[shortDate].revenue += totalEarned;
+        map[shortDate].hookahs += (s.items?.cocktail1 || 0);
+        map[shortDate].replacements += (s.items?.cocktail2 || 0);
+        map[shortDate].totalSales += (s.items?.cocktail1 || 0) + (s.items?.cocktail2 || 0);
+      }
+    });
+    return Object.values(map).reverse();
+  }, [uniqueShiftsGroups]);
 
  return {
  availableMonths,

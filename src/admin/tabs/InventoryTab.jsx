@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ShoppingCart, Plus, Edit3, Trash2 } from 'lucide-react';
 import { Card } from '../../components/ui/Card';
 import { formatMoney } from '../utils/format';
@@ -23,41 +23,13 @@ const InventoryTab = () => {
  handleInvSubmit, addToCart, removeFromCart, updateCartItem, handleCartSubmit
  } = useInventoryData();
 
-  const [touchStart, setTouchStart] = useState(null);
-  const [touchEnd, setTouchEnd] = useState(null);
-  const minSwipeDistance = 50;
-
-  const onTouchStart = (e) => {
-    setTouchEnd(null);
-    setTouchStart(e.targetTouches[0].clientX);
-  };
-
-  const onTouchMove = (e) => setTouchEnd(e.targetTouches[0].clientX);
-
-  const onTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > minSwipeDistance;
-    const isRightSwipe = distance < -minSwipeDistance;
-    const current = subTab || 'stock';
-    
-    if (isLeftSwipe) {
-      if (current === 'stock') setSubTab('operations');
-      else if (current === 'operations') setSubTab('revision');
-    }
-    if (isRightSwipe) {
-      if (current === 'revision') setSubTab('operations');
-      else if (current === 'operations') setSubTab('stock');
-    }
-  };
-
- return (
- <div className="space-y-8 animate-in fade-in duration-300" onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
- <div className="flex items-center gap-2 bg-white backdrop-blur-md p-1.5 rounded-2xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-slate-800 shadow-sm scrollable-tabs w-full max-w-full">
- <button onClick={(e) => { setSubTab('stock'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'stock' || !subTab ? 'bg-primary text-slate-700 shadow-md' : 'text-slate-500 hover:text-slate-900 hover:bg-white '}`}>Остатки</button>
- <button onClick={(e) => { setSubTab('operations'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'operations' ? 'bg-primary text-slate-700 shadow-md' : 'text-slate-500 hover:text-slate-900 hover:bg-white '}`}>Операции (Приход / Списание)</button>
- <button onClick={(e) => { setSubTab('revision'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'revision' ? 'bg-primary text-slate-700 shadow-md' : 'text-slate-500 hover:text-slate-900 hover:bg-white '}`}>Ревизия</button>
- </div>
+  return (
+    <div className="space-y-8 animate-in fade-in duration-300">
+      <div className="flex items-center gap-2 bg-slate-200/60 p-1.5 rounded-[20px] w-full max-w-full overflow-x-auto scrollbar-hide">
+        <button onClick={(e) => { setSubTab('stock'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-2xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'stock' || !subTab ? 'bg-slate-800 text-white shadow-md shadow-slate-900/20' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-300/50'}`}>Остатки</button>
+        <button onClick={(e) => { setSubTab('operations'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-2xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'operations' ? 'bg-slate-800 text-white shadow-md shadow-slate-900/20' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-300/50'}`}>Операции (Приход / Списание)</button>
+        <button onClick={(e) => { setSubTab('revision'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-2xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'revision' ? 'bg-slate-800 text-white shadow-md shadow-slate-900/20' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-300/50'}`}>Ревизия</button>
+      </div>
 
  {(subTab === 'stock' || !subTab) && (
  <div className="space-y-6">

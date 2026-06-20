@@ -59,9 +59,10 @@ const ProtectedRoute = ({ children }) => {
  const [authResolved, setAuthResolved] = useState(false);
  const [overlayVisible, setOverlayVisible] = useState(true);
  const [overlayFading, setOverlayFading] = useState(false);
- const loadStartRef = useRef(Date.now());
+ const loadStartRef = useRef(null);
 
  useEffect(() => {
+ if (!loadStartRef.current) loadStartRef.current = Date.now();
  // onAuthStateChanged слушает изменения статуса авторизации в Firebase
  const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
  setUser(currentUser);
