@@ -50,13 +50,6 @@
  -webkit-user-select: none;
  user-select: none;
  }
-
- /* Fix iOS standalone mode safe areas */
- @supports (padding: env(safe-area-inset-top)) {
- body {
- padding-top: env(safe-area-inset-top);
- }
- }
 }
 
 @layer utilities {
