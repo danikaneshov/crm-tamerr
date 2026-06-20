@@ -70,8 +70,30 @@ const TeamTab = () => {
  await updateDoc(doc(db, 'employees', empId), { isArchived: !isArchived });
  };
 
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e) => setTouchEnd(e.targetTouches[0].clientX);
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    const current = subTab || 'salaries';
+    
+    if (isLeftSwipe && current === 'salaries') setSubTab('staff');
+    if (isRightSwipe && current === 'staff') setSubTab('salaries');
+  };
+
  return (
- <div className="space-y-8 animate-in fade-in duration-300">
+ <div className="space-y-8 animate-in fade-in duration-300" onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
  <div className="flex items-center gap-2 bg-white backdrop-blur-md p-1.5 shadow-sm rounded-2xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-slate-800 shadow-sm w-full max-w-full scrollable-tabs">
  <button onClick={(e) => { setSubTab('salaries'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'salaries' || !subTab ? 'bg-primary text-slate-700 shadow-md' : 'text-slate-500 hover:text-slate-900 hover:bg-white '}`}>Зарплаты</button>
  <button onClick={(e) => { setSubTab('staff'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'staff' ? 'bg-primary text-slate-700 shadow-md' : 'text-slate-500 hover:text-slate-900 hover:bg-white '}`}>Персонал</button>
