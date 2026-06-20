@@ -3,7 +3,7 @@ import ClientMobileNav from './ClientMobileNav';
 
 const ClientLayout = ({ children, activeTab, setActiveTab }) => {
  return (
- <div className="flex flex-col h-screen relative overflow-hidden bg-gradient-to-br from-slate-200 to-slate-400 ">
+ <div className="flex flex-col w-full h-full fixed inset-0 overflow-hidden bg-gradient-to-br from-slate-200 to-slate-400 ">
  {/* Top Bar for PWA aesthetics */}
  <div className="pt-safe pb-3 bg-white/90 backdrop-blur-xl sticky top-0 z-30 flex items-center justify-center border-b border-slate-100 shadow-sm">
  <span className="text-xl font-black tracking-tighter text-slate-900 ">
