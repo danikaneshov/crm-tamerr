@@ -6,7 +6,7 @@ const MobileNav = () => {
  const { activeTab, switchTab } = useAdmin();
 
  return (
- <div className="lg:hidden fixed bottom-2 mb-[env(safe-area-inset-bottom)] left-4 right-4 z-40 bg-white/90 border border-slate-100 backdrop-blur-xl shadow-sm shadow-slate-200/50 rounded-[32px] px-4 sm:px-6 py-3 flex justify-between items-center transition-colors duration-300">
+ <div className="lg:hidden fixed bottom-0 mb-[env(safe-area-inset-bottom)] left-4 right-4 z-40 bg-white/90 border border-slate-100 backdrop-blur-xl shadow-sm shadow-slate-200/50 rounded-[32px] px-4 sm:px-6 py-3 flex justify-between items-center transition-colors duration-300">
  <button
  onClick={() => switchTab('dashboard')}
  className={`p-3 min-w-[48px] min-h-[48px] flex justify-center items-center rounded-2xl transition-all duration-300 ${

@@ -6,7 +6,7 @@ const ClientMobileNav = ({ activeTab, setActiveTab }) => {
  const { logout } = useEmployee();
 
  return (
- <div className="fixed bottom-6 mb-safe left-4 right-4 z-40 bg-white/90 border border-slate-100 backdrop-blur-xl border border-slate-600/50 shadow-sm shadow-slate-200/50 rounded-[32px] px-4 sm:px-6 py-3 flex justify-between items-center transition-colors duration-300">
+ <div className="fixed bottom-2 mb-safe left-4 right-4 z-40 bg-white/90 border border-slate-100 backdrop-blur-xl shadow-sm shadow-slate-200/50 rounded-[32px] px-4 sm:px-6 py-3 flex justify-between items-center transition-colors duration-300">
  <div className="flex gap-2">
  <button
  onClick={() => setActiveTab('shift')}

@@ -3,55 +3,45 @@ import { Navigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase';
 
-const MIN_LOADING_MS = 2200; // Минимальное время показа оверлея, чтобы данные БД успели подтянуться
+const MIN_LOADING_MS = 500; // Уменьшенное время показа оверлея
 
-// Общий оверлей — прозрачный блюр + синяя полоска загрузки сверху
+// Общий оверлей — прозрачный блюр + кружочек загрузки
 const LoadingOverlay = ({ fading }) => (
- <>
- <div
- style={{
- position: 'fixed',
- inset: 0,
- zIndex: 9999,
- background: 'rgba(255, 255, 255, 0.5)',
- backdropFilter: 'blur(18px)',
- WebkitBackdropFilter: 'blur(18px)',
- opacity: fading ? 0 : 1,
- transition: 'opacity 0.5s ease',
- pointerEvents: fading ? 'none' : 'auto',
- }}
- />
- {/* Синяя полоса загрузки сверху */}
- <div
- style={{
- position: 'fixed',
- top: 0,
- left: 0,
- right: 0,
- height: '3px',
- zIndex: 10000,
- overflow: 'hidden',
- opacity: fading ? 0 : 1,
- transition: 'opacity 0.5s ease',
- }}
- >
- <div
- style={{
- height: '100%',
- width: '40%',
- background: 'linear-gradient(90deg, transparent, #3b82f6, #60a5fa, #3b82f6, transparent)',
- borderRadius: '2px',
- animation: 'loadingBar 1.4s ease-in-out infinite',
- }}
- />
- </div>
- <style>{`
- @keyframes loadingBar {
- 0% { transform: translateX(-100%); }
- 100% { transform: translateX(350%); }
- }
- `}</style>
- </>
+  <>
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 9999,
+        background: 'rgba(255, 255, 255, 0.5)',
+        backdropFilter: 'blur(18px)',
+        WebkitBackdropFilter: 'blur(18px)',
+        opacity: fading ? 0 : 1,
+        transition: 'opacity 0.5s ease',
+        pointerEvents: fading ? 'none' : 'auto',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}
+    >
+      <div 
+        style={{
+          width: '40px',
+          height: '40px',
+          border: '4px solid rgba(59, 130, 246, 0.2)',
+          borderTopColor: '#3b82f6',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite'
+        }}
+      />
+    </div>
+    <style>{`
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    `}</style>
+  </>
 );
 
 const ProtectedRoute = ({ children }) => {
