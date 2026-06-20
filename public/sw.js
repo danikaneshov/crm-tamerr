@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fifty-erp-v1';
+const CACHE_NAME = 'fifty-erp-v2';
 const urlsToCache = [
   '/',
   '/admin',
