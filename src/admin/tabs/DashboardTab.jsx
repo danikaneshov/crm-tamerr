@@ -81,33 +81,33 @@ const DashboardTab = () => {
 
  {/* Финансовый блок: Прибыль + Расходы */}
  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
- <div className="bg-slate-50 border border-slate-100 p-8 rounded-[32px] shadow-lg shadow-[0_8px_30px_rgb(0,0,0,0.04)] text-slate-700 relative overflow-hidden md:col-span-2 hover:-translate-y-1 transition-all">
-    <Wallet className="absolute -right-4 -bottom-4 opacity-[0.03] text-slate-900" size={160}/>
+ <div className="bg-gradient-to-br from-green-500 to-emerald-600 border border-green-400 p-8 rounded-[32px] shadow-lg shadow-green-500/30 text-white relative overflow-hidden md:col-span-2 hover:-translate-y-1 transition-all">
+    <Wallet className="absolute -right-4 -bottom-4 opacity-10 text-white" size={160}/>
     <div className="flex flex-col sm:flex-row gap-8 justify-between relative z-10">
       <div>
-        <p className="font-bold text-sm uppercase tracking-widest mb-2 opacity-80 text-slate-500">Чистая прибыль</p>
-        <h3 className="text-4xl font-black">{formatMoney(dashboardNetProfit)} ₸</h3>
-        <p className="text-sm opacity-80 mt-2 text-slate-400">Вычеты: ЗП ({formatMoney(totalSystemEarned)} ₸)</p>
+        <p className="font-bold text-sm uppercase tracking-widest mb-2 opacity-90 text-green-100">Чистая прибыль</p>
+        <h3 className="text-4xl font-black text-white">{formatMoney(dashboardNetProfit)} ₸</h3>
+        <p className="text-sm opacity-90 mt-2 text-green-100">Вычеты: ЗП ({formatMoney(totalSystemEarned)} ₸)</p>
       </div>
       <div className="text-left sm:text-right sm:mt-0 mt-4 sm:pr-8">
-        <p className="font-bold text-xs uppercase tracking-widest mb-1 opacity-80 text-slate-500">Грязная прибыль</p>
-        <h4 className="text-2xl font-black">{formatMoney(globalOwnerProfit)} ₸</h4>
-        <p className="font-bold text-xs uppercase tracking-widest mb-1 opacity-80 mt-4 text-slate-500">Без вычета ЗП Tamerlan</p>
-        <h4 className="text-xl font-black text-emerald-500">{formatMoney(dashboardProfitWithoutTamerlan)} ₸</h4>
+        <p className="font-bold text-xs uppercase tracking-widest mb-1 opacity-90 text-green-100">Грязная прибыль</p>
+        <h4 className="text-2xl font-black text-white">{formatMoney(globalOwnerProfit)} ₸</h4>
+        <p className="font-bold text-xs uppercase tracking-widest mb-1 opacity-90 mt-4 text-green-100">Без вычета ЗП Tamerlan</p>
+        <h4 className="text-xl font-black text-green-200">{formatMoney(dashboardProfitWithoutTamerlan)} ₸</h4>
       </div>
     </div>
   </div>
  
- <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col justify-center hover:-translate-y-1 transition-all">
- <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">Прибыль с кальянов</p>
+ <div className="bg-gradient-to-br from-blue-50/80 to-white p-6 rounded-[32px] border border-blue-100/50 shadow-[0_8px_30px_rgba(59,130,246,0.08)] flex flex-col justify-center hover:-translate-y-1 transition-all">
+ <p className="text-blue-500 font-bold text-xs uppercase tracking-widest mb-2">Прибыль с кальянов</p>
  <h3 className="text-2xl font-black text-slate-900 ">{formatMoney(globalHookahs * ownerProfits.hookah)} ₸</h3>
- <p className="text-slate-400 text-sm mt-1">{globalHookahs} шт × {formatMoney(ownerProfits.hookah)} ₸</p>
+ <p className="text-slate-500 text-sm mt-1 font-medium">{globalHookahs} шт × {formatMoney(ownerProfits.hookah)} ₸</p>
  </div>
 
- <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col justify-center hover:-translate-y-1 transition-all">
- <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mb-2">Прибыль с замен</p>
- <h3 className="text-2xl font-black text-indigo-600">{formatMoney(globalReplacements * ownerProfits.replacement)} ₸</h3>
- <p className="text-slate-400 text-sm mt-1">{globalReplacements} шт × {formatMoney(ownerProfits.replacement)} ₸</p>
+ <div className="bg-gradient-to-br from-indigo-50/80 to-white p-6 rounded-[32px] border border-indigo-100/50 shadow-[0_8px_30px_rgba(99,102,241,0.08)] flex flex-col justify-center hover:-translate-y-1 transition-all">
+ <p className="text-indigo-500 font-bold text-xs uppercase tracking-widest mb-2">Прибыль с замен</p>
+ <h3 className="text-2xl font-black text-slate-900">{formatMoney(globalReplacements * ownerProfits.replacement)} ₸</h3>
+ <p className="text-slate-500 text-sm mt-1 font-medium">{globalReplacements} шт × {formatMoney(ownerProfits.replacement)} ₸</p>
  </div>
  </div>
 

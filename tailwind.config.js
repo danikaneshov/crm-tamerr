@@ -9,8 +9,8 @@ export default {
       colors: {
         primary: {
           light: '#ffffff',
-          DEFAULT: '#f8fafc',
-          dark: '#f1f5f9',
+          DEFAULT: '#eef2ff',
+          dark: '#e0e7ff',
         },
         success: {
           DEFAULT: '#10B981',
@@ -27,16 +27,16 @@ export default {
           DEFAULT: '#3B82F6',
         },
         neutral: {
-          50: '#F9FAFB',
-          100: '#F3F4F6',
-          200: '#E5E7EB',
-          800: '#1F2937',
-          900: '#111827',
+          50: '#eef2ff',
+          100: '#e0e7ff',
+          200: '#c7d2fe',
+          800: '#3730a3',
+          900: '#312e81',
         },
         dark: {
-          bg: '#0F172A',
-          surface: '#1E293B',
-          border: '#334155',
+          bg: '#1e1b4b',
+          surface: '#312e81',
+          border: '#4338ca',
         }
       },
       fontFamily: {

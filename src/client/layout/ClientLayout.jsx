@@ -5,7 +5,7 @@ const ClientLayout = ({ children, activeTab, setActiveTab }) => {
  return (
  <div className="flex flex-col min-h-[100dvh] w-full relative">
  {/* Top Bar for PWA aesthetics */}
- <div className="pt-safe pb-3 bg-white/90 backdrop-blur-xl sticky top-0 z-30 flex items-center justify-center border-b border-slate-100 shadow-sm">
+ <div className="pt-safe pb-3 glass border-x-0 border-t-0 border-b sticky top-0 z-30 flex items-center justify-center">
  <span className="text-xl font-black tracking-tighter text-slate-900 ">
  Fifty<span className="text-slate-900 ">.</span>
  </span>

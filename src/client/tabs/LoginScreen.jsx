@@ -31,7 +31,7 @@ const LoginScreen = () => {
  };
 
  return (
- <div className="flex flex-col h-[100dvh] bg-slate-50 p-6 relative overflow-hidden">
+ <div className="flex flex-col h-[100dvh] bg-transparent p-6 relative overflow-hidden">
  {/* Decorative Blobs */}
  <div className="absolute top-[-10%] left-[-10%] w-[40vw] h-[40vw] rounded-full bg-blue-400/20 blur-3xl mix-blend-multiply"></div>
  <div className="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] rounded-full bg-indigo-400/20 blur-3xl mix-blend-multiply"></div>

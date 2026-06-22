@@ -19,7 +19,7 @@ const Sidebar = () => {
  onClick={() => switchTab('dashboard')}
  className={`w-full flex items-center gap-4 p-4 rounded-3xl font-bold transition-all duration-300 ${
  activeTab === 'dashboard'
- ? 'bg-slate-900 text-white shadow-md translate-x-1'
+ ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20 translate-x-1'
  : 'text-slate-400 hover:bg-white hover:text-slate-900 hover:shadow-md hover:translate-x-1'
  }`}
  >
@@ -29,7 +29,7 @@ const Sidebar = () => {
  onClick={() => switchTab('shifts', 'calendar')}
  className={`w-full flex items-center gap-4 p-4 rounded-3xl font-bold transition-all duration-300 ${
  activeTab === 'shifts'
- ? 'bg-slate-900 text-white shadow-md translate-x-1'
+ ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20 translate-x-1'
  : 'text-slate-400 hover:bg-white hover:text-slate-900 hover:shadow-md hover:translate-x-1'
  }`}
  >
@@ -39,7 +39,7 @@ const Sidebar = () => {
  onClick={() => switchTab('team', 'salaries')}
  className={`w-full flex items-center gap-4 p-4 rounded-3xl font-bold transition-all duration-300 ${
  activeTab === 'team'
- ? 'bg-slate-900 text-white shadow-md translate-x-1'
+ ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20 translate-x-1'
  : 'text-slate-400 hover:bg-white hover:text-slate-900 hover:shadow-md hover:translate-x-1'
  }`}
  >
@@ -49,7 +49,7 @@ const Sidebar = () => {
  onClick={() => switchTab('inventory', 'stock')}
  className={`w-full flex items-center gap-4 p-4 rounded-3xl font-bold transition-all duration-300 ${
  activeTab === 'inventory'
- ? 'bg-slate-900 text-white shadow-md translate-x-1'
+ ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20 translate-x-1'
  : 'text-slate-400 hover:bg-white hover:text-slate-900 hover:shadow-md hover:translate-x-1'
  }`}
  >
@@ -59,7 +59,7 @@ const Sidebar = () => {
  onClick={() => switchTab('settings', 'margins')}
  className={`w-full flex items-center gap-4 p-4 rounded-3xl font-bold transition-all duration-300 ${
  activeTab === 'settings'
- ? 'bg-slate-900 text-white shadow-md translate-x-1'
+ ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20 translate-x-1'
  : 'text-slate-400 hover:bg-white hover:text-slate-900 hover:shadow-md hover:translate-x-1'
  }`}
  >
