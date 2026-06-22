@@ -181,14 +181,15 @@ export const useEmployeeData = () => {
         partnerName = partnerData.name || 'Напарник';
         partnerPercentage = Number(partnerData.hookahPercentage) || Number(partnerData.bonus1) || 1500;
         
-        // Правило напарника: половина оклада основного мастера, ЕСЛИ нет жесткого оклада (Тамерлан)
+        let pBaseRaw = Number(partnerData.baseSalary) || 3000;
+        // Правило напарника: половина СВОЕГО оклада, ЕСЛИ нет фиксированного оклада (Тамерлан)
         if (partnerData.strictSalary) {
-          partnerBase = Number(partnerData.baseSalary) || 1500;
+          partnerBase = pBaseRaw;
         } else {
-          partnerBase = creatorBase / 2;
+          partnerBase = pBaseRaw / 2;
         }
       } else {
-        partnerBase = creatorBase / 2; 
+        partnerBase = 1500; 
         partnerPercentage = 1500;
       }
       partnerEarned = partnerBase + (partnerShare * partnerPercentage);

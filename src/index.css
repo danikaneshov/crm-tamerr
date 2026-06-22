@@ -12,8 +12,6 @@
  overscroll-behavior: none;
  -webkit-tap-highlight-color: transparent;
  -webkit-touch-callout: none;
- background-color: #e2e8f0;
- height: 100%;
  }
  
  body {
