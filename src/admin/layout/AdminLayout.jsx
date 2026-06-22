@@ -4,7 +4,7 @@ import MobileNav from './MobileNav';
 
 const AdminLayout = ({ children }) => {
  return (
-  <div className="flex w-full h-full fixed inset-0 no-select overflow-hidden bg-gradient-to-br from-slate-200 to-slate-400">
+  <div className="flex w-full h-full fixed inset-0 no-select overflow-hidden">
     {/* Градиентное затухание для челки удалено по просьбе пользователя */}
     <Sidebar />
     <MobileNav />

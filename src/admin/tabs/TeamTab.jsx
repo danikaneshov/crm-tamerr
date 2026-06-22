@@ -156,7 +156,7 @@ const TeamTab = () => {
         <div className="flex items-center gap-2 mt-2 p-3 bg-slate-50 rounded-xl border border-slate-100">
           <input type="checkbox" id={`strict_${emp.id}`} checked={editForm.strictSalary} onChange={e => setEditForm({...editForm, strictSalary: e.target.checked})} className="w-5 h-5 rounded accent-slate-900 cursor-pointer" />
           <label htmlFor={`strict_${emp.id}`} className="text-xs font-bold text-slate-700 cursor-pointer select-none">
-            Сохранять оклад жестко <br/><span className="text-[10px] text-slate-400 font-medium leading-tight block">Не делить оклад на 2, если выходит напарником</span>
+            Фиксированный оклад <br/><span className="text-[10px] text-slate-400 font-medium leading-tight block">Не зависит от роли. Всегда получает эту сумму, если включено.</span>
           </label>
         </div>
       </div>
@@ -171,7 +171,7 @@ const TeamTab = () => {
       <h3 className="font-bold text-slate-900 text-lg">{emp.name}</h3>
       <p className="font-mono text-slate-500 text-sm mt-1">PIN: {emp.pin}</p>
       <div className="mt-2 space-y-0.5">
-        <p className="text-xs text-slate-500 font-medium">Оклад: <strong className="text-slate-800">{emp.baseSalary || 3000} ₸</strong> {emp.strictSalary && <span className="text-[10px] bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded font-bold ml-1">Жесткий</span>}</p>
+        <p className="text-xs text-slate-500 font-medium">Оклад: <strong className="text-slate-800">{emp.baseSalary || 3000} ₸</strong> {emp.strictSalary && <span className="text-[10px] bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded font-bold ml-1">Фикс.</span>}</p>
         <p className="text-xs text-slate-500 font-medium">Ставка: <strong className="text-slate-800">{emp.hookahPercentage || emp.bonus1 || 1500} ₸</strong></p>
       </div>
       </div>

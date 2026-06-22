@@ -175,18 +175,20 @@ export const useEmployeeData = () => {
       creatorShare = Math.ceil(totalHookahs / 2);
       partnerShare = Math.floor(totalHookahs / 2);
 
-      const partnerSnap = await getDocs(query(collection(db, 'employees'), where('__name__', '==', currentShift.partnerId)));
+    const partnerSnap = await getDocs(query(collection(db, 'employees'), where('__name__', '==', currentShift.partnerId)));
       if (!partnerSnap.empty) {
         const partnerData = partnerSnap.docs[0].data();
         partnerName = partnerData.name || 'Напарник';
-        partnerBase = Number(partnerData.baseSalary) || 3000;
         partnerPercentage = Number(partnerData.hookahPercentage) || Number(partnerData.bonus1) || 1500;
         
-        if (!partnerData.strictSalary) {
-          partnerBase = partnerBase / 2;
+        // Правило напарника: половина оклада основного мастера, ЕСЛИ нет жесткого оклада (Тамерлан)
+        if (partnerData.strictSalary) {
+          partnerBase = Number(partnerData.baseSalary) || 1500;
+        } else {
+          partnerBase = creatorBase / 2;
         }
       } else {
-        partnerBase = 1500; 
+        partnerBase = creatorBase / 2; 
         partnerPercentage = 1500;
       }
       partnerEarned = partnerBase + (partnerShare * partnerPercentage);

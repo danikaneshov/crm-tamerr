@@ -93,7 +93,7 @@ const DashboardTab = () => {
         <p className="font-bold text-xs uppercase tracking-widest mb-1 opacity-80 text-slate-500">Грязная прибыль</p>
         <h4 className="text-2xl font-black">{formatMoney(globalOwnerProfit)} ₸</h4>
         <p className="font-bold text-xs uppercase tracking-widest mb-1 opacity-80 mt-4 text-slate-500">Без вычета ЗП Tamerlan</p>
-        <h4 className="text-xl font-black text-slate-700">{formatMoney(dashboardProfitWithoutTamerlan)} ₸</h4>
+        <h4 className="text-xl font-black text-emerald-500">{formatMoney(dashboardProfitWithoutTamerlan)} ₸</h4>
       </div>
     </div>
   </div>
