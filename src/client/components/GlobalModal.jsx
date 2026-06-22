@@ -19,7 +19,7 @@ const GlobalModal = () => {
  <div className="bg-white backdrop-blur-xl w-full max-w-sm rounded-[40px] p-8 text-center shadow-2xl animate-in zoom-in-95 duration-200">
  
  {modal.type === 'success' && (
- <div className="w-20 h-20 bg-emerald-900/30 text-slate-500 rounded-full flex items-center justify-center mx-auto mb-6">
+ <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
  <CheckCircle2 size={40} />
  </div>
  )}
@@ -57,7 +57,7 @@ const GlobalModal = () => {
  ) : (
  <button 
  onClick={closeModal}
- className="w-full p-4 bg-slate-800 hover:bg-slate-900 text-white rounded-2xl font-bold active:scale-95 transition-all shadow-lg shadow-slate-900/20"
+ className="w-full p-4 bg-slate-800 hover:bg-blue-600 text-white rounded-2xl font-bold active:scale-95 transition-all shadow-lg shadow-blue-600/30"
  >
  Понятно
  </button>

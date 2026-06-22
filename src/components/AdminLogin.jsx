@@ -81,7 +81,7 @@ const AdminLogin = () => {
  <button
  type="submit"
  disabled={isLoading}
- className="w-full bg-slate-900 hover:bg-slate-800 text-white shadow-sm font-semibold py-3 rounded-xl shadow-sm transition-colors mt-4 disabled:bg-blue-300"
+ className="w-full bg-slate-900 hover:bg-blue-600 text-white shadow-sm font-semibold py-3 rounded-xl shadow-sm transition-colors mt-4 disabled:bg-blue-300"
  >
  {isLoading ? 'Вход...' : 'Войти'}
  </button>

@@ -174,7 +174,7 @@ const ShiftDetailsModal = ({ report, onClose, onSave, employees }) => {
             ) : (
               <>
                 <button onClick={() => setIsEditing(false)} className="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl font-bold text-sm">Отмена</button>
-                <button onClick={handleSave} disabled={isSaving} className="flex-1 p-4 bg-slate-800 hover:bg-slate-900 text-white rounded-2xl font-bold shadow-lg shadow-slate-900/20 active:scale-95 transition-all disabled:opacity-50">
+                <button onClick={handleSave} disabled={isSaving} className="flex-1 p-4 bg-slate-800 hover:bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-600/30 active:scale-95 transition-all disabled:opacity-50">
                   {isSaving ? 'Сохранение...' : 'Сохранить изменения'}
                 </button>
               </>

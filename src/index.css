@@ -6,10 +6,7 @@
 
 @layer base {
  html {
- touch-action: manipulation;
  -webkit-text-size-adjust: 100%;
- overflow-x: hidden;
- overscroll-behavior: none;
  -webkit-tap-highlight-color: transparent;
  -webkit-touch-callout: none;
  }
@@ -19,10 +16,7 @@
  background-color: #f8fafc;
  background-attachment: fixed;
  margin: 0;
- touch-action: manipulation;
- overflow-x: hidden;
  -webkit-overflow-scrolling: touch;
- overscroll-behavior-y: none;
  min-height: 100vh;
  min-height: -webkit-fill-available;
  display: flex;

@@ -73,8 +73,8 @@ const TeamTab = () => {
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
       <div className="flex items-center gap-2 bg-slate-200/60 p-1.5 rounded-[20px] w-full max-w-full overflow-x-auto scrollbar-hide">
-        <button onClick={(e) => { setSubTab('salaries'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-2xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'salaries' || !subTab ? 'bg-slate-800 text-white shadow-md shadow-slate-900/20' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-300/50'}`}>Зарплаты</button>
-        <button onClick={(e) => { setSubTab('staff'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-2xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'staff' ? 'bg-slate-800 text-white shadow-md shadow-slate-900/20' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-300/50'}`}>Персонал</button>
+        <button onClick={(e) => { setSubTab('salaries'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-2xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'salaries' || !subTab ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-300/50'}`}>Зарплаты</button>
+        <button onClick={(e) => { setSubTab('staff'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-2xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'staff' ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-300/50'}`}>Персонал</button>
       </div>
 
  {(subTab === 'salaries' || !subTab) && (
@@ -160,7 +160,7 @@ const TeamTab = () => {
           </label>
         </div>
       </div>
-      <button onClick={() => saveEdit(emp.id)} className="w-full py-3 bg-slate-900 text-white rounded-xl font-bold shadow-md hover:bg-slate-800 transition-colors flex justify-center items-center gap-2 mt-4">
+      <button onClick={() => saveEdit(emp.id)} className="w-full py-3 bg-blue-600 text-white rounded-xl font-bold shadow-md hover:bg-blue-700 transition-colors flex justify-center items-center gap-2 mt-4">
         <Save size={18} /> Сохранить изменения
       </button>
     </div>
@@ -178,7 +178,7 @@ const TeamTab = () => {
       <div className="flex flex-col items-end gap-2">
         {emp.isArchived ? 
         <span className="text-xs bg-slate-200 text-slate-500 px-3 py-1 rounded-full font-bold">Архив</span> : 
-        <span className="text-xs bg-emerald-900/30 text-slate-700 px-3 py-1 rounded-full font-bold">Активен</span>
+        <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-bold">Активен</span>
         }
         {!emp.isArchived && (
           <button onClick={() => startEdit(emp)} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
@@ -189,7 +189,7 @@ const TeamTab = () => {
       </div>
       <div className="flex justify-end mt-4 pt-4 border-t border-slate-50">
       {emp.isArchived ? (
-      <button onClick={() => handleToggleArchive(emp.id, true, emp.name)} className="text-xs font-bold text-slate-700 hover:text-emerald-800 px-4 py-2 bg-slate-100 rounded-xl hover:bg-emerald-900/30 transition-colors w-full sm:w-auto">Восстановить</button>
+      <button onClick={() => handleToggleArchive(emp.id, true, emp.name)} className="text-xs font-bold text-slate-700 hover:text-green-800 px-4 py-2 bg-slate-100 rounded-xl hover:bg-green-100 transition-colors w-full sm:w-auto">Восстановить</button>
       ) : (
       <button onClick={() => handleToggleArchive(emp.id, false, emp.name)} className="text-slate-400 hover:text-red-500 transition-colors bg-slate-50 px-4 py-2 rounded-xl hover:bg-red-50 text-sm font-bold w-full sm:w-auto flex justify-center items-center gap-2"><Trash2 size={16}/> В архив</button>
       )}

@@ -41,7 +41,7 @@ const ShiftTab = () => {
  if (currentShift && (currentShift.status === 'locked_closed' || currentShift.status === 'closed')) {
  return (
  <div className="glass p-8 rounded-[40px] text-center animate-in zoom-in-95 duration-500">
- <div className="w-20 h-20 bg-emerald-900/30 text-slate-500 rounded-full flex items-center justify-center mx-auto mb-6">
+ <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
  <CheckCircle2 size={40} />
  </div>
  <h2 className="text-2xl font-black text-slate-900 mb-2">Смена закрыта</h2>
@@ -132,7 +132,7 @@ const ShiftTab = () => {
  <button 
  onClick={() => { if(partnerId) handleAddPartnerMidShift(partnerId); }}
  disabled={!partnerId}
- className="bg-slate-900 text-white px-4 py-2 rounded-xl font-bold disabled:opacity-50 active:scale-95 transition-all"
+ className="bg-blue-600 text-white px-4 py-2 rounded-xl font-bold disabled:opacity-50 active:scale-95 transition-all"
  >
  Добавить
  </button>
@@ -199,7 +199,7 @@ const ShiftTab = () => {
  <button
  onClick={() => handleCloseShift(staffHookahs, photoFile)}
  disabled={isUploading || !photoFile}
- className="w-full mt-6 p-5 bg-slate-900 text-slate-700 rounded-2xl font-bold text-lg shadow-lg shadow-slate-900/20 active:scale-95 transition-all flex justify-center items-center gap-2 disabled:opacity-50 disabled:active:scale-100"
+ className="w-full mt-6 p-5 bg-slate-900 text-slate-700 rounded-2xl font-bold text-lg shadow-lg shadow-blue-600/30 active:scale-95 transition-all flex justify-center items-center gap-2 disabled:opacity-50 disabled:active:scale-100"
  >
  {isUploading ? <><Loader2 className="animate-spin" size={24} /> Анализ ИИ...</> : 'Закрыть смену'}
  </button>

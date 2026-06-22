@@ -19,10 +19,10 @@ const SettingsTab = () => {
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
       <div className="flex items-center gap-2 bg-slate-200/60 p-1.5 rounded-[20px] w-full max-w-full overflow-x-auto scrollbar-hide">
-        <button onClick={(e) => { setSubTab('margins'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-2xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'margins' || !subTab ? 'bg-slate-800 text-white shadow-md shadow-slate-900/20' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-300/50'}`}>Маржинальность</button>
-        <button onClick={(e) => { setSubTab('templates'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-2xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'templates' ? 'bg-slate-800 text-white shadow-md shadow-slate-900/20' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-300/50'}`}>Шаблоны склада</button>
-        <button onClick={(e) => { setSubTab('standards'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-2xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'standards' ? 'bg-slate-800 text-white shadow-md shadow-slate-900/20' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-300/50'}`}>Стандарты склада</button>
-        <button onClick={(e) => { setSubTab('debug'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-2xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'debug' ? 'bg-slate-800 text-white shadow-md shadow-slate-900/20' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-300/50'}`}>Система</button>
+        <button onClick={(e) => { setSubTab('margins'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-2xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'margins' || !subTab ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-300/50'}`}>Маржинальность</button>
+        <button onClick={(e) => { setSubTab('templates'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-2xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'templates' ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-300/50'}`}>Шаблоны склада</button>
+        <button onClick={(e) => { setSubTab('standards'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-2xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'standards' ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-300/50'}`}>Стандарты склада</button>
+        <button onClick={(e) => { setSubTab('debug'); e.target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }} className={`px-5 py-2.5 rounded-2xl font-bold text-sm transition-all whitespace-nowrap ${subTab === 'debug' ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-300/50'}`}>Система</button>
       </div>
 
  {(subTab === 'templates' || !subTab) && (
@@ -37,7 +37,7 @@ const SettingsTab = () => {
  <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Кол-во (г/шт)</label><input type="number" min="1" value={newTemplate.amount} onChange={e => setNewTemplate({...newTemplate, amount: e.target.value})} placeholder="200" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold outline-none focus:ring-2 focus:ring-slate-800" required /></div>
  </div>
  <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Цена закупа (₸)</label><input type="number" min="0" value={newTemplate.price} onChange={e => setNewTemplate({...newTemplate, price: e.target.value})} placeholder="Например: 5000" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold outline-none focus:ring-2 focus:ring-slate-800" /></div>
- <button type="submit" disabled={isSavingInv} className="w-full p-4 bg-slate-800 hover:bg-slate-900 text-white rounded-2xl font-bold shadow-lg shadow-slate-900/20 disabled:opacity-50 transition-all hover:-translate-y-1 active:scale-95">Создать шаблон</button>
+ <button type="submit" disabled={isSavingInv} className="w-full p-4 bg-slate-800 hover:bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-600/30 disabled:opacity-50 transition-all hover:-translate-y-1 active:scale-95">Создать шаблон</button>
  </form>
  </div>
  <div className="bg-white backdrop-blur-xl rounded-[32px] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden max-w-xl">
@@ -94,7 +94,7 @@ const SettingsTab = () => {
  </div>
  </div>
  </div>
- <button onClick={handleSaveStandards} disabled={isSavingInv} className="w-full p-4 bg-slate-800 hover:bg-slate-900 text-white rounded-2xl font-bold shadow-lg shadow-slate-900/20 disabled:opacity-50 transition-all hover:-translate-y-1 active:scale-95">{isSavingInv ? 'Сохранение...' : 'Сохранить стандарты'}</button>
+ <button onClick={handleSaveStandards} disabled={isSavingInv} className="w-full p-4 bg-slate-800 hover:bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-600/30 disabled:opacity-50 transition-all hover:-translate-y-1 active:scale-95">{isSavingInv ? 'Сохранение...' : 'Сохранить стандарты'}</button>
  </div>
  </div>
  </div>
@@ -108,7 +108,7 @@ const SettingsTab = () => {
  <div className="space-y-6">
  <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Прибыль с 1 Кальяна (₸)</label><input type="number" value={ownerProfits.hookah} onChange={e=>setOwnerProfits({...ownerProfits, hookah: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-slate-800 font-black text-lg text-slate-900 outline-none" /></div>
  <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Прибыль с 1 Замены (₸)</label><input type="number" value={ownerProfits.replacement} onChange={e=>setOwnerProfits({...ownerProfits, replacement: Number(e.target.value)})} className="w-full p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-slate-800 font-black text-lg text-slate-900 outline-none" /></div>
- <button onClick={handleSaveSettings} disabled={isSavingSettings} className="w-full p-4 mt-4 bg-slate-800 hover:bg-slate-900 text-white rounded-2xl font-bold shadow-lg shadow-slate-900/20 disabled:opacity-50 transition-all hover:-translate-y-1 active:scale-95">{isSavingSettings ? 'Сохранение...' : 'Сохранить настройки'}</button>
+ <button onClick={handleSaveSettings} disabled={isSavingSettings} className="w-full p-4 mt-4 bg-slate-800 hover:bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-600/30 disabled:opacity-50 transition-all hover:-translate-y-1 active:scale-95">{isSavingSettings ? 'Сохранение...' : 'Сохранить настройки'}</button>
  </div>
  </div>
  </div>
