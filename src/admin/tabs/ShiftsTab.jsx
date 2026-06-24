@@ -104,7 +104,7 @@ const ShiftsTab = () => {
                         const dateStr = `${String(day).padStart(2, '0')}.${targetMonthStr}`;
                         const shiftGroup = groupedShifts.find(g => g.dateStr === dateStr);
                         const dayOfWeek = (startOffset + day - 1) % 7; // 0=Mon ... 6=Sun
-                        const isMonday = dayOfWeek === 0;
+                        const isTuesday = dayOfWeek === 1;
                         const isFriday = dayOfWeek === 4;
                         const isSaturday = dayOfWeek === 5;
                         const holidayKey = `${month}.${String(day).padStart(2, '0')}`;
@@ -120,7 +120,7 @@ const ShiftsTab = () => {
                             className={`relative min-h-[80px] lg:min-h-[110px] p-1.5 lg:p-2.5 flex flex-col transition-all duration-200 ${
                               shiftGroup 
                                 ? 'bg-white cursor-pointer hover:bg-slate-100 group' 
-                                : isMonday && !shiftGroup
+                                : isTuesday && !shiftGroup
                                 ? 'bg-slate-50 border-t border-slate-100'
                                 : isSpecialDay
                                 ? 'bg-slate-50/50'
@@ -137,7 +137,7 @@ const ShiftsTab = () => {
                                   ? 'bg-primary text-slate-700 shadow-md shadow-primary/30 ring-1 ring-slate-900' 
                                   : shiftGroup 
                                   ? 'text-slate-900 group-hover:bg-slate-100 group-hover:text-slate-900'
-                                  : isMonday
+                                  : isTuesday
                                   ? 'text-slate-500'
                                   : isSpecialDay 
                                   ? 'text-slate-500'
@@ -148,8 +148,8 @@ const ShiftsTab = () => {
                               )}
                             </div>
 
-                            {/* Monday watermark */}
-                            {isMonday && !shiftGroup && (
+                            {/* Tuesday watermark */}
+                            {isTuesday && !shiftGroup && (
                               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                                 <span className="text-slate-500 font-black text-[8px] lg:text-[10px] uppercase tracking-widest">Вых</span>
                               </div>
