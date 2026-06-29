@@ -83,6 +83,21 @@ const OperationsPanel = () => {
  </div>
  )}
 
+ <div className="mt-8 bg-white backdrop-blur-xl p-8 rounded-[40px] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+ <h2 className="text-lg font-black mb-6">Ручной ввод прихода</h2>
+ <form onSubmit={handleInvSubmit} className="space-y-4">
+ <div className="grid grid-cols-2 gap-4">
+ <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Тип</label><select value={invForm.item} onChange={e => setInvForm({...invForm, item: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold outline-none focus:ring-2 focus:ring-green-500"><option value="coal">Уголь</option><option value="tobacco">Табак</option><option value="mouthpiece">Мундштуки</option></select></div>
+ <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Кол-во</label><input type="number" min="0" value={invForm.amount} onChange={e => setInvForm({...invForm, amount: e.target.value})} placeholder={invForm.item === 'tobacco' ? 'Грамм' : 'Штук'} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold outline-none focus:ring-2 focus:ring-green-500" required /></div>
+ </div>
+ <div className="grid grid-cols-2 gap-4">
+ <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Общая Стоимость (Опц.)</label><input type="number" min="0" value={invForm.cost} onChange={e => setInvForm({...invForm, cost: e.target.value})} placeholder="В тенге" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold outline-none focus:ring-2 focus:ring-green-500" /></div>
+ <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Название / Заметка</label><input type="text" value={invForm.note} onChange={e => setInvForm({...invForm, note: e.target.value})} placeholder="Например: Дарксайд" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold outline-none focus:ring-2 focus:ring-green-500" /></div>
+ </div>
+ <button type="submit" disabled={isSavingInv} className="w-full p-4 bg-green-500 text-white rounded-2xl font-bold shadow-lg shadow-green-500/30 disabled:opacity-50 hover:-translate-y-1 transition-all">Провести ручной приход</button>
+ </form>
+ </div>
+
  {/* История приходов */}
  <div className="bg-white rounded-[32px] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
  <div className="p-6 border-b border-slate-100"><h2 className="text-lg font-black text-slate-900 ">История приходов</h2></div>
@@ -116,7 +131,6 @@ const OperationsPanel = () => {
  <div className="bg-white backdrop-blur-xl p-8 rounded-[40px] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] max-w-xl">
  <h2 className="text-lg font-black mb-6">Ручное списание</h2>
  <form onSubmit={handleInvSubmit} className="space-y-4">
- <input type="hidden" value="writeoff" />
  <div className="grid grid-cols-2 gap-4">
  <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Тип</label><select value={invForm.item} onChange={e => setInvForm({...invForm, item: e.target.value})} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold outline-none focus:ring-2 focus:ring-slate-800"><option value="coal">Уголь</option><option value="tobacco">Табак</option><option value="mouthpiece">Мундштуки</option></select></div>
  <div><label className="block text-xs font-bold text-slate-400 uppercase mb-2">Кол-во</label><input type="number" min="0" value={invForm.amount} onChange={e => setInvForm({...invForm, amount: e.target.value})} placeholder={invForm.item === 'tobacco' ? 'Грамм' : 'Штук'} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold outline-none focus:ring-2 focus:ring-slate-800" required /></div>

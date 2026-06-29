@@ -68,8 +68,7 @@ const ShiftsTab = () => {
                 '07.06': 'День столицы',
                 '08.30': 'День Конституции',
                 '10.25': 'День Республики',
-                '12.01': 'День Первого Президента',
-                '12.16': 'День Независимости', '12.17': 'День Независимости'
+                '12.16': 'День Независимости'
               };
 
               const monthNames = ['', 'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
@@ -104,7 +103,7 @@ const ShiftsTab = () => {
                         const dateStr = `${String(day).padStart(2, '0')}.${targetMonthStr}`;
                         const shiftGroup = groupedShifts.find(g => g.dateStr === dateStr);
                         const dayOfWeek = (startOffset + day - 1) % 7; // 0=Mon ... 6=Sun
-                        const isTuesday = dayOfWeek === 1;
+                        const isMondayOrTuesday = dayOfWeek === 0 || dayOfWeek === 1;
                         const isFriday = dayOfWeek === 4;
                         const isSaturday = dayOfWeek === 5;
                         const holidayKey = `${month}.${String(day).padStart(2, '0')}`;
@@ -120,7 +119,7 @@ const ShiftsTab = () => {
                             className={`relative min-h-[80px] lg:min-h-[110px] p-1.5 lg:p-2.5 flex flex-col transition-all duration-200 ${
                               shiftGroup 
                                 ? 'bg-white cursor-pointer hover:bg-slate-100 group' 
-                                : isTuesday && !shiftGroup
+                                : isMondayOrTuesday && !shiftGroup
                                 ? 'bg-slate-50 border-t border-slate-100'
                                 : isSpecialDay
                                 ? 'bg-slate-50/50'
@@ -137,19 +136,19 @@ const ShiftsTab = () => {
                                   ? 'bg-primary text-slate-700 shadow-md shadow-primary/30 ring-1 ring-slate-900' 
                                   : shiftGroup 
                                   ? 'text-slate-900 group-hover:bg-slate-100 group-hover:text-slate-900'
-                                  : isTuesday
+                                  : isMondayOrTuesday
                                   ? 'text-slate-500'
                                   : isSpecialDay 
                                   ? 'text-slate-500'
                                   : 'text-slate-400'
                               }`}>{day}</div>
                               {holidayName && (
-                                <span className="hidden lg:inline-block text-[8px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded-full truncate max-w-[60px]" title={holidayName}></span>
+                                <span className="hidden lg:inline-block text-[8px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded-full truncate max-w-[60px]" title={holidayName}>{holidayName}</span>
                               )}
                             </div>
 
-                            {/* Tuesday watermark */}
-                            {isTuesday && !shiftGroup && (
+                            {/* Weekend watermark */}
+                            {isMondayOrTuesday && !shiftGroup && (
                               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                                 <span className="text-slate-500 font-black text-[8px] lg:text-[10px] uppercase tracking-widest">Вых</span>
                               </div>

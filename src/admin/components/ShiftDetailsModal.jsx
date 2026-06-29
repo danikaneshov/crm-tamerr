@@ -28,8 +28,8 @@ const ShiftDetailsModal = ({ report, onClose, onSave, employees }) => {
       } else {
         setForm({
           dateStr: report.dateStr,
-          cocktail1: report.records[0]?.items?.cocktail1 || 0,
-          cocktail2: report.records[0]?.items?.cocktail2 || 0,
+          cocktail1: report.records.reduce((sum, r) => sum + (Number(r.items?.cocktail1) || 0), 0),
+          cocktail2: report.records.reduce((sum, r) => sum + (Number(r.items?.cocktail2) || 0), 0),
           staffHookahs: report.records[0]?.staffHookahs || 0,
           records: report.records.map(r => ({...r}))
         });
@@ -50,18 +50,21 @@ const ShiftDetailsModal = ({ report, onClose, onSave, employees }) => {
       if (recordsCount > 1) {
         if (idx === 0) { // Создатель смены
           share = Math.ceil(totalHookahs / 2);
+          // Оставляем base, который мы уже достали из карточки сотрудника
+          // (он по умолчанию 3000, если карточки нет или там пусто)
         } else { // Напарник
           share = Math.floor(totalHookahs / 2);
-          if (!empData.strictSalary) {
-            base = base / 2;
-          }
+          base = 1500;
+          percentage = 1500;
         }
       } else {
         share = totalHookahs;
       }
       
-      const earned = base + (share * percentage);
-      return { ...r, earned };
+      return {
+        ...r,
+        earned: base + (share * percentage)
+      };
     });
   };
 
@@ -297,13 +300,13 @@ const ShiftDetailsModal = ({ report, onClose, onSave, employees }) => {
                 <div className="flex-1 bg-white p-3 rounded-xl shadow-sm text-center">
                   <span className="block text-[10px] text-slate-400 uppercase font-bold mb-1">Всего кальянов</span>
                   <strong className="text-slate-900 text-xl font-black">
-                    {report.status === 'open' ? '—' : (report.records[0]?.items?.cocktail1 || 0)}
+                    {report.status === 'open' ? '—' : report.records.reduce((sum, r) => sum + (r.items?.cocktail1 || 0), 0)}
                   </strong>
                 </div>
                 <div className="flex-1 bg-white p-3 rounded-xl shadow-sm text-center">
                   <span className="block text-[10px] text-slate-400 uppercase font-bold mb-1">Всего замен</span>
                   <strong className="text-indigo-600 text-xl font-black">
-                    {report.status === 'open' ? '—' : (report.records[0]?.items?.cocktail2 || 0)}
+                    {report.status === 'open' ? '—' : report.records.reduce((sum, r) => sum + (r.items?.cocktail2 || 0), 0)}
                   </strong>
                 </div>
               </div>
@@ -341,16 +344,7 @@ const ShiftDetailsModal = ({ report, onClose, onSave, employees }) => {
                 const totalReplacements = rec.items?.cocktail2 || 0;
                 let shareHookahs = totalHookahs;
                 let shareReplacements = totalReplacements;
-                
-                if (report.records.length > 1) {
-                  if (idx === 0) {
-                    shareHookahs = Math.ceil(totalHookahs / 2);
-                    shareReplacements = Math.ceil(totalReplacements / 2);
-                  } else {
-                    shareHookahs = Math.floor(totalHookahs / 2);
-                    shareReplacements = Math.floor(totalReplacements / 2);
-                  }
-                }
+
 
                 return (
                 <div key={'items'+rec.id} className="bg-slate-50 p-4 rounded-2xl hover:-translate-y-1 transition-all">

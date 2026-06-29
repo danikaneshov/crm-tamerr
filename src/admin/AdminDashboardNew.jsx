@@ -26,14 +26,17 @@ const TabRenderer = () => {
  }
 };
 
+import { collection, getDocs, updateDoc, doc } from 'firebase/firestore';
+import { db } from '../firebase';
+
 const AdminDashboardNew = () => {
- return (
- <AdminProvider>
- <AdminLayout>
- <TabRenderer />
- </AdminLayout>
- </AdminProvider>
- );
+  return (
+    <AdminProvider>
+      <AdminLayout>
+        <TabRenderer />
+      </AdminLayout>
+    </AdminProvider>
+  );
 };
 
 export default AdminDashboardNew;

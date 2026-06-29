@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { collection, addDoc, updateDoc, doc, serverTimestamp, getDocs, query, where, limit } from 'firebase/firestore';
+import { collection, addDoc, updateDoc, doc, getDoc, serverTimestamp, getDocs, query, where, limit } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { useEmployee } from '../context/EmployeeContext';
 import heic2any from 'heic2any';
@@ -88,8 +88,10 @@ export const useEmployeeData = () => {
  }
  };
 
- const handleCloseShift = async (staffHookahs, photoFile) => {
- if (!currentShift || currentShift.status !== 'open') return;
+  const handleCloseShift = async (staffHookahs, photoFile, pendingPartnerId) => {
+    if (!currentShift || currentShift.status !== 'open') return;
+
+    const finalPartnerId = pendingPartnerId || currentShift.partnerId;
 
  if (!photoFile) {
  openModal('error', 'Внимание', 'Фотография чека обязательна для закрытия смены!');
@@ -129,14 +131,15 @@ export const useEmployeeData = () => {
  if (c1 === 0 && c2 === 0) {
  openModal('zeroConfirm', 'ИИ не нашёл кальянов', 'Система распознала 0 кальянов и 0 замен на чеке. Если кальянов не было — продолжите. Иначе перефоткайте чек.', { 
  items: { cocktail1: 0, cocktail2: 0, staffHookahs }, 
- photoUrl 
+ photoUrl,
+ pendingPartnerId
  });
  setIsUploading(false);
  return;
  }
 
  // 4. Если всё найдено - закрываем
- await finalizeCloseShift(c1, c2, staffHookahs, photoUrl);
+ await finalizeCloseShift(c1, c2, staffHookahs, photoUrl, finalPartnerId);
 
  } catch (err) {
  console.error("Ошибка закрытия смены:", err);
@@ -146,10 +149,10 @@ export const useEmployeeData = () => {
  };
 
  // Вызывается из GlobalModal при подтверждении нулевой смены
- const confirmCloseShift = async (items, photoUrl) => {
- setIsUploading(true);
- try {
- await finalizeCloseShift(items.cocktail1, items.cocktail2, items.staffHookahs, photoUrl);
+  const confirmCloseShift = async (items, photoUrl, finalPartnerId) => {
+    setIsUploading(true);
+    try {
+      await finalizeCloseShift(items.cocktail1, items.cocktail2, items.staffHookahs, photoUrl, finalPartnerId);
  } catch (err) {
  console.error(err);
  openModal('error', 'Ошибка', 'Не удалось закрыть нулевую смену.');
@@ -158,74 +161,80 @@ export const useEmployeeData = () => {
  }
  };
 
-  const finalizeCloseShift = async (c1, c2, staffHookahs, photoUrl) => {
+   const finalizeCloseShift = async (c1, c2, staffHookahs, photoUrl, finalPartnerId) => {
+    const totalHookahs = c1 + c2;
+
     let creatorBase = Number(employee.baseSalary) || 3000;
     let creatorPercentage = Number(employee.hookahPercentage) || Number(employee.bonus1) || 1500;
 
-    const totalHookahs = Number(c1) + Number(c2);
     let creatorShare = totalHookahs;
     let partnerShare = 0;
+    
+    let creatorHookahs = c1;
+    let creatorReplacements = c2;
+    let partnerHookahs = 0;
+    let partnerReplacements = 0;
 
     let partnerBase = 0;
     let partnerPercentage = 0;
     let partnerName = 'Напарник';
     let partnerEarned = 0;
 
-    if (currentShift.partnerId) {
+    if (finalPartnerId) {
       creatorShare = Math.ceil(totalHookahs / 2);
       partnerShare = Math.floor(totalHookahs / 2);
 
-    const partnerSnap = await getDocs(query(collection(db, 'employees'), where('__name__', '==', currentShift.partnerId)));
-      if (!partnerSnap.empty) {
-        const partnerData = partnerSnap.docs[0].data();
+      creatorHookahs = Math.ceil(c1 / 2);
+      creatorReplacements = creatorShare - creatorHookahs;
+
+      partnerHookahs = Math.floor(c1 / 2);
+      partnerReplacements = partnerShare - partnerHookahs;
+
+      const partnerDoc = await getDoc(doc(db, 'employees', finalPartnerId));
+      if (partnerDoc.exists()) {
+        const partnerData = partnerDoc.data();
         partnerName = partnerData.name || 'Напарник';
-        partnerPercentage = Number(partnerData.hookahPercentage) || Number(partnerData.bonus1) || 1500;
-        
-        let pBaseRaw = Number(partnerData.baseSalary) || 3000;
-        // Правило напарника: половина СВОЕГО оклада, ЕСЛИ нет фиксированного оклада (Тамерлан)
-        if (partnerData.strictSalary) {
-          partnerBase = pBaseRaw;
-        } else {
-          partnerBase = pBaseRaw / 2;
-        }
-      } else {
-        partnerBase = 1500; 
         partnerPercentage = 1500;
+        partnerBase = 1500;
+      } else {
+        partnerPercentage = 1500;
+        partnerBase = 1500;
       }
       partnerEarned = partnerBase + (partnerShare * partnerPercentage);
     }
 
     const creatorEarned = creatorBase + (creatorShare * creatorPercentage);
-    const itemsData = { cocktail1: c1, cocktail2: c2 };
 
     await updateDoc(doc(db, 'sales', currentShift.id), {
       status: 'closed',
-      items: itemsData,
+      items: { cocktail1: creatorHookahs, cocktail2: creatorReplacements },
       staffHookahs: staffHookahs || 0,
       photoUrl: photoUrl,
       baseSalary: creatorBase,
       hookahPercentage: creatorShare * creatorPercentage,
       earned: creatorEarned,
-      shiftFraction: currentShift.partnerId ? 0.5 : 1,
+      shiftFraction: finalPartnerId ? 0.5 : 1,
+      partnerId: finalPartnerId || '',
       closedAt: serverTimestamp()
     });
 
-    if (currentShift.partnerId) {
+    if (finalPartnerId) {
       await addDoc(collection(db, 'sales'), {
         dateStr: currentShift.dateStr,
-        employeeId: currentShift.partnerId,
+        employeeId: finalPartnerId,
         employeeName: partnerName,
         partnerId: employee.id,
         status: 'closed',
-        items: itemsData,
-        staffHookahs: staffHookahs || 0,
+        items: { cocktail1: partnerHookahs, cocktail2: partnerReplacements },
+        staffHookahs: 0,
         photoUrl: photoUrl,
         baseSalary: partnerBase,
         hookahPercentage: partnerShare * partnerPercentage,
         earned: partnerEarned,
         shiftFraction: 0.5,
         closedAt: serverTimestamp(),
-        createdAt: serverTimestamp()
+        createdAt: serverTimestamp(),
+        isPartnerRecord: true
       });
     }
 

@@ -38,9 +38,9 @@ export const useInventoryData = () => {
  try {
  const now = new Date();
  await addDoc(collection(db, 'inventory_movements'), {
- type: invForm.type, item: invForm.item,
+ type: operationType, item: invForm.item,
  amount: Number(invForm.amount), 
- cost: invForm.type === 'in' ? Number(invForm.cost || 0) : 0,
+ cost: operationType === 'in' ? Number(invForm.cost || 0) : 0,
  note: invForm.note || '',
  dateStr: `${String(now.getDate()).padStart(2,'0')}.${String(now.getMonth()+1).padStart(2,'0')}.${now.getFullYear()}`,
  createdAt: serverTimestamp()

@@ -197,7 +197,7 @@ const ShiftTab = () => {
  </div>
 
  <button
- onClick={() => handleCloseShift(staffHookahs, photoFile)}
+ onClick={() => handleCloseShift(staffHookahs, photoFile, partnerId)}
  disabled={isUploading || !photoFile}
  className="w-full mt-6 p-5 bg-slate-900 text-slate-700 rounded-2xl font-bold text-lg shadow-lg shadow-blue-600/30 active:scale-95 transition-all flex justify-center items-center gap-2 disabled:opacity-50 disabled:active:scale-100"
  >

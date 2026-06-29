@@ -40,8 +40,13 @@ export const useDashboardStats = () => {
  const closedShifts = empShifts.filter(s => s.status === 'closed');
  const hasOpenShift = empShifts.some(s => s.status === 'open');
  
- const hookahs = closedShifts.reduce((sum, s) => sum + (s.items?.cocktail1 || 0), 0);
- const replacements = closedShifts.reduce((sum, s) => sum + (s.items?.cocktail2 || 0), 0);
+  let hookahs = 0;
+  let replacements = 0;
+  
+  closedShifts.forEach(s => {
+    hookahs += Number(s.items?.cocktail1 || 0);
+    replacements += Number(s.items?.cocktail2 || 0);
+  });
 
  const baseEarned = closedShifts.reduce((sum, s) => sum + (s.earned || 0), 0);
  const baseSalaryTotal = closedShifts.reduce((sum, s) => sum + (s.baseSalary || 0), 0);
@@ -94,10 +99,10 @@ export const useDashboardStats = () => {
     return earned - globalRevisionDeductions;
   }, [closedSystemShifts, globalRevisionDeductions]);
 
-  const globalHookahs = useMemo(() => uniqueShiftsGroups.reduce((sum, group) => sum + (group[0]?.items?.cocktail1 || 0), 0), [uniqueShiftsGroups]);
-  const globalReplacements = useMemo(() => uniqueShiftsGroups.reduce((sum, group) => sum + (group[0]?.items?.cocktail2 || 0), 0), [uniqueShiftsGroups]);
+  const globalHookahs = useMemo(() => uniqueShiftsGroups.reduce((sum, group) => sum + group.reduce((gSum, r) => gSum + (r.items?.cocktail1 || 0), 0), 0), [uniqueShiftsGroups]);
+  const globalReplacements = useMemo(() => uniqueShiftsGroups.reduce((sum, group) => sum + group.reduce((gSum, r) => gSum + (r.items?.cocktail2 || 0), 0), 0), [uniqueShiftsGroups]);
   const globalOwnerProfit = (globalHookahs * ownerProfits.hookah) + (globalReplacements * ownerProfits.replacement);
-  const globalStaffHookahs = useMemo(() => uniqueShiftsGroups.reduce((sum, group) => sum + (group[0]?.staffHookahs || 0), 0), [uniqueShiftsGroups]);
+  const globalStaffHookahs = useMemo(() => uniqueShiftsGroups.reduce((sum, group) => sum + group.reduce((gSum, r) => gSum + (r.staffHookahs || 0), 0), 0), [uniqueShiftsGroups]);
   
   const replacementRate = globalHookahs > 0 ? ((globalReplacements / globalHookahs) * 100).toFixed(1) : 0;
 
@@ -140,9 +145,13 @@ export const useDashboardStats = () => {
         if (!map[shortDate]) map[shortDate] = { name: shortDate, revenue: 0, hookahs: 0, replacements: 0, totalSales: 0 };
         const totalEarned = group.reduce((sum, rec) => sum + (rec.earned || 0), 0);
         map[shortDate].revenue += totalEarned;
-        map[shortDate].hookahs += (s.items?.cocktail1 || 0);
-        map[shortDate].replacements += (s.items?.cocktail2 || 0);
-        map[shortDate].totalSales += (s.items?.cocktail1 || 0) + (s.items?.cocktail2 || 0);
+        
+        const totalHookahsForGroup = group.reduce((sum, rec) => sum + (rec.items?.cocktail1 || 0), 0);
+        const totalReplacementsForGroup = group.reduce((sum, rec) => sum + (rec.items?.cocktail2 || 0), 0);
+        
+        map[shortDate].hookahs += totalHookahsForGroup;
+        map[shortDate].replacements += totalReplacementsForGroup;
+        map[shortDate].totalSales += totalHookahsForGroup + totalReplacementsForGroup;
       }
     });
     return Object.values(map).reverse();

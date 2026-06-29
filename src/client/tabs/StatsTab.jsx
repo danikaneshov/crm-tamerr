@@ -34,9 +34,15 @@ const StatsTab = () => {
  empShifts = empShifts.filter(s => s.dateStr && s.dateStr.endsWith(`.${selectedMonth}`));
  }
  const closedShifts = empShifts.filter(s => s.status === 'closed');
- const hookahs = closedShifts.reduce((sum, s) => sum + (s.items?.cocktail1 || 0), 0);
- const replacements = closedShifts.reduce((sum, s) => sum + (s.items?.cocktail2 || 0), 0);
- const totalEarned = closedShifts.reduce((sum, s) => sum + (s.earned || 0), 0);
+  let hookahs = 0;
+  let replacements = 0;
+
+  closedShifts.forEach(s => {
+    hookahs += Number(s.items?.cocktail1 || 0);
+    replacements += Number(s.items?.cocktail2 || 0);
+  });
+
+  const totalEarned = closedShifts.reduce((sum, s) => sum + (s.earned || 0), 0);
  
  const sortedClosedShifts = closedShifts.sort((a, b) => {
  const parseDate = (dStr) => {
@@ -94,7 +100,7 @@ const StatsTab = () => {
  <div key={s.id} className="bg-white p-4 rounded-2xl flex justify-between items-center border border-white ">
  <div>
  <p className="font-bold text-slate-900 ">{s.dateStr}</p>
- <p className="text-xs text-slate-500 mt-1">Кальяны: {s.items?.cocktail1} | Замены: {s.items?.cocktail2}</p>
+ <p className="text-xs text-slate-500 mt-1">Кальяны: {s.items?.cocktail1 || 0} | Замены: {s.items?.cocktail2 || 0}</p>
  </div>
  <div className="text-right">
  <span className="block font-black text-green-600">+{formatMoney(s.earned)} ₸</span>

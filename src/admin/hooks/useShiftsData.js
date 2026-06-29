@@ -96,9 +96,8 @@ export const useShiftsData = () => {
  });
 
  group.totalEarned = group.records.reduce((sum, r) => sum + (r.earned || 0), 0);
- const firstRec = group.records[0] || {};
- group.totalItems = (firstRec.items?.cocktail1 || 0) + (firstRec.items?.cocktail2 || 0);
- group.totalStaffHookahs = firstRec.staffHookahs || 0;
+ group.totalItems = group.records.reduce((sum, r) => sum + (r.items?.cocktail1 || 0) + (r.items?.cocktail2 || 0), 0);
+ group.totalStaffHookahs = group.records.reduce((sum, r) => sum + (r.staffHookahs || 0), 0);
 
  return group;
  }).sort((a, b) => {
@@ -121,10 +120,24 @@ export const useShiftsData = () => {
  }
 
  // Затем обновляем или создаем записи
- for (const rec of updatedRecords) {
+ for (let i = 0; i < updatedRecords.length; i++) {
+ const rec = updatedRecords[i];
+ 
+ let savedC1 = cocktail1;
+ let savedC2 = cocktail2;
+
+ if (updatedRecords.length > 1) {
+   const c1Num = Number(cocktail1) || 0;
+   const c2Num = Number(cocktail2) || 0;
+   const share = i === 0 ? Math.ceil((c1Num + c2Num) / 2) : Math.floor((c1Num + c2Num) / 2);
+   savedC1 = i === 0 ? Math.ceil(c1Num / 2) : Math.floor(c1Num / 2);
+   savedC2 = share - savedC1;
+ }
+
  const dataToSave = {
- items: { cocktail1, cocktail2 },
- staffHookahs,
+ ...rec,
+ items: { cocktail1: savedC1, cocktail2: savedC2 },
+ staffHookahs: i === 0 ? staffHookahs : 0,
  earned: rec.earned,
  partnerId: rec.partnerId || '',
  employeeId: rec.employeeId,
@@ -136,6 +149,8 @@ export const useShiftsData = () => {
  ...dataToSave,
  dateStr: group.dateStr,
  status: 'closed',
+ shiftFraction: updatedRecords.length > 1 ? 0.5 : 1,
+ isPartnerRecord: updatedRecords.length > 1 && rec.employeeName !== updatedRecords[0].employeeName,
  closedAt: serverTimestamp(),
  createdAt: serverTimestamp()
  });
