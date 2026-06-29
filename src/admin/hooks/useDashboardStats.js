@@ -52,6 +52,8 @@ export const useDashboardStats = () => {
  const baseSalaryTotal = closedShifts.reduce((sum, s) => sum + (s.baseSalary || 0), 0);
  const hookahPercentageTotal = closedShifts.reduce((sum, s) => sum + (s.hookahPercentage || 0), 0);
  const shiftsCount = closedShifts.reduce((sum, s) => sum + (s.shiftFraction || 1), 0);
+ const partnerCount = closedShifts.filter(s => s.isPartnerRecord).length;
+ const openerCount = closedShifts.length - partnerCount;
 
  const totalRevisionDeductions = Math.round(revisions
  .filter(r => month === 'all' || r.month === month)
@@ -69,6 +71,8 @@ export const useDashboardStats = () => {
  replacements,
  totalItems: hookahs + replacements,
  shiftsCount,
+ openerCount,
+ partnerCount,
  hasOpenShift,
  ownerNetProfit: (hookahs * ownerProfits.hookah) + (replacements * ownerProfits.replacement)
  };

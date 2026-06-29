@@ -82,7 +82,34 @@ const TeamTab = () => {
  <div className="flex flex-col md:flex-row justify-between items-center gap-4">
  <h1 className="text-2xl font-bold text-slate-900 ">Зарплаты сотрудников</h1>
  <div className="flex items-center gap-2">
- <button onClick={() => { const data = employees.map(emp => { const stats = calculateEmployeeStats(emp.id, selectedMonth); return { 'Сотрудник': emp.name, 'Смен': stats.shiftsCount, 'Кальянов': stats.hookahs, 'Замен': stats.replacements, 'Оклад': stats.baseSalaryTotal, '%': stats.hookahPercentageTotal, 'ЗП': stats.totalEarned }; }); const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Зарплаты"); XLSX.writeFile(wb, `Зарплаты_${selectedMonth}.xlsx`); }} className="px-4 py-2 bg-slate-100 border border-slate-200 text-slate-700 font-bold rounded-xl shadow-sm hover:bg-slate-200 transition-colors">Скачать .xlsx</button>
+ <button onClick={() => { 
+   const data = employees.map(emp => { 
+     const stats = calculateEmployeeStats(emp.id, selectedMonth); 
+     return { 
+       'Сотрудник': emp.name, 
+       'Кол-во смен': stats.shiftsCount, 
+       'Открыл смену (раз)': stats.openerCount,
+       'Был напарником (раз)': stats.partnerCount,
+       'Всего кальянов (шт)': stats.hookahs, 
+       'Всего замен (шт)': stats.replacements, 
+       'Сумма окладов (₸)': stats.baseSalaryTotal, 
+       'Сумма процентов (₸)': stats.hookahPercentageTotal, 
+       'Удержания ревизии (₸)': stats.totalRevisionDeductions,
+       'Итого к выплате ЗП (₸)': stats.totalEarned 
+     }; 
+   }); 
+   const ws = XLSX.utils.json_to_sheet(data); 
+   // Adjust column widths automatically
+   const colWidths = [
+     { wch: 15 }, { wch: 15 }, { wch: 20 }, { wch: 20 }, 
+     { wch: 20 }, { wch: 18 }, { wch: 18 }, { wch: 20 }, 
+     { wch: 20 }, { wch: 22 }
+   ];
+   ws['!cols'] = colWidths;
+   const wb = XLSX.utils.book_new(); 
+   XLSX.utils.book_append_sheet(wb, ws, "Зарплаты"); 
+   XLSX.writeFile(wb, `Зарплаты_${selectedMonth}.xlsx`); 
+ }} className="px-4 py-2 bg-slate-100 border border-slate-200 text-slate-700 font-bold rounded-xl shadow-sm hover:bg-slate-200 transition-colors">Скачать .xlsx</button>
  <div className="flex items-center gap-2 bg-white p-1 rounded-xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-slate-800"><CalendarDays className="text-slate-400 ml-3" size={18}/><select value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} className="py-2 pr-4 bg-transparent font-bold text-slate-700 focus:outline-none cursor-pointer"><option value="all">Все время</option>{availableMonths.map(m => <option key={m} value={m}>{m}</option>)}</select></div>
  </div>
  </div>

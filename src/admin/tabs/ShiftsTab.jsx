@@ -227,8 +227,35 @@ const ShiftsTab = () => {
               </button>
               <button onClick={() => {
                 const filteredShifts = groupedShifts.filter(g => selectedMonth === 'all' || g.dateStr.endsWith(`.${selectedMonth}`));
-                const data = filteredShifts.map(group => ({ 'Дата': group.dateStr, 'Статус': group.status === 'open' ? 'Идет смена' : 'Закрыта', 'Мастера': group.records.map(r => r.employeeName).join(', '), 'Кальяны/Замены (шт)': group.totalItems, 'Общая ЗП за смену (₸)': group.totalEarned }));
-                const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Смены"); XLSX.writeFile(wb, `Смены_${selectedMonth}.xlsx`);
+                const data = [];
+                filteredShifts.forEach(group => {
+                  group.records.forEach((rec, idx) => {
+                    data.push({
+                      'Дата': group.dateStr,
+                      'Статус смены': group.status === 'open' ? 'Идет смена' : 'Закрыта',
+                      'Сотрудник': rec.employeeName,
+                      'Роль': idx === 0 ? 'Открыл смену' : 'Напарник',
+                      'Доля ставки': rec.shiftFraction === 1 ? 'Полная (1)' : 'Половина (0.5)',
+                      'Кальяны (шт)': rec.items?.cocktail1 || 0,
+                      'Замены (шт)': rec.items?.cocktail2 || 0,
+                      'Стафф кальяны (шт)': idx === 0 ? (rec.staffHookahs || 0) : 0,
+                      'Оклад (₸)': rec.baseSalary || 0,
+                      'Процент за кальяны (₸)': rec.hookahPercentage || 0,
+                      'Итого ЗП (₸)': rec.earned || 0
+                    });
+                  });
+                });
+                
+                const ws = XLSX.utils.json_to_sheet(data); 
+                const colWidths = [
+                  { wch: 12 }, { wch: 15 }, { wch: 15 }, { wch: 15 }, 
+                  { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 20 },
+                  { wch: 15 }, { wch: 22 }, { wch: 15 }
+                ];
+                ws['!cols'] = colWidths;
+                const wb = XLSX.utils.book_new(); 
+                XLSX.utils.book_append_sheet(wb, ws, "Детализация Смен"); 
+                XLSX.writeFile(wb, `Детализация_Смен_${selectedMonth}.xlsx`);
               }} className="px-4 py-2 bg-green-500 text-white font-bold rounded-xl shadow-sm hover:bg-green-600 transition-colors">Скачать .xlsx</button>
               <div className="flex items-center gap-2 bg-white p-1 rounded-xl border-none shadow-sm bg-slate-50 focus:ring-2 focus:ring-slate-800">
                 <CalendarDays className="text-slate-400 ml-3" size={18}/>
