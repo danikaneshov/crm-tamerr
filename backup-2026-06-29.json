@@ -1,0 +1,1905 @@
+{
+  "sales": [
+    {
+      "id": "new_1782750826680",
+      "staffHookahs": 0,
+      "employeeName": "Олжас",
+      "employeeId": "goglJ5exm7SpBpB5GeHu",
+      "dateStr": "15.05.2026",
+      "isPartnerRecord": false,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750886,
+        "nanoseconds": 370000000
+      },
+      "earned": 16500,
+      "shiftFraction": 0.5,
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750886,
+        "nanoseconds": 370000000
+      },
+      "isNew": true,
+      "partnerId": "",
+      "status": "closed",
+      "items": {
+        "cocktail1": 7,
+        "cocktail2": 2
+      }
+    },
+    {
+      "id": "3pcwMAG9dHYPkUmhxesq",
+      "employeeId": "lJdyvJYLoZnLJkvlBm2O",
+      "dateStr": "09.06.2026",
+      "employeeName": "Данияр",
+      "staffHookahs": 1,
+      "hookahPercentage": 0,
+      "startTime": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1781014942,
+        "nanoseconds": 912000000
+      },
+      "shiftFraction": 1,
+      "photoUrl": "https://res.cloudinary.com/dl5vgfkvr/image/upload/v1781033180/blob_p4z1lf.jpg",
+      "earned": 3000,
+      "baseSalary": 3000,
+      "totalItems": 0,
+      "status": "closed",
+      "items": {
+        "cocktail2": 0,
+        "cocktail1": 0
+      },
+      "endTime": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1781033187,
+        "nanoseconds": 182000000
+      }
+    },
+    {
+      "id": "5oKnBQl3HV2nm09fkxci",
+      "partnerId": "",
+      "endTime": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1780700418,
+        "nanoseconds": 251000000
+      },
+      "items": {
+        "cocktail2": 1,
+        "cocktail1": 7
+      },
+      "status": "closed",
+      "totalItems": 8,
+      "baseSalary": 1500,
+      "photoUrl": "https://res.cloudinary.com/dl5vgfkvr/image/upload/v1780700411/blob_ajmqe7.jpg",
+      "earned": 13500,
+      "shiftFraction": 0.5,
+      "hookahPercentage": 12000,
+      "staffHookahs": 0,
+      "employeeName": "Данил ",
+      "employeeId": "NGFgMu7g0OEzZdHWFV04",
+      "dateStr": "05.06.2026"
+    },
+    {
+      "id": "6sCiHYLdT7OoytDBmEpO",
+      "dateStr": "19.06.2026",
+      "employeeId": "kLd9GFcvbUw3UwXeDeS2",
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1781926001,
+        "nanoseconds": 253000000
+      },
+      "employeeName": "Tamerlan ",
+      "earned": 7500,
+      "staffHookahs": 0,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1781926001,
+        "nanoseconds": 253000000
+      },
+      "status": "closed",
+      "items": {
+        "cocktail1": 4,
+        "cocktail2": 0
+      },
+      "partnerId": ""
+    },
+    {
+      "id": "89RLdTDsv8hcuth2rC05",
+      "employeeId": "kLd9GFcvbUw3UwXeDeS2",
+      "dateStr": "11.06.2026",
+      "employeeName": "Tamerlan ",
+      "hookahPercentage": 1500,
+      "startTime": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1781197436,
+        "nanoseconds": 691000000
+      },
+      "shiftFraction": 1,
+      "photoUrl": "https://res.cloudinary.com/dl5vgfkvr/image/upload/v1781208530/blob_lzpdz7.jpg",
+      "earned": 3000,
+      "baseSalary": 1500,
+      "totalItems": 1,
+      "items": {
+        "cocktail1": 1,
+        "cocktail2": 0
+      },
+      "status": "closed",
+      "endTime": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1781208538,
+        "nanoseconds": 904000000
+      }
+    },
+    {
+      "id": "new_1782750680261",
+      "status": "closed",
+      "items": {
+        "cocktail2": 1,
+        "cocktail1": 5
+      },
+      "partnerId": "",
+      "isNew": true,
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750695,
+        "nanoseconds": 194000000
+      },
+      "shiftFraction": 0.5,
+      "earned": 10500,
+      "isPartnerRecord": true,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750695,
+        "nanoseconds": 194000000
+      },
+      "dateStr": "09.05.2026",
+      "employeeId": "goglJ5exm7SpBpB5GeHu",
+      "employeeName": "Олжас",
+      "staffHookahs": 0
+    },
+    {
+      "id": "new_1782750328012",
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750345,
+        "nanoseconds": 587000000
+      },
+      "isPartnerRecord": false,
+      "employeeName": "Tamerlan ",
+      "staffHookahs": 0,
+      "dateStr": "01.05.2026",
+      "employeeId": "kLd9GFcvbUw3UwXeDeS2",
+      "status": "closed",
+      "items": {
+        "cocktail2": 1,
+        "cocktail1": 5
+      },
+      "partnerId": "",
+      "shiftFraction": 0.5,
+      "earned": 10500,
+      "isNew": true,
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750345,
+        "nanoseconds": 587000000
+      }
+    },
+    {
+      "id": "new_1782751840655",
+      "items": {
+        "cocktail1": 5,
+        "cocktail2": 1
+      },
+      "status": "closed",
+      "partnerId": "",
+      "isNew": true,
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782751873,
+        "nanoseconds": 392000000
+      },
+      "shiftFraction": 0.5,
+      "earned": 12000,
+      "isPartnerRecord": false,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782751873,
+        "nanoseconds": 392000000
+      },
+      "dateStr": "30.05.2026",
+      "employeeId": "goglJ5exm7SpBpB5GeHu",
+      "employeeName": "Олжас",
+      "staffHookahs": 0
+    },
+    {
+      "id": "new_1782751481801",
+      "employeeName": "Данил ",
+      "staffHookahs": 0,
+      "employeeId": "NGFgMu7g0OEzZdHWFV04",
+      "dateStr": "23.05.2026",
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782751529,
+        "nanoseconds": 854000000
+      },
+      "isPartnerRecord": true,
+      "shiftFraction": 0.5,
+      "earned": 13500,
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782751529,
+        "nanoseconds": 854000000
+      },
+      "isNew": true,
+      "items": {
+        "cocktail1": 6,
+        "cocktail2": 2
+      },
+      "status": "closed",
+      "partnerId": ""
+    },
+    {
+      "id": "CKpQ8x7LthUd5qK8m1JC",
+      "employeeId": "cTyKq6PfigGbY37J5bPM",
+      "dateStr": "27.06.2026",
+      "employeeName": "Нурс",
+      "staffHookahs": 0,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782570959,
+        "nanoseconds": 642000000
+      },
+      "hookahPercentage": 13500,
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782601823,
+        "nanoseconds": 898000000
+      },
+      "shiftFraction": 0.5,
+      "photoUrl": "https://res.cloudinary.com/dl5vgfkvr/image/upload/v1782601813/blob_nfkte5.jpg",
+      "earned": 16500,
+      "baseSalary": 3000,
+      "status": "closed",
+      "items": {
+        "cocktail1": 7,
+        "cocktail2": 1
+      },
+      "partnerId": "kLd9GFcvbUw3UwXeDeS2"
+    },
+    {
+      "id": "DBCVJnCnyOYQ6XeHKxoS",
+      "employeeName": "Tamerlan ",
+      "staffHookahs": 1,
+      "dateStr": "04.06.2026",
+      "employeeId": "kLd9GFcvbUw3UwXeDeS2",
+      "startTime": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1780583201,
+        "nanoseconds": 999000000
+      },
+      "hookahPercentage": 3000,
+      "shiftFraction": 1,
+      "earned": 4500,
+      "photoUrl": "https://res.cloudinary.com/dl5vgfkvr/image/upload/v1780604192/blob_v7lexu.jpg",
+      "status": "closed",
+      "items": {
+        "cocktail1": 2,
+        "cocktail2": 0
+      },
+      "endTime": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1780604198,
+        "nanoseconds": 179000000
+      },
+      "baseSalary": 1500,
+      "totalItems": 2
+    },
+    {
+      "id": "new_1782751443802",
+      "partnerId": "",
+      "items": {
+        "cocktail2": 2,
+        "cocktail1": 6
+      },
+      "status": "closed",
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782751529,
+        "nanoseconds": 608000000
+      },
+      "isNew": true,
+      "earned": 13500,
+      "shiftFraction": 0.5,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782751529,
+        "nanoseconds": 608000000
+      },
+      "isPartnerRecord": false,
+      "employeeId": "kLd9GFcvbUw3UwXeDeS2",
+      "dateStr": "23.05.2026",
+      "staffHookahs": 0,
+      "employeeName": "Tamerlan "
+    },
+    {
+      "id": "new_1782750615011",
+      "isPartnerRecord": false,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750645,
+        "nanoseconds": 100000000
+      },
+      "employeeName": "Олжас",
+      "staffHookahs": 0,
+      "employeeId": "goglJ5exm7SpBpB5GeHu",
+      "dateStr": "08.05.2026",
+      "items": {
+        "cocktail2": 1,
+        "cocktail1": 8
+      },
+      "status": "closed",
+      "partnerId": "",
+      "shiftFraction": 0.5,
+      "earned": 16500,
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750645,
+        "nanoseconds": 100000000
+      },
+      "isNew": true
+    },
+    {
+      "id": "new_1782751024697",
+      "isPartnerRecord": false,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782751040,
+        "nanoseconds": 593000000
+      },
+      "staffHookahs": 0,
+      "employeeName": "Данияр",
+      "employeeId": "lJdyvJYLoZnLJkvlBm2O",
+      "dateStr": "20.05.2026",
+      "partnerId": "",
+      "items": {
+        "cocktail2": 0,
+        "cocktail1": 1
+      },
+      "status": "closed",
+      "earned": 4500,
+      "shiftFraction": 1,
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782751040,
+        "nanoseconds": 593000000
+      },
+      "isNew": true
+    },
+    {
+      "id": "new_1782751875554",
+      "status": "closed",
+      "items": {
+        "cocktail1": 0,
+        "cocktail2": 0
+      },
+      "partnerId": "",
+      "shiftFraction": 1,
+      "earned": 1500,
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782751900,
+        "nanoseconds": 350000000
+      },
+      "isNew": true,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782751900,
+        "nanoseconds": 350000000
+      },
+      "isPartnerRecord": false,
+      "employeeName": "Tamerlan ",
+      "staffHookahs": 0,
+      "employeeId": "kLd9GFcvbUw3UwXeDeS2",
+      "dateStr": "31.05.2026"
+    },
+    {
+      "id": "new_1782751577787",
+      "status": "closed",
+      "items": {
+        "cocktail2": 0,
+        "cocktail1": 2
+      },
+      "partnerId": "",
+      "shiftFraction": 1,
+      "earned": 4500,
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782751750,
+        "nanoseconds": 17000000
+      },
+      "isNew": true,
+      "isPartnerRecord": false,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782751750,
+        "nanoseconds": 17000000
+      },
+      "employeeName": "Tamerlan ",
+      "staffHookahs": 0,
+      "employeeId": "kLd9GFcvbUw3UwXeDeS2",
+      "dateStr": "26.05.2026"
+    },
+    {
+      "id": "new_1782752065687",
+      "items": {
+        "cocktail2": 1,
+        "cocktail1": 6
+      },
+      "status": "closed",
+      "partnerId": "",
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782752075,
+        "nanoseconds": 749000000
+      },
+      "isNew": true,
+      "shiftFraction": 0.5,
+      "earned": 12000,
+      "isPartnerRecord": true,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782752075,
+        "nanoseconds": 749000000
+      },
+      "employeeId": "kLd9GFcvbUw3UwXeDeS2",
+      "dateStr": "22.05.2026",
+      "employeeName": "Tamerlan ",
+      "staffHookahs": 0
+    },
+    {
+      "id": "IRaTlGLzpkSFml0vlSiu",
+      "partnerId": "",
+      "items": {
+        "cocktail2": 0,
+        "cocktail1": 4
+      },
+      "status": "closed",
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1781996010,
+        "nanoseconds": 576000000
+      },
+      "earned": 7500,
+      "staffHookahs": 0,
+      "employeeName": "Данил ",
+      "dateStr": "20.06.2026",
+      "employeeId": "NGFgMu7g0OEzZdHWFV04",
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1781996010,
+        "nanoseconds": 576000000
+      }
+    },
+    {
+      "id": "new_1782750337676",
+      "dateStr": "01.05.2026",
+      "employeeId": "goglJ5exm7SpBpB5GeHu",
+      "staffHookahs": 0,
+      "employeeName": "Олжас",
+      "isPartnerRecord": true,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750345,
+        "nanoseconds": 792000000
+      },
+      "isNew": true,
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750345,
+        "nanoseconds": 792000000
+      },
+      "earned": 10500,
+      "shiftFraction": 0.5,
+      "partnerId": "",
+      "items": {
+        "cocktail2": 2,
+        "cocktail1": 4
+      },
+      "status": "closed"
+    },
+    {
+      "id": "IlvBXoM9zmC7LEFq8YPF",
+      "status": "closed",
+      "items": {
+        "cocktail1": 4,
+        "cocktail2": 0
+      },
+      "partnerId": "",
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1781996010,
+        "nanoseconds": 304000000
+      },
+      "employeeName": "Tamerlan ",
+      "staffHookahs": 1,
+      "earned": 7500,
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1781996010,
+        "nanoseconds": 304000000
+      },
+      "employeeId": "kLd9GFcvbUw3UwXeDeS2",
+      "dateStr": "20.06.2026"
+    },
+    {
+      "id": "JOkM8nJbzWgsoI60rQhp",
+      "employeeId": "kLd9GFcvbUw3UwXeDeS2",
+      "dateStr": "05.06.2026",
+      "staffHookahs": 0,
+      "employeeName": "Tamerlan ",
+      "hookahPercentage": 13500,
+      "startTime": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1780670102,
+        "nanoseconds": 557000000
+      },
+      "photoUrl": "https://res.cloudinary.com/dl5vgfkvr/image/upload/v1780700411/blob_ajmqe7.jpg",
+      "earned": 15000,
+      "shiftFraction": 1,
+      "totalItems": 9,
+      "baseSalary": 1500,
+      "partnerId": "NGFgMu7g0OEzZdHWFV04",
+      "endTime": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1780700418,
+        "nanoseconds": 545000000
+      },
+      "status": "closed",
+      "items": {
+        "cocktail2": 1,
+        "cocktail1": 8
+      }
+    },
+    {
+      "id": "new_1782750348379",
+      "staffHookahs": 0,
+      "employeeName": "Олжас",
+      "dateStr": "02.05.2026",
+      "employeeId": "goglJ5exm7SpBpB5GeHu",
+      "isPartnerRecord": false,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750389,
+        "nanoseconds": 854000000
+      },
+      "earned": 15000,
+      "shiftFraction": 0.5,
+      "isNew": true,
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750389,
+        "nanoseconds": 854000000
+      },
+      "partnerId": "",
+      "items": {
+        "cocktail2": 2,
+        "cocktail1": 6
+      },
+      "status": "closed"
+    },
+    {
+      "id": "new_1782750391126",
+      "earned": 1500,
+      "shiftFraction": 1,
+      "isNew": true,
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750411,
+        "nanoseconds": 226000000
+      },
+      "partnerId": "",
+      "items": {
+        "cocktail2": 0,
+        "cocktail1": 0
+      },
+      "status": "closed",
+      "staffHookahs": 0,
+      "employeeName": "Tamerlan ",
+      "dateStr": "03.05.2026",
+      "employeeId": "kLd9GFcvbUw3UwXeDeS2",
+      "isPartnerRecord": false,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750411,
+        "nanoseconds": 226000000
+      }
+    },
+    {
+      "id": "NeZpdIPv0mOLKR6u2But",
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782515189,
+        "nanoseconds": 917000000
+      },
+      "shiftFraction": 1,
+      "photoUrl": "https://res.cloudinary.com/dl5vgfkvr/image/upload/v1782515184/blob_dvb6yz.jpg",
+      "earned": 10500,
+      "baseSalary": 3000,
+      "items": {
+        "cocktail2": 2,
+        "cocktail1": 4
+      },
+      "status": "closed",
+      "partnerId": "p5tMVuCoaZCxbDiztD3d",
+      "employeeId": "kLd9GFcvbUw3UwXeDeS2",
+      "dateStr": "26.06.2026",
+      "employeeName": "Tamerlan ",
+      "staffHookahs": 0,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782490644,
+        "nanoseconds": 864000000
+      },
+      "hookahPercentage": 18000
+    },
+    {
+      "id": "OAb77Gg0pI0F5TLawxNy",
+      "photoUrl": "https://res.cloudinary.com/dl5vgfkvr/image/upload/v1781391258/blob_fg6qfr.jpg",
+      "earned": 10500,
+      "shiftFraction": 1,
+      "totalItems": 5,
+      "baseSalary": 3000,
+      "endTime": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1781391265,
+        "nanoseconds": 71000000
+      },
+      "partnerId": "kLd9GFcvbUw3UwXeDeS2",
+      "items": {
+        "cocktail1": 5,
+        "cocktail2": 0
+      },
+      "status": "closed",
+      "employeeId": "cTyKq6PfigGbY37J5bPM",
+      "dateStr": "13.06.2026",
+      "staffHookahs": 0,
+      "employeeName": "Нурс",
+      "hookahPercentage": 7500,
+      "startTime": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1781359386,
+        "nanoseconds": 362000000
+      }
+    },
+    {
+      "id": "OWfDtWHqmFY9KSk14zip",
+      "employeeName": "Tamerlan ",
+      "staffHookahs": 1,
+      "dateStr": "06.06.2026",
+      "employeeId": "kLd9GFcvbUw3UwXeDeS2",
+      "startTime": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1780764309,
+        "nanoseconds": 245000000
+      },
+      "hookahPercentage": 7500,
+      "shiftFraction": 1,
+      "earned": 9000,
+      "items": {
+        "cocktail2": 0,
+        "cocktail1": 5
+      },
+      "status": "closed",
+      "partnerId": "NGFgMu7g0OEzZdHWFV04",
+      "baseSalary": 1500,
+      "totalItems": 5
+    },
+    {
+      "id": "PqWg5ooaamAjKZCQCNPj",
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1781926001,
+        "nanoseconds": 74000000
+      },
+      "employeeId": "p5tMVuCoaZCxbDiztD3d",
+      "dateStr": "19.06.2026",
+      "staffHookahs": 0,
+      "earned": 10500,
+      "employeeName": "Радмир",
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1781926001,
+        "nanoseconds": 74000000
+      },
+      "partnerId": "",
+      "items": {
+        "cocktail2": 0,
+        "cocktail1": 5
+      },
+      "status": "closed"
+    },
+    {
+      "id": "QE9tAr7EXVxIYOCZzrkT",
+      "totalItems": 4,
+      "baseSalary": 1500,
+      "items": {
+        "cocktail2": 0,
+        "cocktail1": 4
+      },
+      "status": "closed",
+      "endTime": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1781391264,
+        "nanoseconds": 695000000
+      },
+      "partnerId": "",
+      "shiftFraction": 0.5,
+      "earned": 7500,
+      "photoUrl": "https://res.cloudinary.com/dl5vgfkvr/image/upload/v1781391258/blob_fg6qfr.jpg",
+      "hookahPercentage": 6000,
+      "dateStr": "13.06.2026",
+      "employeeId": "kLd9GFcvbUw3UwXeDeS2",
+      "employeeName": "Tamerlan ",
+      "staffHookahs": 0
+    },
+    {
+      "id": "S5msWjxl33EBx5hRod6t",
+      "startTime": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1781438822,
+        "nanoseconds": 331000000
+      },
+      "hookahPercentage": 1500,
+      "staffHookahs": 2,
+      "employeeName": "Радмир",
+      "employeeId": "p5tMVuCoaZCxbDiztD3d",
+      "dateStr": "14.06.2026",
+      "endTime": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1781467520,
+        "nanoseconds": 155000000
+      },
+      "items": {
+        "cocktail2": 0,
+        "cocktail1": 1
+      },
+      "status": "closed",
+      "totalItems": 1,
+      "baseSalary": 3000,
+      "photoUrl": "https://res.cloudinary.com/dl5vgfkvr/image/upload/v1781467513/blob_bvv0wj.jpg",
+      "earned": 4500,
+      "shiftFraction": 1
+    },
+    {
+      "id": "new_1782750648980",
+      "staffHookahs": 0,
+      "employeeName": "Tamerlan ",
+      "dateStr": "09.05.2026",
+      "employeeId": "kLd9GFcvbUw3UwXeDeS2",
+      "isPartnerRecord": false,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750694,
+        "nanoseconds": 975000000
+      },
+      "earned": 12000,
+      "shiftFraction": 0.5,
+      "isNew": true,
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750694,
+        "nanoseconds": 975000000
+      },
+      "partnerId": "",
+      "items": {
+        "cocktail1": 6,
+        "cocktail2": 1
+      },
+      "status": "closed"
+    },
+    {
+      "id": "TifDsyfoZq1cBPkobkoY",
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782601824,
+        "nanoseconds": 134000000
+      },
+      "shiftFraction": 0.5,
+      "photoUrl": "https://res.cloudinary.com/dl5vgfkvr/image/upload/v1782601813/blob_nfkte5.jpg",
+      "earned": 15000,
+      "baseSalary": 1500,
+      "status": "closed",
+      "items": {
+        "cocktail1": 7,
+        "cocktail2": 2
+      },
+      "partnerId": "cTyKq6PfigGbY37J5bPM",
+      "employeeId": "kLd9GFcvbUw3UwXeDeS2",
+      "dateStr": "27.06.2026",
+      "employeeName": "Tamerlan ",
+      "staffHookahs": 2,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782601824,
+        "nanoseconds": 134000000
+      },
+      "hookahPercentage": 13500
+    },
+    {
+      "id": "Vag8jRkPcIVWFA7lvh5d",
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1781813080,
+        "nanoseconds": 326000000
+      },
+      "shiftFraction": 1,
+      "earned": 3000,
+      "photoUrl": "https://res.cloudinary.com/dl5vgfkvr/image/upload/v1781813069/blob_i4qu8t.jpg",
+      "baseSalary": 3000,
+      "status": "closed",
+      "items": {
+        "cocktail2": 0,
+        "cocktail1": 0
+      },
+      "partnerId": "",
+      "dateStr": "18.06.2026",
+      "employeeId": "p5tMVuCoaZCxbDiztD3d",
+      "employeeName": "Радмир",
+      "staffHookahs": 0,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1781793865,
+        "nanoseconds": 433000000
+      },
+      "hookahPercentage": 0
+    },
+    {
+      "id": "new_1782751046666",
+      "dateStr": "21.05.2026",
+      "employeeId": "cTyKq6PfigGbY37J5bPM",
+      "employeeName": "Нурс",
+      "staffHookahs": 0,
+      "isPartnerRecord": false,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782751056,
+        "nanoseconds": 266000000
+      },
+      "isNew": true,
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782751056,
+        "nanoseconds": 266000000
+      },
+      "shiftFraction": 1,
+      "earned": 3000,
+      "items": {
+        "cocktail2": 0,
+        "cocktail1": 0
+      },
+      "status": "closed",
+      "partnerId": ""
+    },
+    {
+      "id": "new_1782750506012",
+      "shiftFraction": 1,
+      "earned": 6000,
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750523,
+        "nanoseconds": 804000000
+      },
+      "isNew": true,
+      "status": "closed",
+      "items": {
+        "cocktail2": 0,
+        "cocktail1": 3
+      },
+      "partnerId": "",
+      "employeeName": "Tamerlan ",
+      "staffHookahs": 0,
+      "employeeId": "kLd9GFcvbUw3UwXeDeS2",
+      "dateStr": "07.05.2026",
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750523,
+        "nanoseconds": 804000000
+      },
+      "isPartnerRecord": false
+    },
+    {
+      "id": "new_1782750791080",
+      "employeeId": "goglJ5exm7SpBpB5GeHu",
+      "dateStr": "13.05.2026",
+      "employeeName": "Олжас",
+      "staffHookahs": 0,
+      "isPartnerRecord": false,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750802,
+        "nanoseconds": 849000000
+      },
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750802,
+        "nanoseconds": 849000000
+      },
+      "isNew": true,
+      "shiftFraction": 1,
+      "earned": 3000,
+      "items": {
+        "cocktail2": 0,
+        "cocktail1": 0
+      },
+      "status": "closed",
+      "partnerId": ""
+    },
+    {
+      "id": "ZuhucCrpGEsuu5fs95e5",
+      "earned": 13500,
+      "photoUrl": "https://res.cloudinary.com/dl5vgfkvr/image/upload/v1781307816/blob_drylk9.jpg",
+      "shiftFraction": 1,
+      "baseSalary": 1500,
+      "totalItems": 8,
+      "partnerId": "lJdyvJYLoZnLJkvlBm2O",
+      "endTime": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1781307823,
+        "nanoseconds": 65000000
+      },
+      "items": {
+        "cocktail2": 0,
+        "cocktail1": 8
+      },
+      "status": "closed",
+      "dateStr": "12.06.2026",
+      "employeeId": "kLd9GFcvbUw3UwXeDeS2",
+      "staffHookahs": 0,
+      "employeeName": "Tamerlan ",
+      "hookahPercentage": 12000,
+      "startTime": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1781273156,
+        "nanoseconds": 591000000
+      }
+    },
+    {
+      "id": "new_1782750477828",
+      "partnerId": "",
+      "status": "closed",
+      "items": {
+        "cocktail1": 8,
+        "cocktail2": 2
+      },
+      "isNew": true,
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750492,
+        "nanoseconds": 773000000
+      },
+      "earned": 18000,
+      "shiftFraction": 1,
+      "isPartnerRecord": false,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750492,
+        "nanoseconds": 773000000
+      },
+      "dateStr": "06.05.2026",
+      "employeeId": "goglJ5exm7SpBpB5GeHu",
+      "staffHookahs": 0,
+      "employeeName": "Олжас"
+    },
+    {
+      "id": "bxSR3N80irJ2VvBzOh0V",
+      "partnerId": "",
+      "items": {
+        "cocktail2": 1,
+        "cocktail1": 1
+      },
+      "status": "closed",
+      "baseSalary": 3000,
+      "photoUrl": "https://res.cloudinary.com/dl5vgfkvr/image/upload/v1782334649/blob_zw9jhq.jpg",
+      "earned": 4500,
+      "shiftFraction": 1,
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782334656,
+        "nanoseconds": 720000000
+      },
+      "hookahPercentage": 3000,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782334608,
+        "nanoseconds": 290000000
+      },
+      "staffHookahs": 0,
+      "employeeName": "Tamerlan ",
+      "employeeId": "kLd9GFcvbUw3UwXeDeS2",
+      "dateStr": "24.06.2026"
+    },
+    {
+      "id": "c8FxRtPAExKQpe0EY0uk",
+      "employeeName": "Tamerlan ",
+      "dateStr": "02.06.2026",
+      "employeeId": "kLd9GFcvbUw3UwXeDeS2",
+      "startTime": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1780561190,
+        "nanoseconds": 196000000
+      },
+      "hookahPercentage": 0,
+      "earned": 1500,
+      "photoUrl": "no-photo",
+      "shiftFraction": 1,
+      "endTime": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1780561190,
+        "nanoseconds": 196000000
+      },
+      "status": "closed",
+      "items": {
+        "cocktail2": 0,
+        "cocktail1": 0
+      },
+      "totalItems": 0,
+      "baseSalary": 1500
+    },
+    {
+      "id": "new_1782752030502",
+      "employeeName": "Данияр",
+      "staffHookahs": 0,
+      "employeeId": "lJdyvJYLoZnLJkvlBm2O",
+      "dateStr": "22.05.2026",
+      "isPartnerRecord": false,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782752075,
+        "nanoseconds": 460000000
+      },
+      "shiftFraction": 0.5,
+      "earned": 13500,
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782752075,
+        "nanoseconds": 460000000
+      },
+      "isNew": true,
+      "items": {
+        "cocktail1": 7,
+        "cocktail2": 0
+      },
+      "status": "closed",
+      "partnerId": ""
+    },
+    {
+      "id": "new_1782750636645",
+      "dateStr": "08.05.2026",
+      "employeeId": "NGFgMu7g0OEzZdHWFV04",
+      "employeeName": "Данил ",
+      "staffHookahs": 0,
+      "isPartnerRecord": true,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750645,
+        "nanoseconds": 305000000
+      },
+      "isNew": true,
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750645,
+        "nanoseconds": 305000000
+      },
+      "shiftFraction": 0.5,
+      "earned": 13500,
+      "status": "closed",
+      "items": {
+        "cocktail2": 1,
+        "cocktail1": 7
+      },
+      "partnerId": ""
+    },
+    {
+      "id": "fyBgmdDQYNNbVN8NDQIr",
+      "employeeName": "Данил ",
+      "staffHookahs": 1,
+      "dateStr": "06.06.2026",
+      "employeeId": "NGFgMu7g0OEzZdHWFV04",
+      "hookahPercentage": 6000,
+      "shiftFraction": 0.5,
+      "earned": 7500,
+      "photoUrl": "no-photo",
+      "status": "closed",
+      "items": {
+        "cocktail1": 4,
+        "cocktail2": 0
+      },
+      "partnerId": "",
+      "endTime": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1780850502,
+        "nanoseconds": 460000000
+      },
+      "baseSalary": 1500,
+      "totalItems": 4
+    },
+    {
+      "id": "hQ2BueeoU2oqnPvQSK27",
+      "employeeName": "Данияр",
+      "staffHookahs": 0,
+      "dateStr": "12.06.2026",
+      "employeeId": "lJdyvJYLoZnLJkvlBm2O",
+      "hookahPercentage": 12000,
+      "shiftFraction": 0.5,
+      "earned": 13500,
+      "photoUrl": "https://res.cloudinary.com/dl5vgfkvr/image/upload/v1781307816/blob_drylk9.jpg",
+      "status": "closed",
+      "items": {
+        "cocktail2": 1,
+        "cocktail1": 7
+      },
+      "partnerId": "",
+      "endTime": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1781307822,
+        "nanoseconds": 809000000
+      },
+      "totalItems": 8,
+      "baseSalary": 1500
+    },
+    {
+      "id": "new_1782751769103",
+      "employeeId": "lJdyvJYLoZnLJkvlBm2O",
+      "dateStr": "28.05.2026",
+      "employeeName": "Данияр",
+      "staffHookahs": 0,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782751776,
+        "nanoseconds": 956000000
+      },
+      "isPartnerRecord": false,
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782751776,
+        "nanoseconds": 956000000
+      },
+      "isNew": true,
+      "shiftFraction": 1,
+      "earned": 3000,
+      "status": "closed",
+      "items": {
+        "cocktail2": 0,
+        "cocktail1": 0
+      },
+      "partnerId": ""
+    },
+    {
+      "id": "new_1782753801789",
+      "isPartnerRecord": false,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782753830,
+        "nanoseconds": 240000000
+      },
+      "employeeId": "cTyKq6PfigGbY37J5bPM",
+      "dateStr": "28.06.2026",
+      "staffHookahs": 0,
+      "employeeName": "Нурс",
+      "partnerId": "",
+      "items": {
+        "cocktail2": 0,
+        "cocktail1": 2
+      },
+      "status": "closed",
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782753830,
+        "nanoseconds": 240000000
+      },
+      "isNew": true,
+      "earned": 6000,
+      "shiftFraction": 1
+    },
+    {
+      "id": "new_1782750380961",
+      "shiftFraction": 0.5,
+      "earned": 12000,
+      "isNew": true,
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750390,
+        "nanoseconds": 63000000
+      },
+      "status": "closed",
+      "items": {
+        "cocktail1": 6,
+        "cocktail2": 1
+      },
+      "partnerId": "",
+      "employeeName": "Tamerlan ",
+      "staffHookahs": 0,
+      "dateStr": "02.05.2026",
+      "employeeId": "kLd9GFcvbUw3UwXeDeS2",
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750390,
+        "nanoseconds": 63000000
+      },
+      "isPartnerRecord": true
+    },
+    {
+      "id": "new_1782750720729",
+      "employeeId": "kLd9GFcvbUw3UwXeDeS2",
+      "dateStr": "10.05.2026",
+      "employeeName": "Tamerlan ",
+      "staffHookahs": 0,
+      "isPartnerRecord": false,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750763,
+        "nanoseconds": 958000000
+      },
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750763,
+        "nanoseconds": 958000000
+      },
+      "isNew": true,
+      "shiftFraction": 1,
+      "earned": 19500,
+      "items": {
+        "cocktail2": 2,
+        "cocktail1": 10
+      },
+      "status": "closed",
+      "partnerId": ""
+    },
+    {
+      "id": "k91DKDTk47EDESmShDSH",
+      "items": {
+        "cocktail2": 0,
+        "cocktail1": 0
+      },
+      "status": "closed",
+      "partnerId": "",
+      "endTime": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1780862198,
+        "nanoseconds": 597000000
+      },
+      "totalItems": 0,
+      "baseSalary": 3000,
+      "shiftFraction": 1,
+      "earned": 3000,
+      "photoUrl": "https://res.cloudinary.com/dl5vgfkvr/image/upload/v1780862187/blob_rufzco.jpg",
+      "startTime": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1780840928,
+        "nanoseconds": 36000000
+      },
+      "hookahPercentage": 0,
+      "employeeName": "Нурс",
+      "staffHookahs": 0,
+      "dateStr": "07.06.2026",
+      "employeeId": "cTyKq6PfigGbY37J5bPM"
+    },
+    {
+      "id": "new_1782750917900",
+      "status": "closed",
+      "items": {
+        "cocktail1": 0,
+        "cocktail2": 0
+      },
+      "partnerId": "",
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750998,
+        "nanoseconds": 83000000
+      },
+      "isNew": true,
+      "shiftFraction": 1,
+      "earned": 3000,
+      "isPartnerRecord": false,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750998,
+        "nanoseconds": 83000000
+      },
+      "employeeId": "cTyKq6PfigGbY37J5bPM",
+      "dateStr": "17.05.2026",
+      "employeeName": "Нурс",
+      "staffHookahs": 0
+    },
+    {
+      "id": "new_1782750411945",
+      "isNew": true,
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750477,
+        "nanoseconds": 514000000
+      },
+      "shiftFraction": 1,
+      "earned": 3000,
+      "status": "closed",
+      "items": {
+        "cocktail1": 0,
+        "cocktail2": 0
+      },
+      "partnerId": "",
+      "dateStr": "05.05.2026",
+      "employeeId": "lJdyvJYLoZnLJkvlBm2O",
+      "employeeName": "Данияр",
+      "staffHookahs": 0,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750477,
+        "nanoseconds": 514000000
+      },
+      "isPartnerRecord": false
+    },
+    {
+      "id": "new_1782750887313",
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750914,
+        "nanoseconds": 79000000
+      },
+      "isNew": true,
+      "shiftFraction": 0.5,
+      "earned": 18000,
+      "items": {
+        "cocktail2": 2,
+        "cocktail1": 9
+      },
+      "status": "closed",
+      "partnerId": "",
+      "employeeId": "kLd9GFcvbUw3UwXeDeS2",
+      "dateStr": "16.05.2026",
+      "employeeName": "Tamerlan ",
+      "staffHookahs": 0,
+      "isPartnerRecord": false,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750914,
+        "nanoseconds": 79000000
+      }
+    },
+    {
+      "id": "new_1782750903298",
+      "partnerId": "",
+      "status": "closed",
+      "items": {
+        "cocktail2": 2,
+        "cocktail1": 8
+      },
+      "isNew": true,
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750914,
+        "nanoseconds": 281000000
+      },
+      "earned": 16500,
+      "shiftFraction": 0.5,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750914,
+        "nanoseconds": 281000000
+      },
+      "isPartnerRecord": true,
+      "dateStr": "16.05.2026",
+      "employeeId": "goglJ5exm7SpBpB5GeHu",
+      "staffHookahs": 0,
+      "employeeName": "Олжас"
+    },
+    {
+      "id": "new_1782750879246",
+      "dateStr": "15.05.2026",
+      "employeeId": "kLd9GFcvbUw3UwXeDeS2",
+      "employeeName": "Tamerlan ",
+      "staffHookahs": 0,
+      "isPartnerRecord": true,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750886,
+        "nanoseconds": 598000000
+      },
+      "isNew": true,
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750886,
+        "nanoseconds": 598000000
+      },
+      "shiftFraction": 0.5,
+      "earned": 13500,
+      "items": {
+        "cocktail1": 7,
+        "cocktail2": 1
+      },
+      "status": "closed",
+      "partnerId": ""
+    },
+    {
+      "id": "new_1782751827320",
+      "partnerId": "",
+      "status": "closed",
+      "items": {
+        "cocktail2": 1,
+        "cocktail1": 6
+      },
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782751840,
+        "nanoseconds": 275000000
+      },
+      "isNew": true,
+      "earned": 12000,
+      "shiftFraction": 0.5,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782751840,
+        "nanoseconds": 275000000
+      },
+      "isPartnerRecord": true,
+      "employeeId": "kLd9GFcvbUw3UwXeDeS2",
+      "dateStr": "29.05.2026",
+      "staffHookahs": 0,
+      "employeeName": "Tamerlan "
+    },
+    {
+      "id": "pwPqwEVpcoh7wWeZjddB",
+      "baseSalary": 3000,
+      "partnerId": "",
+      "status": "closed",
+      "items": {
+        "cocktail2": 0,
+        "cocktail1": 0
+      },
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1781726730,
+        "nanoseconds": 23000000
+      },
+      "photoUrl": "https://res.cloudinary.com/dl5vgfkvr/image/upload/v1781726723/blob_eza7ep.jpg",
+      "earned": 3000,
+      "shiftFraction": 1,
+      "hookahPercentage": 0,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1781708601,
+        "nanoseconds": 932000000
+      },
+      "employeeId": "cTyKq6PfigGbY37J5bPM",
+      "dateStr": "17.06.2026",
+      "staffHookahs": 0,
+      "employeeName": "Нурс"
+    },
+    {
+      "id": "new_1782751557551",
+      "employeeId": "kLd9GFcvbUw3UwXeDeS2",
+      "dateStr": "24.05.2026",
+      "staffHookahs": 0,
+      "employeeName": "Tamerlan ",
+      "isPartnerRecord": false,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782751576,
+        "nanoseconds": 852000000
+      },
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782751576,
+        "nanoseconds": 852000000
+      },
+      "isNew": true,
+      "earned": 3000,
+      "shiftFraction": 1,
+      "partnerId": "",
+      "items": {
+        "cocktail2": 0,
+        "cocktail1": 1
+      },
+      "status": "closed"
+    },
+    {
+      "id": "new_1782751751019",
+      "staffHookahs": 0,
+      "employeeName": "Олжас",
+      "dateStr": "27.05.2026",
+      "employeeId": "goglJ5exm7SpBpB5GeHu",
+      "isPartnerRecord": false,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782751768,
+        "nanoseconds": 833000000
+      },
+      "earned": 4500,
+      "shiftFraction": 1,
+      "isNew": true,
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782751768,
+        "nanoseconds": 833000000
+      },
+      "partnerId": "",
+      "items": {
+        "cocktail1": 1,
+        "cocktail2": 0
+      },
+      "status": "closed"
+    },
+    {
+      "id": "new_1782751786636",
+      "items": {
+        "cocktail2": 1,
+        "cocktail1": 6
+      },
+      "status": "closed",
+      "partnerId": "",
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782751840,
+        "nanoseconds": 31000000
+      },
+      "isNew": true,
+      "shiftFraction": 0.5,
+      "earned": 13500,
+      "isPartnerRecord": false,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782751840,
+        "nanoseconds": 31000000
+      },
+      "employeeId": "goglJ5exm7SpBpB5GeHu",
+      "dateStr": "29.05.2026",
+      "employeeName": "Олжас",
+      "staffHookahs": 0
+    },
+    {
+      "id": "tegWX9yJXLRE4Qzvjpoi",
+      "dateStr": "25.06.2026",
+      "employeeId": "p5tMVuCoaZCxbDiztD3d",
+      "staffHookahs": 2,
+      "employeeName": "Радмир",
+      "hookahPercentage": 1500,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782395368,
+        "nanoseconds": 75000000
+      },
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782421319,
+        "nanoseconds": 149000000
+      },
+      "earned": 6000,
+      "photoUrl": "https://res.cloudinary.com/dl5vgfkvr/image/upload/v1782421308/blob_dmakgu.jpg",
+      "shiftFraction": 1,
+      "baseSalary": 3000,
+      "partnerId": "",
+      "status": "closed",
+      "items": {
+        "cocktail1": 2,
+        "cocktail2": 0
+      }
+    },
+    {
+      "id": "tsZkhOCKI7sNwOetce4Q",
+      "totalItems": 0,
+      "baseSalary": 1500,
+      "partnerId": "",
+      "endTime": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1781125669,
+        "nanoseconds": 966000000
+      },
+      "status": "closed",
+      "items": {
+        "cocktail1": 0,
+        "cocktail2": 0
+      },
+      "photoUrl": "https://res.cloudinary.com/dl5vgfkvr/image/upload/v1781125660/blob_qmphwu.jpg",
+      "earned": 1500,
+      "shiftFraction": 1,
+      "hookahPercentage": 0,
+      "startTime": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1781105567,
+        "nanoseconds": 532000000
+      },
+      "employeeId": "kLd9GFcvbUw3UwXeDeS2",
+      "dateStr": "10.06.2026",
+      "staffHookahs": 1,
+      "employeeName": "Tamerlan "
+    },
+    {
+      "id": "new_1782750998348",
+      "isPartnerRecord": false,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782751024,
+        "nanoseconds": 135000000
+      },
+      "employeeName": "Tamerlan ",
+      "staffHookahs": 0,
+      "dateStr": "19.05.2026",
+      "employeeId": "kLd9GFcvbUw3UwXeDeS2",
+      "status": "closed",
+      "items": {
+        "cocktail2": 0,
+        "cocktail1": 0
+      },
+      "partnerId": "",
+      "shiftFraction": 1,
+      "earned": 1500,
+      "isNew": true,
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782751024,
+        "nanoseconds": 135000000
+      }
+    },
+    {
+      "id": "new_1782751866503",
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782751873,
+        "nanoseconds": 581000000
+      },
+      "isPartnerRecord": true,
+      "employeeId": "kLd9GFcvbUw3UwXeDeS2",
+      "dateStr": "30.05.2026",
+      "staffHookahs": 0,
+      "employeeName": "Tamerlan ",
+      "partnerId": "",
+      "status": "closed",
+      "items": {
+        "cocktail2": 0,
+        "cocktail1": 5
+      },
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782751873,
+        "nanoseconds": 581000000
+      },
+      "isNew": true,
+      "earned": 9000,
+      "shiftFraction": 0.5
+    },
+    {
+      "id": "new_1782750765930",
+      "shiftFraction": 1,
+      "earned": 1500,
+      "isNew": true,
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750782,
+        "nanoseconds": 473000000
+      },
+      "status": "closed",
+      "items": {
+        "cocktail2": 0,
+        "cocktail1": 0
+      },
+      "partnerId": "",
+      "employeeName": "Tamerlan ",
+      "staffHookahs": 0,
+      "dateStr": "12.05.2026",
+      "employeeId": "kLd9GFcvbUw3UwXeDeS2",
+      "isPartnerRecord": false,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750782,
+        "nanoseconds": 473000000
+      }
+    },
+    {
+      "id": "wcTD3znWsaMp4hw8YIBH",
+      "hookahPercentage": 6000,
+      "startTime": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1780504333,
+        "nanoseconds": 610000000
+      },
+      "dateStr": "03.06.2026",
+      "employeeId": "kLd9GFcvbUw3UwXeDeS2",
+      "employeeName": "Tamerlan ",
+      "staffHookahs": 1,
+      "totalItems": 4,
+      "baseSalary": 1500,
+      "status": "closed",
+      "items": {
+        "cocktail2": 1,
+        "cocktail1": 2
+      },
+      "partnerId": "",
+      "endTime": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1780520953,
+        "nanoseconds": 213000000
+      },
+      "shiftFraction": 1,
+      "earned": 6000,
+      "photoUrl": "https://res.cloudinary.com/dl5vgfkvr/image/upload/v1780520946/blob_si38ou.jpg"
+    },
+    {
+      "id": "new_1782750803948",
+      "isPartnerRecord": false,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750813,
+        "nanoseconds": 136000000
+      },
+      "employeeName": "Нурс",
+      "staffHookahs": 0,
+      "dateStr": "14.05.2026",
+      "employeeId": "cTyKq6PfigGbY37J5bPM",
+      "items": {
+        "cocktail2": 0,
+        "cocktail1": 0
+      },
+      "status": "closed",
+      "partnerId": "",
+      "shiftFraction": 1,
+      "earned": 3000,
+      "isNew": true,
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782750813,
+        "nanoseconds": 136000000
+      }
+    },
+    {
+      "id": "yEPQ5dRh7rkZVIraZ5RS",
+      "earned": 12000,
+      "staffHookahs": 1,
+      "employeeName": "Радмир",
+      "dateStr": "26.06.2026",
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782515213,
+        "nanoseconds": 124000000
+      },
+      "employeeId": "p5tMVuCoaZCxbDiztD3d",
+      "partnerId": "",
+      "status": "closed",
+      "items": {
+        "cocktail1": 4,
+        "cocktail2": 2
+      },
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782515213,
+        "nanoseconds": 124000000
+      }
+    },
+    {
+      "id": "zSb5iiacGUhAUd3p8BNa",
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782054610,
+        "nanoseconds": 20000000
+      },
+      "hookahPercentage": 0,
+      "employeeId": "p5tMVuCoaZCxbDiztD3d",
+      "dateStr": "21.06.2026",
+      "employeeName": "Радмир",
+      "staffHookahs": 0,
+      "baseSalary": 3000,
+      "items": {
+        "cocktail1": 0,
+        "cocktail2": 0
+      },
+      "status": "closed",
+      "partnerId": "",
+      "closedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1782072941,
+        "nanoseconds": 451000000
+      },
+      "shiftFraction": 1,
+      "photoUrl": "https://res.cloudinary.com/dl5vgfkvr/image/upload/v1782072929/blob_onziob.jpg",
+      "earned": 3000
+    }
+  ],
+  "employees": [
+    {
+      "id": "NGFgMu7g0OEzZdHWFV04",
+      "bonus1": 1500,
+      "pin": "1111",
+      "baseSalary": 3000,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1778187810,
+        "nanoseconds": 405000000
+      },
+      "bonus2": 1500,
+      "name": "Данил "
+    },
+    {
+      "id": "cTyKq6PfigGbY37J5bPM",
+      "bonus2": 1500,
+      "name": "Нурс",
+      "pin": "2222",
+      "baseSalary": 3000,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1780862225,
+        "nanoseconds": 943000000
+      },
+      "bonus1": 1500
+    },
+    {
+      "id": "goglJ5exm7SpBpB5GeHu",
+      "bonus2": 1500,
+      "isArchived": false,
+      "name": "Олжас",
+      "bonus1": 1500,
+      "pin": "1717",
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1777642495,
+        "nanoseconds": 735000000
+      },
+      "baseSalary": 3000
+    },
+    {
+      "id": "kLd9GFcvbUw3UwXeDeS2",
+      "pin": "0803",
+      "baseSalary": 1500,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1777642588,
+        "nanoseconds": 103000000
+      },
+      "bonus1": 1500,
+      "hookahPercentage": 1500,
+      "bonus2": 1500,
+      "name": "Tamerlan ",
+      "strictSalary": true
+    },
+    {
+      "id": "lJdyvJYLoZnLJkvlBm2O",
+      "baseSalary": 3000,
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1777649766,
+        "nanoseconds": 157000000
+      },
+      "pin": "7777",
+      "bonus1": 1500,
+      "name": "Данияр",
+      "bonus2": 1500
+    },
+    {
+      "id": "p5tMVuCoaZCxbDiztD3d",
+      "bonus2": 1500,
+      "name": "Радмир",
+      "bonus1": 1500,
+      "pin": "8854",
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1781287110,
+        "nanoseconds": 505000000
+      },
+      "baseSalary": 3000
+    }
+  ],
+  "inventory": [],
+  "settings": [
+    {
+      "id": "inventory_standards",
+      "tobaccoPerBowl": 25,
+      "revCoalPrice": 50,
+      "mouthpiecePerBowl": 5,
+      "coalPerBowl": 5,
+      "revTobaccoPrice": 27.5
+    },
+    {
+      "id": "profits",
+      "hookah": 6500,
+      "replacement": 4500
+    }
+  ],
+  "expenses": []
+}
