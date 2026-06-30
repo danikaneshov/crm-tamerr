@@ -89,11 +89,13 @@ export const useShiftsData = () => {
  }
  });
  return Object.values(groups).map(group => {
- group.records.sort((a, b) => {
- if (a.startTime && !b.startTime) return -1;
- if (!a.startTime && b.startTime) return 1;
- return 0;
- });
+  group.records.sort((a, b) => {
+  if (!a.isPartnerRecord && b.isPartnerRecord) return -1;
+  if (a.isPartnerRecord && !b.isPartnerRecord) return 1;
+  if (a.startTime && !b.startTime) return -1;
+  if (!a.startTime && b.startTime) return 1;
+  return 0;
+  });
 
  group.totalEarned = group.records.reduce((sum, r) => sum + (r.earned || 0), 0);
  group.totalItems = group.records.reduce((sum, r) => sum + (r.items?.cocktail1 || 0) + (r.items?.cocktail2 || 0), 0);
@@ -134,24 +136,24 @@ export const useShiftsData = () => {
    savedC2 = share - savedC1;
  }
 
- const dataToSave = {
- ...rec,
- items: { cocktail1: savedC1, cocktail2: savedC2 },
- staffHookahs: i === 0 ? staffHookahs : 0,
- earned: rec.earned,
- partnerId: rec.partnerId || '',
- employeeId: rec.employeeId,
- employeeName: rec.employeeName
- };
+  const dataToSave = {
+  ...rec,
+  items: { cocktail1: savedC1, cocktail2: savedC2 },
+  staffHookahs: i === 0 ? staffHookahs : 0,
+  earned: rec.earned,
+  partnerId: rec.partnerId || '',
+  employeeId: rec.employeeId,
+  employeeName: rec.employeeName,
+  isPartnerRecord: i > 0,
+  shiftFraction: updatedRecords.length > 1 ? 0.5 : 1
+  };
 
  if (rec.isNew) {
  await addDoc(collection(db, 'sales'), {
- ...dataToSave,
- dateStr: group.dateStr,
- status: 'closed',
- shiftFraction: updatedRecords.length > 1 ? 0.5 : 1,
- isPartnerRecord: updatedRecords.length > 1 && rec.employeeName !== updatedRecords[0].employeeName,
- closedAt: serverTimestamp(),
+  ...dataToSave,
+  dateStr: group.dateStr,
+  status: 'closed',
+  closedAt: serverTimestamp(),
  createdAt: serverTimestamp()
  });
  } else {
